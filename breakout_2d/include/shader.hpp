@@ -17,7 +17,7 @@
 
 #define G_BUFFER_DEPTH_SLOT 20
 
-using UniformValue = std::variant<int, bool, float, glm::vec3, glm::vec4, glm::mat3, glm::mat4>;
+using UniformValue = std::variant<int, bool, float, glm::vec2, glm::vec3, glm::vec4, glm::mat3, glm::mat4>;
 
 class Shader {
 private:
@@ -50,6 +50,7 @@ public:
 	void setVec3(std::string_view name, const glm::vec3 &vec);
 	void setVec3(std::string_view name, const glm::vec3 *vec, int count);
 	void setVec3(std::string_view name, float x, float y, float z);
+	void setVec2(std::string_view name, const glm::vec2 &vec);
 	void setFloat(std::string_view name, float value);
 	void setBool(std::string_view name, bool value);
 	void setInt(std::string_view name, int value);

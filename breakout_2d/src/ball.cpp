@@ -19,10 +19,6 @@ void Ball::move(float dt, float windowWidth, float windowHeight) {
 		m_position.x = windowWidth - m_size.x;
 		m_velocity.x = -m_velocity.x;
 	}
-	if (m_position.y + m_size.y > windowHeight) {
-		m_position.y = windowHeight - m_size.y;
-		m_velocity.y = -m_velocity.y;
-	}
 }
 
 bool Ball::isStuck() {
@@ -47,4 +43,12 @@ void Ball::setDamage(unsigned int damage) {
 
 unsigned int Ball::getDamage() {
 	return m_damage;
+}
+
+glm::vec2 Ball::getBounceVelocity() {
+	return m_bounceVelocity;
+}
+
+void Ball::setBounceVelocity(glm::vec2 velocity) {
+	m_bounceVelocity = velocity;
 }

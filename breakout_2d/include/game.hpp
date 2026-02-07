@@ -15,10 +15,11 @@ class Shader;
 class TextRenderer;
 class Ball;
 class Player;
+class ParticleEmitter;
 //
 
 #define GAME_NAME "BRAKEOUT 2D"
-#define INITIAL_BALL_VELOCITY (glm::vec2(0.25f, 1.0f))
+#define INITIAL_BALL_VELOCITY (glm::vec2(0.0f, 1.0f))
 #define PLAYER_DEFAULT_SIZE (glm::vec2(256.0f, 32.0f))
 #define PLAYER_START_POSITION (glm::vec2(Window::getWidth() / 2 - PLAYER_DEFAULT_SIZE.x / 2, 25.0f))
 
@@ -42,10 +43,12 @@ class Game {
 private:
 	std::shared_ptr<Shader> m_spriteShader = nullptr;
 	std::shared_ptr<Shader> m_textShader = nullptr;
+	std::shared_ptr<Shader> m_particleShader = nullptr;
 	std::unique_ptr<SpriteRenderer> m_spriteRenderer = nullptr;
 	std::unique_ptr<TextRenderer> m_textRenderer = nullptr;
 	std::unique_ptr<Player> m_player = nullptr;
 	std::unique_ptr<Ball> m_ball = nullptr;
+	std::unique_ptr<ParticleEmitter> m_particleEmitterBall = nullptr;
 	std::vector<GameLevel> m_levels = { };
 	unsigned int m_currentLevelNumber = 0;
 	GameLevel m_currentLevel;

@@ -81,6 +81,12 @@
     <ClInclude Include="include\ball.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\particle.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\particle_emitter.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\game.cpp">
@@ -135,6 +141,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\ball.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\particle_emitter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

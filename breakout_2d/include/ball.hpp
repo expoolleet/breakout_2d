@@ -11,6 +11,7 @@ private:
 	bool m_stuck = true;
 	float m_radius = 0.0;
 	unsigned int m_damage = 1;
+	glm::vec2 m_bounceVelocity = glm::vec2(0.3f, 1.0f);
 
 public:
 	Ball(const Texture2D &texture, glm::vec2 position, glm::vec2 size);
@@ -24,4 +25,7 @@ public:
 
 	void setDamage(unsigned int damage);
 	unsigned int getDamage();
+
+	glm::vec2 getBounceVelocity();
+	void setBounceVelocity(glm::vec2 velocity);
 };

@@ -118,6 +118,11 @@ void Shader::setVec3(std::string_view name, float x, float y, float z) {
 	glProgramUniform3f(m_ID, _getUniformLocation(name), x, y, z);
 }
 
+void Shader::setVec2(std::string_view name, const glm::vec2 &vec) {
+	saveValue(name, vec);
+	glProgramUniform2fv(m_ID, _getUniformLocation(name), 1, glm::value_ptr(vec));
+}
+
 void Shader::setVec3(std::string_view name, const float *vec) {	
 	glProgramUniform3fv(m_ID, _getUniformLocation(name), 1, vec);
 }
@@ -156,10 +161,11 @@ void Shader::resetUniforms() {
 			using T = std::decay_t<decltype(arg)>;
 			if constexpr (std::is_same_v<T, int> || std::is_same_v<T, bool>) glProgramUniform1i(m_ID, location, arg);
 			else if constexpr (std::is_same_v<T, float>) glProgramUniform1f(m_ID, location, arg);
-			else if constexpr (std::is_same_v<T, glm::vec3>) glProgramUniform3fv(m_ID, location, 1, glm::value_ptr(arg));
 			else if constexpr (std::is_same_v<T, glm::vec4>) glProgramUniform4fv(m_ID, location, 1, glm::value_ptr(arg));
-			else if constexpr (std::is_same_v<T, glm::mat3>) glProgramUniformMatrix3fv(m_ID, location, 1, GL_FALSE, glm::value_ptr(arg));
+			else if constexpr (std::is_same_v<T, glm::vec3>) glProgramUniform3fv(m_ID, location, 1, glm::value_ptr(arg));
+			else if constexpr (std::is_same_v<T, glm::vec2>) glProgramUniform2fv(m_ID, location, 1, glm::value_ptr(arg));
 			else if constexpr (std::is_same_v<T, glm::mat4>) glProgramUniformMatrix4fv(m_ID, location, 1, GL_FALSE, glm::value_ptr(arg));
+			else if constexpr (std::is_same_v<T, glm::mat3>) glProgramUniformMatrix3fv(m_ID, location, 1, GL_FALSE, glm::value_ptr(arg));
 		}, value);
 	}
 }
@@ -177,7 +183,8 @@ template <typename T> void Shader::saveValue(std::string_view name, T value) {
 template void Shader::saveValue<float>(std::string_view, float);
 template void Shader::saveValue<int>(std::string_view, int);
 template void Shader::saveValue<bool>(std::string_view, bool);
-template void Shader::saveValue<glm::vec3>(std::string_view, glm::vec3);
 template void Shader::saveValue<glm::vec4>(std::string_view, glm::vec4);
-template void Shader::saveValue<glm::mat3>(std::string_view, glm::mat3);
+template void Shader::saveValue<glm::vec3>(std::string_view, glm::vec3);
+template void Shader::saveValue<glm::vec2>(std::string_view, glm::vec2);
 template void Shader::saveValue<glm::mat4>(std::string_view, glm::mat4);
+template void Shader::saveValue<glm::mat3>(std::string_view, glm::mat3);

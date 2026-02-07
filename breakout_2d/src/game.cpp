@@ -5,6 +5,7 @@
 #include "game_level.hpp"
 #include "game_object.hpp"
 #include "glm/glm.hpp"
+#include "particle_emitter.hpp"
 #include "logging.hpp"
 #include "path_manager.hpp"
 #include "player.hpp"
@@ -82,9 +83,11 @@ Game::~Game() {
 }
 
 void Game::init() {
+	glm::mat4 projectionMat = glm::ortho(0.0f, float(Window::getWidth()), 0.0f, float(Window::getHeight()));
+
 	std::string shadersPath = PathManager::getResourcePath("shaders");
 	m_spriteShader = std::make_shared<Shader>(shadersPath + "/vs/sprite.vs", shadersPath + "/fs/sprite.fs");
-	m_spriteShader->setMat4("projection", glm::ortho(0.0f, float(Window::getWidth()), 0.0f, float(Window::getHeight())));
+	m_spriteShader->setMat4("projection", projectionMat);
 	m_spriteShader->setInt("sprite", 0);
 	m_spriteRenderer = std::make_unique<SpriteRenderer>();
 
@@ -105,7 +108,8 @@ void Game::init() {
 	m_levels.push_back(GameLevel(levelsPath + "/1.lvl", Window::getWidth(), Window::getHeight() / 2));
 	m_levels.push_back(GameLevel(levelsPath + "/2.lvl", Window::getWidth(), Window::getHeight() / 2));
 	m_levels.push_back(GameLevel(levelsPath + "/3.lvl", Window::getWidth(), Window::getHeight() / 2));
-	m_currentLevelNumber = 1;
+	m_levels.push_back(GameLevel(levelsPath + "/4.lvl", Window::getWidth(), Window::getHeight()));
+	m_currentLevelNumber = 2;
 	m_currentLevel = m_levels[m_currentLevelNumber - 1];
 	m_currentLevel.load();
 
@@ -117,6 +121,16 @@ void Game::init() {
 	m_ball->setRadius(m_ball->getSize().x / 2);
 	m_ball->setSpeed(800.0f);
 	m_ball->setDamage(1);
+
+	m_particleShader = std::make_shared<Shader>(shadersPath + "/vs/particle.vs", shadersPath + "/fs/particle.fs");
+	m_particleShader->setMat4("projection", projectionMat);
+	m_particleShader->setInt("sprite", 0);
+	m_particleEmitterBall = std::make_unique<ParticleEmitter>(TextureManager::getTexture("ball"), 300);
+	m_particleEmitterBall->setParticleDelay(0.9f);
+	m_particleEmitterBall->setParticleLifeTime(1.0f);
+	m_particleEmitterBall->setParticleAttenuationSpeed(2.5f);
+	m_particleEmitterBall->setParticleScale(15.0f);
+	m_particleEmitterBall->init();
 }
 
 void Game::processInput(float dt) {
@@ -173,9 +187,11 @@ void Game::fixedUpdate(float dt) {
 		m_ball->move(dt, static_cast<float>(Window::getWidth()), static_cast<float>(Window::getHeight()));
 	}
 
-	if (m_ball->getPosition().y <= 0.0f) {
+	if (m_ball->getPosition().y <= 0.0f || m_ball->getPosition().y + m_ball->getSize().y >= Window::getHeight()) {
 		restartCurrentLevel();
 	}
+
+	m_particleEmitterBall->update(dt, *m_ball, 2, glm::vec2(m_ball->getRadius() / 2));
 
 	doCollisions();
 }
@@ -183,6 +199,8 @@ void Game::fixedUpdate(float dt) {
 void Game::render(float alpha) {
 	if (GameState == GameState::GAME_MENU)
 		return;
+
+
 	// objects
 	m_spriteShader->use();
 	m_spriteRenderer->drawSprite(*m_spriteShader, TextureManager::getTexture("background"), glm::vec2(0.0f, 0.0f), glm::vec2(float(Window::getWidth()), float(Window::getHeight())));
@@ -193,6 +211,10 @@ void Game::render(float alpha) {
 	}
 
 	m_spriteRenderer->drawSprite(*m_spriteShader, *m_player->Texture, _lerpPos(*m_player, alpha), m_player->getSize());
+
+	m_particleShader->use();
+	m_particleEmitterBall->emit(*m_particleShader);
+	m_spriteShader->use();
 	m_spriteRenderer->drawSprite(*m_spriteShader, *m_ball->Texture, _lerpPos(*m_ball, alpha), m_ball->getSize());
 	// text
 	m_textShader->use();
@@ -212,7 +234,7 @@ void Game::doCollisions() {
 		float centerBoard = m_player->getPosition().x + m_player->getSize().x / 2;
 		float distance = (m_ball->getPosition().x + m_ball->getRadius()) - centerBoard;
 		float percentage = distance / (m_player->getSize().x / 2.0f);
-		glm::vec2 newVelocity = INITIAL_BALL_VELOCITY * percentage * m_player->getStrength();
+		glm::vec2 newVelocity = m_ball->getBounceVelocity() * percentage * m_player->getStrength();
 		newVelocity.y = std::abs(m_ball->getVelocity().y);
 		m_ball->setVelocity(glm::normalize(newVelocity) * glm::length(m_ball->getVelocity()));
 	}

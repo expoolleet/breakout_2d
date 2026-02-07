@@ -143,6 +143,8 @@
     <ClInclude Include="include\game_level.hpp" />
     <ClInclude Include="include\game_object.hpp" />
     <ClInclude Include="include\logging.hpp" />
+    <ClInclude Include="include\particle.hpp" />
+    <ClInclude Include="include\particle_emitter.hpp" />
     <ClInclude Include="include\path_manager.hpp" />
     <ClInclude Include="include\pch.hpp" />
     <ClInclude Include="include\player.hpp" />
@@ -168,6 +170,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\particle_emitter.cpp" />
     <ClCompile Include="src\path_manager.cpp" />
     <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
