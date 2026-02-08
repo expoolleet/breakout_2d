@@ -14,7 +14,7 @@
 
 bool DEBUG_WIREFRAME = false;
 
-Game game(Window::getWidth(), Window::getHeight());
+Game game(Window::getWidth(), Window::getHeight(), 3);
 
 void key_callback(GLFWwindow *window, int key, int scanCode, int action, int mods) {
 	if (action == GLFW_PRESS) {

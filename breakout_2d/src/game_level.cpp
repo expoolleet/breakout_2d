@@ -16,7 +16,7 @@
 #include <string>
 #include <vector>
 
-GameLevel::GameLevel(std::string levelPath, int width, int height) : m_width(width), m_height(height) {
+GameLevel::GameLevel(std::string levelPath, int width, int height, glm::vec2 offset) : m_width(width), m_height(height), m_offset(offset) {
 	m_bricks.clear();
 	try {
 		std::string line;
@@ -52,30 +52,33 @@ void GameLevel::load() {
 		return;
 	m_isLoaded = true;
 
-	int height = m_tileCodes.size();
-	int width = m_tileCodes[0].size();
+	int gridHeight = m_tileCodes.size();
+	int gridWidth = m_tileCodes[0].size();
 
 	float offset = 3.0f;
-	float unitWidth =  m_width / (static_cast<float>(width));
-	float unitHeight = m_height / height;
-	for (int i = 0; i < height; ++i) {
-		for (int j = 0; j < width; ++j) {
+	float unitWidth =  m_width / (static_cast<float>(gridWidth));
+	float unitHeight = m_height / gridHeight;
+	for (int i = 0; i < gridHeight; ++i) {
+		for (int j = 0; j < gridWidth; ++j) {
 			int code = m_tileCodes[i][j];
 			if (code == 0)
 				continue;
 			
-			glm::vec2 position = glm::vec2(j * unitWidth + offset / 2, Window::getHeight() - (unitHeight + i * unitHeight + offset));
+			//float xOffset = j * unitWidth + offset / 2;
+			float xPos = (Window::getWidth() - m_width) / 2 + j * unitWidth + offset / 2;
+			float yPos = Window::getHeight() - (unitHeight + i * unitHeight + offset);
+			glm::vec2 position = glm::vec2(xPos, yPos) - m_offset;
 			glm::vec2 size = glm::vec2(unitWidth - offset, unitHeight - offset);
 
 			switch (code) {
 				case -1:
-					m_bricks.push_back(Brick(TextureManager::getTexture(UNDESTROYABLE_BRICK), position, size, BrickType::UNDESTROYABLE)); break;
+					m_bricks.push_back(Brick(TextureManager::getTexture(UNDESTROYABLE_BRICK), position, size, BrickType::BRICK_UNDESTROYABLE)); break;
 				case 1:
-					m_bricks.push_back(Brick(TextureManager::getTexture(STANDARD_BRICK), position, size, BrickType::STANDARD)); break;
+					m_bricks.push_back(Brick(TextureManager::getTexture(STANDARD_BRICK), position, size, BrickType::BRICK_STANDARD)); break;
 				case 2:
-					m_bricks.push_back(Brick(TextureManager::getTexture(STANDARD_BRICK), position, size, BrickType::HARD)); break;
+					m_bricks.push_back(Brick(TextureManager::getTexture(STANDARD_BRICK), position, size, BrickType::BRICK_HARD)); break;
 				case 3:
-					m_bricks.push_back(Brick(TextureManager::getTexture(STANDARD_BRICK), position, size, BrickType::EXTREMELY_TOUGH)); break;
+					m_bricks.push_back(Brick(TextureManager::getTexture(STANDARD_BRICK), position, size, BrickType::BRICK_EXTREMELY_TOUGH)); break;
 			}
 			
 		}

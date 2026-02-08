@@ -139,6 +139,10 @@
     <ClInclude Include="include\brick.hpp" />
     <ClInclude Include="include\brick_data.hpp" />
     <ClInclude Include="include\brick_type.hpp" />
+    <ClInclude Include="include\collision_detection.hpp" />
+    <ClInclude Include="include\collision_type.hpp" />
+    <ClInclude Include="include\event_dispatcher.hpp" />
+    <ClInclude Include="include\event_type.hpp" />
     <ClInclude Include="include\game.hpp" />
     <ClInclude Include="include\game_level.hpp" />
     <ClInclude Include="include\game_object.hpp" />
@@ -163,6 +167,7 @@
   <ItemGroup>
     <ClCompile Include="src\ball.cpp" />
     <ClCompile Include="src\brick.cpp" />
+    <ClCompile Include="src\event_dispatcher.cpp" />
     <ClCompile Include="src\game.cpp" />
     <ClCompile Include="src\game_level.cpp" />
     <ClCompile Include="src\game_object.cpp" />

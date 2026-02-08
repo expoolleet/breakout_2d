@@ -1,12 +1,20 @@
 #include "pch.hpp"
 
 #include "ball.hpp"
+#include "collision_detection.hpp"
+#include "collision_type.hpp"
+#include "event_dispatcher.hpp"
+#include "event_type.hpp"
 #include "game_object.hpp"
+#include "player.hpp"
 #include "texture_2d.hpp"
+#include "window.hpp"
 
 #include <glm/glm.hpp>
+#include <algorithm>
+#include <tuple>
 
-Ball::Ball(const Texture2D &texture, glm::vec2 position, glm::vec2 size) : GameObject(texture, position, size) { }
+Ball::Ball(const Texture2D &texture, glm::vec2 position, glm::vec2 size, const Player &player) : GameObject(texture, position, size), m_player(&player) { }
 
 void Ball::move(float dt, float windowWidth, float windowHeight) {
 	m_previousPosition = m_position;
@@ -19,6 +27,45 @@ void Ball::move(float dt, float windowWidth, float windowHeight) {
 		m_position.x = windowWidth - m_size.x;
 		m_velocity.x = -m_velocity.x;
 	}
+	if (m_position.y + m_size.y >= windowHeight) {
+		m_position.y = windowHeight - m_size.y;
+		m_velocity.y = -m_velocity.y;
+	}
+}
+
+void Ball::update(float dt) {
+
+}
+
+void Ball::fixedUpdate(float dt) {
+	if (isStuck()) {
+		glm::vec2 ballPosition = m_player->getPosition() + glm::vec2(m_player->getSize().x / 2, m_size.y);
+		setPosition(ballPosition);
+	}
+	else {
+		move(dt, static_cast<float>(Window::getWidth()), static_cast<float>(Window::getHeight()));
+	}
+
+	if (m_position.y <= 0.0f) {
+		EventDispatcher::Get().emit(BallFliedOff { });
+	}
+}
+
+Collision Ball::checkCollision(GameObject &gameObject) {
+	if (isStuck())
+		return CollisionDetection::NoneCollision;
+	if (Player *player = dynamic_cast<Player *>(&gameObject)) {
+		Collision playerCollision = CollisionDetection::checkCollision(*this, *player);
+		if (std::get<0>(playerCollision)) {
+			float centerBoard = m_player->getPosition().x + m_player->getSize().x / 2;
+			float distance = (getPosition().x + getRadius()) - centerBoard;
+			float percentage = distance / (m_player->getSize().x / 2.0f);
+			glm::vec2 newVelocity = getBounceVelocity() * percentage * player->getStrength();
+			newVelocity.y = std::abs(getVelocity().y);
+			setVelocity(glm::normalize(newVelocity) * glm::length(getVelocity()));
+		}
+	}
+	return CollisionDetection::NoneCollision;
 }
 
 bool Ball::isStuck() {

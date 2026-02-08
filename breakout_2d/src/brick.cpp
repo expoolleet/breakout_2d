@@ -1,8 +1,11 @@
 #include "pch.hpp"
 
+#include "ball.hpp"
 #include "brick.hpp"
-#include "brick_type.hpp"
 #include "brick_data.hpp"
+#include "brick_type.hpp"
+#include "collision_type.hpp"
+#include "collision_detection.hpp"
 #include "game_object.hpp"
 
 #include <algorithm>
@@ -14,6 +17,23 @@ Brick::Brick(const Texture2D &texture, glm::vec2 position, glm::vec2 size, Brick
 	m_hardnessPoints = data.maxHardnessPoints;
 	m_maxHardnessPoints = data.maxHardnessPoints;
 	Color = data.color;
+}
+
+void Brick::update(float dt) { }
+
+void Brick::fixedUpdate(float dt) { }
+
+Collision Brick::checkCollision(GameObject &gameObject) {
+	if (Ball *ball = dynamic_cast<Ball *>(&gameObject)) {
+		Collision collision = CollisionDetection::checkCollision(*ball, *this);
+		if (std::get<0>(collision)) {
+			if (isDestroyable()) {
+				doDamage(ball->getDamage());
+			}
+			return collision;
+		}
+	}
+	return CollisionDetection::NoneCollision;
 }
 
 int Brick::getCurrentHardnessPoints() const {

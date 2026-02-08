@@ -2,6 +2,8 @@
 
 #include <glm/glm.hpp>
 
+#include "collision_type.hpp"
+
 class Texture2D; // fwd
 
 class GameObject {
@@ -21,6 +23,11 @@ public:
 	GameObject(const Texture2D &texture, glm::vec2 position, glm::vec2 size);
 	GameObject(const Texture2D &texture);
 	virtual ~GameObject() = default;
+
+	virtual void update(float dt) = 0;
+	virtual void fixedUpdate(float dt) = 0;
+	virtual Collision checkCollision(GameObject &gameObject);
+
 	virtual bool isDestroyable() const;
 	virtual void setDestructibility(bool flag);
 	virtual void destroy();

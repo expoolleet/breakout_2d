@@ -1,5 +1,7 @@
 #include "pch.hpp"
 
+#include "collision_type.hpp"
+#include "collision_detection.hpp"
 #include "game_object.hpp"
 
 #include <cassert>
@@ -11,6 +13,10 @@ GameObject::GameObject(const Texture2D &texture, glm::vec2 position, glm::vec2 s
 
 GameObject::GameObject(const Texture2D &texture) : Texture(&texture) {
 	assert(Texture != nullptr && "Texture address is null");
+}
+
+Collision GameObject::checkCollision(GameObject &gameObject) { 
+	return CollisionDetection::NoneCollision; 
 }
 
 bool GameObject::isDestroyable() const {
