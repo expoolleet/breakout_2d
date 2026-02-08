@@ -22,14 +22,8 @@ private:
 	float m_particleLifeTime = 0.0f;
 	float m_particleDelay = 0.9f;
 	float m_particleScale = 10.0f;
-	inline static std::mt19937 m_randomEngine;
 
 	int _findFirstUnusedParticle();
-	inline static float _rangeFloat(float min, float max) {
-		std::uniform_real_distribution<float> distribution(min, max);
-		return distribution(m_randomEngine);
-	}
-
 
 public:
 	ParticleEmitter(const Texture2D &texture, int limit);
@@ -50,4 +44,7 @@ public:
 
 	void setParticleScale(float scale);
 	float getParticleScale();
+
+	void setParticleLimit(int limit);
+	int getParticleLimit();
 };

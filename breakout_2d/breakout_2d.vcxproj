@@ -143,6 +143,7 @@
     <ClInclude Include="include\collision_type.hpp" />
     <ClInclude Include="include\event_dispatcher.hpp" />
     <ClInclude Include="include\event_type.hpp" />
+    <ClInclude Include="include\fast_random.hpp" />
     <ClInclude Include="include\game.hpp" />
     <ClInclude Include="include\game_level.hpp" />
     <ClInclude Include="include\game_object.hpp" />

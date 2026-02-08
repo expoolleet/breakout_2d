@@ -2,7 +2,11 @@
 
 #include <glm/glm.hpp>
 
-struct BallFliedOff { };
+class Ball; // fwd
+
+struct BallFliedOff {
+	Ball &ball;
+};
 
 struct PlayerMoved { 
 	glm::vec2 position;

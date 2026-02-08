@@ -25,7 +25,7 @@ void Brick::fixedUpdate(float dt) { }
 
 Collision Brick::checkCollision(GameObject &gameObject) {
 	if (Ball *ball = dynamic_cast<Ball *>(&gameObject)) {
-		Collision collision = CollisionDetection::checkCollision(*ball, *this);
+		Collision collision = _cd::checkCollision(*ball, *this);
 		if (std::get<0>(collision)) {
 			if (isDestroyable()) {
 				doDamage(ball->getDamage());
@@ -33,7 +33,7 @@ Collision Brick::checkCollision(GameObject &gameObject) {
 			return collision;
 		}
 	}
-	return CollisionDetection::NoneCollision;
+	return _cd::NoneCollision;
 }
 
 int Brick::getCurrentHardnessPoints() const {
@@ -56,8 +56,8 @@ void Brick::doHeal(unsigned int heal) {
 }
 
 void Brick::reset() {
+	GameObject::reset();
 	m_hardnessPoints = m_maxHardnessPoints;
-	IsHidden = false;
 }
 
 BrickType Brick::getType() const {

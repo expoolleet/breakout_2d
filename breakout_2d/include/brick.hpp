@@ -25,5 +25,5 @@ public:
 	int getMaxHardnessPoints() const;
 	void doDamage(unsigned int damage);
 	void doHeal(unsigned int heal);
-	void reset();
+	void reset() override;
 };

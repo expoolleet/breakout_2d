@@ -9,6 +9,7 @@ class Texture2D; // fwd
 class GameObject {
 protected:
 	bool m_isDestroyable = false;
+	bool m_isDead = false;
 	glm::vec2 m_position = glm::vec3(0.0f);
 	glm::vec2 m_previousPosition = glm::vec3(0.0f);
 	glm::vec2 m_size = glm::vec3(0.0f);
@@ -16,8 +17,8 @@ protected:
 	glm::vec2 m_acceleration = glm::vec2(0.0f);
 	float m_accelerationAttenuation = 0.1f;
 	float m_speed = 0.0f;
+	bool m_isHidden = false;
 public:
-	bool IsHidden = false;
 	const Texture2D *Texture = nullptr;
 
 	GameObject(const Texture2D &texture, glm::vec2 position, glm::vec2 size);
@@ -29,8 +30,13 @@ public:
 	virtual Collision checkCollision(GameObject &gameObject);
 
 	virtual bool isDestroyable() const;
+	virtual bool isDead() const;
 	virtual void setDestructibility(bool flag);
 	virtual void destroy();
+	virtual void reset();
+
+	virtual bool IsHidden() const;
+	virtual void Hide(bool state);
 
 	virtual glm::vec2 getPosition() const;
 	virtual glm::vec2 getPreviousPosition();

@@ -4,6 +4,7 @@
 #include "collision_type.hpp"
 #include "event_dispatcher.hpp"
 #include "event_type.hpp"
+#include "fast_random.hpp"
 #include "game.hpp"
 #include "game_level.hpp"
 #include "game_object.hpp"
@@ -17,10 +18,12 @@
 #include "texture_manager.hpp"
 #include "window.hpp"
 
-#include <glm/glm.hpp>
+#include <algorithm>
 #include <format>
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
 #include <memory>
+#include <random>
 #include <string>
 #include <tuple>
 
@@ -29,12 +32,12 @@ glm::vec2 Game::_lerpPos(GameObject &gameObject, float alpha) {
 	return glm::mix(gameObject.getPreviousPosition(), gameObject.getPosition(), alpha);
 }
 
-void Game::_calcBallNewPositionAndVelocity(CollisionDirection dir, glm::vec2 diffVector) {
-	glm::vec2 ballVelocity = m_ball->getVelocity();
-	glm::vec2 ballPosition = m_ball->getPosition();
+void Game::_calcBallNewPositionAndVelocity(Ball &ball, CollisionDirection dir, glm::vec2 diffVector) {
+	glm::vec2 ballVelocity = ball.getVelocity();
+	glm::vec2 ballPosition = ball.getPosition();
 	if (dir == COLLISION_DIRECTION_LEFT || dir == COLLISION_DIRECTION_RIGHT) {
 		ballVelocity.x = -ballVelocity.x;
-		float shift = m_ball->getRadius() - std::abs(diffVector.x);
+		float shift = ball.getRadius() - std::abs(diffVector.x);
 		if (dir == COLLISION_DIRECTION_LEFT) {
 			ballPosition.x += shift;
 		}
@@ -44,7 +47,7 @@ void Game::_calcBallNewPositionAndVelocity(CollisionDirection dir, glm::vec2 dif
 	}
 	else {
 		ballVelocity.y = -ballVelocity.y;
-		float shift = m_ball->getRadius() - std::abs(diffVector.y);
+		float shift = ball.getRadius() - std::abs(diffVector.y);
 		if (dir == COLLISION_DIRECTION_UP) {
 			ballPosition.y -= shift;
 		}
@@ -52,8 +55,8 @@ void Game::_calcBallNewPositionAndVelocity(CollisionDirection dir, glm::vec2 dif
 			ballPosition.y += shift;
 		}
 	}
-	m_ball->setVelocity(ballVelocity);
-	m_ball->setPosition(ballPosition);
+	ball.setVelocity(ballVelocity);
+	ball.setPosition(ballPosition);
 }
 
 Game::Game(unsigned int width, unsigned int height, unsigned int attempts) : Width(width), Height(height), m_attempts(attempts) {
@@ -99,11 +102,13 @@ void Game::init() {
 	m_player = std::make_unique<Player>(TextureManager::getTexture("player"), PLAYER_START_POSITION, PLAYER_DEFAULT_SIZE);
 	m_player->setSpeed(500.0f);
 
-	m_ball = std::make_unique<Ball>(TextureManager::getTexture("ball"), glm::vec2(0.0f), glm::vec2(32.0f), *m_player);
-	m_ball->setVelocity(INITIAL_BALL_VELOCITY);
-	m_ball->setRadius(m_ball->getSize().x / 2);
-	m_ball->setSpeed(800.0f);
-	m_ball->setDamage(1);
+
+	auto ball = std::make_unique<Ball>(TextureManager::getTexture("ball"), glm::vec2(0.0f), glm::vec2(32.0f), *m_player);
+	ball->setVelocity(INITIAL_BALL_VELOCITY);
+	ball->setRadius(ball->getSize().x / 2);
+	ball->setSpeed(800.0f);
+	ball->setDamage(1);
+	m_balls.push_back(std::move(ball));
 
 	m_particleShader = std::make_shared<Shader>(shadersPath + "/vs/particle.vs", shadersPath + "/fs/particle.fs");
 	m_particleShader->setMat4("projection", projectionMat);
@@ -116,11 +121,10 @@ void Game::init() {
 	m_particleEmitterBall->init();
 
 	EventDispatcher::Get().subscribe<BallFliedOff>([this](const BallFliedOff& e) {
-		if (++m_currentAttempt >= m_attempts) {
+		if (m_balls.size() == 1 && ++m_currentAttempt >= m_attempts)
 			this->restartCurrentLevel();
-		}
 		else {
-			resetBall();
+			e.ball.destroy();
 		}
 	});
 }
@@ -147,7 +151,8 @@ void Game::processInput(float dt) {
 	m_player->setVelocity(velocity);
 
 	if (Keys[GLFW_KEY_SPACE]) {
-		m_ball->setStuck(false);
+		for (auto &ball: m_balls)
+			ball->setStuck(false);
 	}
 }
 
@@ -159,21 +164,31 @@ void Game::fixedUpdate(float dt) {
 	if (GameState != GameState::GAME_ACTIVE)
 		return;
 	m_player->fixedUpdate(dt);
-	m_ball->fixedUpdate(dt);
-	m_particleEmitterBall->update(dt, *m_ball, 2, glm::vec2(m_ball->getRadius() / 2));
+	int particlesPerFrame = 2;
+	for (auto &ball : m_balls) {
+		ball->fixedUpdate(dt);
+		m_particleEmitterBall->update(dt, *ball, particlesPerFrame, glm::vec2(ball->getRadius() / 2));
+	}
+
 	doCollisions();
+
+	if (m_balls.size() == 1 && m_balls[0]->isDead()) {
+		resetBalls();
+	}
+	else {
+		cleanDestroyedBalls();
+	}
 }
 
 void Game::render(float alpha) {
 	if (GameState == GameState::GAME_MENU)
 		return;
 
-
 	// objects
 	m_spriteShader->use();
 	m_spriteRenderer->drawSprite(*m_spriteShader, TextureManager::getTexture("background"), glm::vec2(0.0f, 0.0f), glm::vec2(float(Window::getWidth()), float(Window::getHeight())));
 	for (const auto &brick : m_currentLevel.getBricks()) {
-		if (!brick.IsHidden) {
+		if (!brick.IsHidden()) {
 			m_spriteRenderer->drawSprite(*m_spriteShader, *brick.Texture, brick.getPosition(), brick.getSize(), 0.0f, brick.Color);
 		}
 	}
@@ -183,7 +198,9 @@ void Game::render(float alpha) {
 	m_particleShader->use();
 	m_particleEmitterBall->emit(*m_particleShader);
 	m_spriteShader->use();
-	m_spriteRenderer->drawSprite(*m_spriteShader, *m_ball->Texture, _lerpPos(*m_ball, alpha), m_ball->getSize());
+	for (auto &ball : m_balls) {
+		m_spriteRenderer->drawSprite(*m_spriteShader, *ball->Texture, _lerpPos(*ball, alpha), ball->getSize());
+	}
 	// text
 	m_textShader->use();
 	if (GameState == GameState::GAME_WIN) {
@@ -194,21 +211,25 @@ void Game::render(float alpha) {
 	}
 	m_textRenderer->renderMSDF(*m_textShader, std::to_string(m_attempts - m_currentAttempt), 15, Window::getHeight() - 50);
 
-	m_textRenderer->renderMSDF(*m_textShader, std::format("Ball velocity.x: {}; velocity.y: {}", m_ball->getVelocity().x, m_ball->getVelocity().y), 50, 5, 0.5f, glm::vec3(1.0f), false, { glm::vec3(0.0f), 1.0f });
+	m_textRenderer->renderMSDF(*m_textShader, std::format("Ball velocity.x: {}; velocity.y: {}", m_balls[0]->getVelocity().x, m_balls[0]->getVelocity().y), 50, 5, 0.5f, glm::vec3(1.0f), false, { glm::vec3(0.0f), 1.0f });
 }
 
 void Game::doCollisions() {
-	m_ball->checkCollision(*m_player);
+	for (auto &ball : m_balls) {
+		ball->checkCollision(*m_player);
+	}
 	for (auto &brick : m_currentLevel.getBricks()) {
-		if (brick.getCurrentHardnessPoints() == 0)
+		if (brick.isDead())
 			continue;
-		Collision collision = brick.checkCollision(*m_ball);
-		if (std::get<0>(collision)) {
-			CollisionDirection dir = std::get<1>(collision);
-			glm::vec2 diffVector = std::get<2>(collision);
-			_calcBallNewPositionAndVelocity(dir, diffVector);
-			if (m_currentLevel.isFinished()) {
-				GameState = GameState::GAME_WIN;
+		for (auto &ball : m_balls) {
+			Collision collision = brick.checkCollision(*ball);
+			if (std::get<0>(collision)) {
+				CollisionDirection dir = std::get<1>(collision);
+				glm::vec2 diffVector = std::get<2>(collision);
+				_calcBallNewPositionAndVelocity(*ball, dir, diffVector);
+				if (m_currentLevel.isFinished()) {
+					GameState = GameState::GAME_WIN;
+				}
 			}
 		}
 	}
@@ -216,7 +237,7 @@ void Game::doCollisions() {
 
 void Game::nextLevel() {
 	resetPlayer();
-	resetBall();
+	resetBalls();
 	m_currentLevel = getLevel(++m_currentLevelNumber);
 	m_currentLevel.load();
 	GameState = GameState::GAME_ACTIVE;
@@ -232,17 +253,45 @@ GameLevel Game::getLevel(unsigned int number) {
 
 void Game::restartCurrentLevel() {
 	resetPlayer();
-	resetBall();
+	resetBalls();
 	m_currentLevel.restart();
 	m_currentAttempt = 0;
 }
 
-void Game::resetBall() {
-	m_ball->setStuck(true);
-	glm::vec2 ballPosition = m_player->getPosition() + glm::vec2(m_player->getSize().x / 2, m_ball->getSize().y);
-	m_ball->resetPosition(ballPosition);
+void Game::resetBalls() {
+	for (auto &ball : m_balls) {
+		ball->reset();
+		resetBallPosition(*ball);
+	}
+}
+
+void Game::resetBallPosition(Ball &ball) {
+	glm::vec2 ballPosition = m_player->getPosition() + glm::vec2(m_player->getSize().x / 2, ball.getSize().y);
+	ball.resetPosition(ballPosition);
 }
 
 void Game::resetPlayer() {
 	m_player->resetPosition(PLAYER_START_POSITION);
+}
+
+void Game::cleanDestroyedBalls() {
+	size_t ballCount = m_balls.size();
+	std::erase_if(m_balls, [](const std::unique_ptr<Ball> &ball) {
+		return ball->isDead();
+	});
+	if (ballCount != m_balls.size()) {
+		m_particleEmitterBall->setParticleLimit(m_balls.size() * 500);
+	}
+}
+
+void Game::spawnBall() {
+	auto ball = std::make_unique<Ball>(TextureManager::getTexture("ball"), glm::vec2(0.0f), glm::vec2(32.0f), *m_player);
+	ball->setVelocity(INITIAL_BALL_VELOCITY + _fr::randomFloatInRange(-0.2f, 0.2f));
+	ball->setRadius(ball->getSize().x / 2);
+	ball->setSpeed(_fr::randomFloatInRange(600.0f, 800.0f));
+	ball->setDamage(1);
+	ball->setStuck(false);
+	resetBallPosition(*ball);
+	m_balls.push_back(std::move(ball));
+	m_particleEmitterBall->setParticleLimit(m_balls.size() * 500);
 }

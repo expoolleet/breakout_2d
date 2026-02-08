@@ -16,11 +16,15 @@ GameObject::GameObject(const Texture2D &texture) : Texture(&texture) {
 }
 
 Collision GameObject::checkCollision(GameObject &gameObject) { 
-	return CollisionDetection::NoneCollision; 
+	return _cd::NoneCollision; 
 }
 
 bool GameObject::isDestroyable() const {
 	return m_isDestroyable;
+}
+
+bool GameObject::isDead() const {
+	return m_isDead;
 }
 
 void GameObject::setDestructibility(bool flag) {
@@ -28,7 +32,21 @@ void GameObject::setDestructibility(bool flag) {
 }
 
 void GameObject::destroy() {
-	IsHidden = true;
+	m_isDead = true;
+	m_isHidden = true;
+}
+
+void GameObject::reset() {
+	m_isDead = false;
+	m_isHidden = false;
+}
+
+bool GameObject::IsHidden() const {
+	return m_isHidden;
+}
+
+void GameObject::Hide(bool state) {
+	m_isHidden = state;
 }
 
 glm::vec2 GameObject::getPosition() const {

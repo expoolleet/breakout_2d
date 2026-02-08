@@ -1,6 +1,6 @@
 #pragma once
 
-#include "collision_detection.hpp"
+#include "collision_type.hpp"
 #include "game_level.hpp"
 #include "sprite_rendered.hpp"
 #include "window.hpp"
@@ -38,8 +38,8 @@ private:
 	std::unique_ptr<SpriteRenderer> m_spriteRenderer = nullptr;
 	std::unique_ptr<TextRenderer> m_textRenderer = nullptr;
 	std::unique_ptr<Player> m_player = nullptr;
-	std::unique_ptr<Ball> m_ball = nullptr;
 	std::unique_ptr<ParticleEmitter> m_particleEmitterBall = nullptr;
+	std::vector<std::unique_ptr<Ball>> m_balls = { };
 	std::vector<GameLevel> m_levels = { };
 	unsigned int m_currentLevelNumber = 0;
 	unsigned int m_attempts = 0;
@@ -47,7 +47,7 @@ private:
 	GameLevel m_currentLevel;
 
 	glm::vec2 _lerpPos(GameObject &gameObject, float alpha);
-	void _calcBallNewPositionAndVelocity(CollisionDirection dir, glm::vec2 diffVector);
+	void _calcBallNewPositionAndVelocity(Ball &ball, CollisionDirection dir, glm::vec2 diffVector);
 
 public:
 	GameState GameState = GameState::GAME_NONE;
@@ -67,6 +67,10 @@ public:
 	void nextLevel();
 	GameLevel getLevel(unsigned int number);
 	void restartCurrentLevel();
-	void resetBall();
+	void resetBalls();
+	void resetBallPosition(Ball &ball);
 	void resetPlayer();
+	void cleanDestroyedBalls();
+
+	void spawnBall();
 };

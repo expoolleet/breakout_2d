@@ -7,7 +7,8 @@
 #include <glm/glm.hpp>
 #include <tuple>
 
-namespace CollisionDetection {
+// Collision Detection namespace
+namespace _cd {
 	inline Collision NoneCollision = std::tuple(false, COLLISION_DIRECTION_NONE, glm::vec2(0.0f));
 
 	inline CollisionDirection _getCollisionDirection(glm::vec2 target) {

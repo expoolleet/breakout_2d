@@ -6,11 +6,13 @@
 #include "particle_emitter.hpp"
 #include "shader.hpp"
 #include "texture_2d.hpp"
+#include "fast_random.hpp"
 
 #include <opengl_4_5/glad/glad.h>
 #include <glm/glm.hpp>
 #include <format>
-#include <random>
+
+#define MAX_PARTICLE_COUNT 5000
 
 int ParticleEmitter::_findFirstUnusedParticle() {
 	for (int i = m_lastUnusedParticle; i < m_particleLimit; ++i) {
@@ -59,12 +61,10 @@ void ParticleEmitter::init() {
 	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)(0));
 	glBindVertexArray(0);
 
-	m_particlePool.reserve(m_particleLimit);
-	for (int i = 0; i < m_particleLimit; ++i) {
+	m_particlePool.reserve(MAX_PARTICLE_COUNT);
+	for (int i = 0; i < MAX_PARTICLE_COUNT; ++i) {
 		m_particlePool.push_back(Particle());
 	}
-
-	m_randomEngine.seed(std::random_device()());
 }
 
 void ParticleEmitter::update(float dt, GameObject &gameObject, int newParticles, glm::vec2 offset) {
@@ -101,9 +101,9 @@ void ParticleEmitter::emit(Shader &shader) {
 
 void ParticleEmitter::respawnParticle(Particle &particle, GameObject &gameObject, glm::vec2 offset) {
 	particle.lifeTime = m_particleLifeTime;
-	particle.position = gameObject.getPosition() + offset + _rangeFloat(-5.0f, 5.0f);
+	particle.position = gameObject.getPosition() + offset + _fr::randomFloatInRange(-5.0f, 5.0f);
 	particle.velocity = gameObject.getVelocity() * (1.0f - m_particleDelay);
-	float randomColor = _rangeFloat(0.3f, 0.7f);
+	float randomColor = _fr::randomFloatInRange(0.3f, 0.7f);
 	particle.color = glm::vec4(randomColor, randomColor, randomColor, 1.0f);
 }
 
@@ -137,4 +137,17 @@ void ParticleEmitter::setParticleScale(float scale) {
 
 float ParticleEmitter::getParticleScale() {
 	return m_particleScale;
+}
+
+void ParticleEmitter::setParticleLimit(int limit) {
+	if (limit > MAX_PARTICLE_COUNT) {
+		Logging::Warn(std::format("Maximum particle count is {}, can not adjust limit with {}", MAX_PARTICLE_COUNT, limit));
+		return;
+	}
+	m_lastUnusedParticle = 0;
+	m_particleLimit = limit;
+}
+
+int ParticleEmitter::getParticleLimit() {
+	return m_particleLimit;
 }

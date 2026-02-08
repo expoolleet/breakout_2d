@@ -1,13 +1,14 @@
 #include "pch.hpp"
 
-#include "window.hpp"
+#include "fast_random.hpp"
 #include "game.hpp"
 #include "path_manager.hpp"
-#include "shader_observer.hpp"
 #include "render_config.hpp"
+#include "shader_observer.hpp"
+#include "window.hpp"
 
-#include <opengl_4_5/glad/glad.h>
-#include <GLFW/glfw3.h>
+#include <opengl_4_5/glad/glad.h> // 1
+#include <GLFW/glfw3.h> // 2
 
 #define FIXED_FRAMETIME (1.0 / 100.0) // 100 Hz fixed update loop
 #define MAX_FRAMETIME 0.25
@@ -34,6 +35,10 @@ void key_callback(GLFWwindow *window, int key, int scanCode, int action, int mod
 		}
 	}
 
+	if (key == GLFW_KEY_T && action == GLFW_PRESS) {
+		game.spawnBall();
+	}
+
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
 		glfwSetWindowShouldClose(window, true);
 	}
@@ -57,6 +62,7 @@ int main() {
 
 	RenderConfig::setupDefaultAlphaBlending();
 
+	_fr::initRandomEngine();
 	PathManager::init();
 	ShaderObserver::Get().startObserving();
 	game.init();

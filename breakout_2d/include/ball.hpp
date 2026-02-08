@@ -23,6 +23,8 @@ public:
 	void fixedUpdate(float dt) override;
 	Collision checkCollision(GameObject &gameObject) override;
 
+	void reset() override;
+
 	void move(float dt, float windowWidth, float windowHeight);
 
 	bool isStuck();

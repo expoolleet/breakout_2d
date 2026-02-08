@@ -47,15 +47,15 @@ void Ball::fixedUpdate(float dt) {
 	}
 
 	if (m_position.y <= 0.0f) {
-		EventDispatcher::Get().emit(BallFliedOff { });
+		EventDispatcher::Get().emit(BallFliedOff { *this });
 	}
 }
 
 Collision Ball::checkCollision(GameObject &gameObject) {
 	if (isStuck())
-		return CollisionDetection::NoneCollision;
+		return _cd::NoneCollision;
 	if (Player *player = dynamic_cast<Player *>(&gameObject)) {
-		Collision playerCollision = CollisionDetection::checkCollision(*this, *player);
+		Collision playerCollision = _cd::checkCollision(*this, *player);
 		if (std::get<0>(playerCollision)) {
 			float centerBoard = m_player->getPosition().x + m_player->getSize().x / 2;
 			float distance = (getPosition().x + getRadius()) - centerBoard;
@@ -65,7 +65,12 @@ Collision Ball::checkCollision(GameObject &gameObject) {
 			setVelocity(glm::normalize(newVelocity) * glm::length(getVelocity()));
 		}
 	}
-	return CollisionDetection::NoneCollision;
+	return _cd::NoneCollision;
+}
+
+void Ball::reset() {
+	GameObject::reset();
+	setStuck(true);
 }
 
 bool Ball::isStuck() {
