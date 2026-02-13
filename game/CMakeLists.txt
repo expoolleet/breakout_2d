@@ -66,24 +66,49 @@ target_include_directories(${Project} PRIVATE
     ${EXTERNAL_PATH}/includes
 )
 
-find_package(glfw3)
+include(FetchContent)
+
+### GLFW3 lib
+FetchContent_Declare(
+    glfw
+    GIT_REPOSITORY https://github.com/glfw/glfw.git
+    GIT_TAG 3.4
+)
+find_package(glfw3 QUIET)
 if (glfw3_FOUND)
     message(STATUS "GLFW3 package was found")
-    target_link_libraries(${Project} PRIVATE ${EXTERNAL_DIR}/libglfw3.a)
-    target_link_libraries(${Project} PRIVATE glfw)
 else()
-    target_link_libraries(${Project} PRIVATE ${EXTERNAL_DIR}/libglfw3.a)
+    message(STATUS "GLFW3 package was not found, fetching from repo...")
+    set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+    set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+    set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+    FetchContent_MakeAvailable(glfw)
 endif()
+target_link_libraries(${Project} PRIVATE glfw)
+###
 
-find_package(Freetype)
+### Freetype lib
+FetchContent_Declare(
+    freetype
+    URL https://download.savannah.gnu.org/releases/freetype/freetype-2.14.1.tar.gz
+    URL_HASH SHA256=174d9e53402e1bf9ec7277e22ec199ba3e55a6be2c0740cb18c0ee9850fc8c34
+)
+find_package(Freetype QUIET)
 if (Freetype_FOUND)
     message(STATUS "Freetype package was found")
-   target_link_libraries(${Project} PRIVATE Freetype::Freetype)
+    target_link_libraries(${Project} PRIVATE Freetype::Freetype)
 else()
-    target_link_libraries(${Project} PRIVATE ${EXTERNAL_DIR}/libfreetype.a)
+    message(STATUS "Freetype package was not found, fetching from repo...")
+    set(FT_DISABLE_ZLIB ON CACHE BOOL "" FORCE)
+    set(FT_DISABLE_BZIP2 ON CACHE BOOL "" FORCE)
+    set(FT_DISABLE_PNG ON CACHE BOOL "" FORCE)
+    set(FT_DISABLE_HARFBUZZ ON CACHE BOOL "" FORCE)
+    FetchContent_MakeAvailable(freetype)
+    target_link_libraries(${Project} PRIVATE freetype)
 endif()
-target_link_libraries(${Project} PRIVATE ${GladLib})
+###
 
+target_link_libraries(${Project} PRIVATE ${GladLib})
 
 target_precompile_headers(${Project} PRIVATE
     <algorithm>
