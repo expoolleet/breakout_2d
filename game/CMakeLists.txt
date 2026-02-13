@@ -68,6 +68,53 @@ target_include_directories(${Project} PRIVATE
 
 include(FetchContent)
 
+### stbi_image header file
+find_path(STB_INCLUDE_PATH stb_image.h ${EXTERNAL_PATH}/includes/stb)
+if (STB_INCLUDE_PATH)
+    message(STATUS "stbi_image was found")
+else()
+    message(STATUS "stbi_image was not found, fetching from repo...")
+    FetchContent_Declare(
+        stb
+        GIT_REPOSITORY https://github.com/nothings/stb.git
+        GIT_TAG master
+    )
+    FetchContent_MakeAvailable(stb)
+    target_include_directories(${Project} PRIVATE ${stb_SOURCE_DIR})
+endif()
+###
+
+### glm header files
+find_path(GLM_INCLUDE_PATH glm.hpp ${EXTERNAL_PATH}/includes/glm)
+if (GLM_INCLUDE_PATH)
+    message(STATUS "GLM was found")
+else()
+    message(STATUS "GLM was not found, fetching from repo...")
+    FetchContent_Declare(
+        glm
+        GIT_REPOSITORY https://github.com/g-truc/glm.git
+        GIT_TAG 1.0.3
+    )
+    FetchContent_MakeAvailable(glm)
+    target_include_directories(${Project} PRIVATE ${glm_SOURCE_DIR})
+endif()
+###
+
+### nlohmann/json header files
+find_path(NLOHMANN_JSON_INCLUDE_PATH json.hpp ${EXTERNAL_PATH}/includes/nlohmann)
+if (NLOHMANN_JSON_INCLUDE_PATH)
+    message(STATUS "nlohmann/json was found")
+else()
+    FetchContent_Declare(
+        hlohmann_json
+        GIT_REPOSITORY https://github.com/nlohmann/json.git
+        GIT_TAG 3.12.0
+    )
+    FetchContent_MakeAvailable(hlohmann_json)
+    target_include_directories(${Project} PRIVATE ${hlohmann_json_SOURCE_DIR})
+endif()
+###
+
 ### GLFW3 lib
 FetchContent_Declare(
     glfw
