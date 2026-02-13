@@ -30,7 +30,7 @@ jobs:
     - name: Setup libs
       run: |
         sudo apt-get update
-        sudo apt-get install -y libfreetype6-dev libglfw3-dev libglm-dev
+        sudo apt-get install -y libfreetype6-dev libglfw3-dev libglm-dev nlohmann-json3-dev
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
