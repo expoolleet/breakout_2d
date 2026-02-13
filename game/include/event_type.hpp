@@ -5,9 +5,9 @@
 class Ball; // fwd
 
 struct BallFliedOff {
-	Ball &ball;
+    Ball &ball;
 };
 
-struct PlayerMoved { 
-	glm::vec2 position;
+struct PlayerMoved {
+    glm::vec2 position;
 };

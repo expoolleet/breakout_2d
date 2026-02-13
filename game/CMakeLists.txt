@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 4.1)
 
-set(Project game)
+set(Project Breakout2D)
 
 project(${Project} LANGUAGES CXX)
 
@@ -66,11 +66,24 @@ target_include_directories(${Project} PRIVATE
     ${EXTERNAL_PATH}/includes
 )
 
-target_link_libraries(${Project} PRIVATE
-    ${GladLib}
-    ${EXTERNAL_DIR}/libglfw3.a
-    ${EXTERNAL_DIR}/libfreetype.a
-)
+find_package(glfw3)
+if (glfw3_FOUND)
+    message(STATUS "GLFW3 package was found")
+    target_link_libraries(${Project} PRIVATE ${EXTERNAL_DIR}/libglfw3.a)
+    target_link_libraries(${Project} PRIVATE glfw)
+else()
+    target_link_libraries(${Project} PRIVATE ${EXTERNAL_DIR}/libglfw3.a)
+endif()
+
+find_package(Freetype)
+if (Freetype_FOUND)
+    message(STATUS "Freetype package was found")
+   target_link_libraries(${Project} PRIVATE Freetype::Freetype)
+else()
+    target_link_libraries(${Project} PRIVATE ${EXTERNAL_DIR}/libfreetype.a)
+endif()
+target_link_libraries(${Project} PRIVATE ${GladLib})
+
 
 target_precompile_headers(${Project} PRIVATE
     <algorithm>
@@ -111,3 +124,43 @@ target_precompile_headers(${Project} PRIVATE
     <glm/gtc/type_ptr.hpp>
     <nlohmann/json.hpp>
 )
+
+target_compile_definitions(${Project} PRIVATE $<$<CONFIG:Debug>:DEBUG_MODE>)
+
+set(CREATE_PACKAGE NO)
+if (${CREATE_PACKAGE})
+set(MSYS_BIN "C:/msys64/ucrt64/bin")
+set(DLL_LIST
+    "${MSYS_BIN}/glfw3.dll"
+    "${MSYS_BIN}/libfreetype-6.dll"
+    "${MSYS_BIN}/libgcc_s_seh-1.dll"
+    "${MSYS_BIN}/libwinpthread-1.dll"
+    "${MSYS_BIN}/libstdc++-6.dll"
+    "${MSYS_BIN}/libbz2-1.dll"
+    "${MSYS_BIN}/libbrotlidec.dll"
+    "${MSYS_BIN}/libharfbuzz-0.dll"
+    "${MSYS_BIN}/zlib1.dll"
+    "${MSYS_BIN}/libpng16-16.dll"
+    "${MSYS_BIN}/libbrotlicommon.dll"
+    "${MSYS_BIN}/libglib-2.0-0.dll"
+    "${MSYS_BIN}/libgraphite2.dll"
+    "${MSYS_BIN}/libintl-8.dll"
+    "${MSYS_BIN}/libpcre2-8-0.dll"
+    "${MSYS_BIN}/libiconv-2.dll"
+)
+
+foreach(dll ${DLL_LIST})
+    add_custom_command(TARGET ${Project} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${dll}" "$<TARGET_FILE_DIR:${Project}>"
+    )
+endforeach()
+install(TARGETS ${Project} DESTINATION .)
+install(FILES ${DLL_LIST} DESTINATION .)
+install(DIRECTORY ${RESOURCES_DIR} DESTINATION .)
+
+set(CPACK_PACKAGE_NAME ${Project})
+set(CPACK_PACKAGE_VERSION "1.0.0")
+set(CPACK_PACKAGE_VENDOR "expool")
+set(CPACK_GENERATOR "NSIS")
+include(CPack)
+endif()

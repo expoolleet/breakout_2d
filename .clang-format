@@ -1,0 +1,35 @@
+# yaml-language-server: $schema=https://json.schemastore.org/clang-format-21.x.json
+---
+BasedOnStyle: LLVM
+
+IndentWidth: 4
+---
+Language: Cpp
+
+TabWidth: 4
+
+UseTab: Never
+
+ColumnLimit: 140
+
+# Force pointers to the type for C++.
+DerivePointerAlignment: false
+
+PointerAlignment: Right
+
+BreakBeforeBraces: Attach
+
+AllowShortFunctionsOnASingleLine: Empty
+
+NamespaceIndentation: None
+
+SortIncludes: true
+
+IncludeBlocks: Regroup
+
+FixNamespaceComments: true
+
+InsertNewlineAtEOF: true
+
+AllowShortEnumsOnASingleLine: false
+---

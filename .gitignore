@@ -54,4 +54,4 @@ bld/
 [Ll]ogs/
 
 .cache
-compile_commands.json
+.zed

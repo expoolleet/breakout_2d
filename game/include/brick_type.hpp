@@ -1,9 +1,26 @@
 #pragma once
 
 enum BrickType {
-	BRICK_NONE = 1,
-	BRICK_STANDARD = 2,
-	BRICK_HARD = 4,
-	BRICK_EXTREMELY_TOUGH = 8,
-	BRICK_UNDESTROYABLE = 16
+    BRICK_NONE,
+    BRICK_STANDARD,
+    BRICK_HARD,
+    BRICK_EXTREMELY_TOUGH,
+    BRICK_UNDESTROYABLE
 };
+
+inline const char *toString(BrickType type) {
+    switch (type) {
+    case BrickType::BRICK_NONE:
+        return "BRICK_NONE";
+    case BrickType::BRICK_STANDARD:
+        return "BRICK_STANDARD";
+    case BrickType::BRICK_HARD:
+        return "BRICK_HARD";
+    case BrickType::BRICK_EXTREMELY_TOUGH:
+        return "BRICK_EXTREMELY_TOUGH";
+    case BrickType::BRICK_UNDESTROYABLE:
+        return "BRICK_UNDESTROYABLE";
+    default:
+        return "BRICK_UNKNOWN";
+    }
+}
