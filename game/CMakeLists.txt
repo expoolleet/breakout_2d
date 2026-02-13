@@ -108,7 +108,7 @@ else()
     FetchContent_Declare(
         hlohmann_json
         GIT_REPOSITORY https://github.com/nlohmann/json.git
-        GIT_TAG 3.12.0
+        GIT_TAG v3.12.0
     )
     FetchContent_MakeAvailable(hlohmann_json)
     target_include_directories(${Project} PRIVATE ${hlohmann_json_SOURCE_DIR})
