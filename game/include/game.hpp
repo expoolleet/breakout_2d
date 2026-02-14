@@ -53,7 +53,7 @@ class Game {
     void _calcBallNewPositionAndVelocity(Ball &ball, CollisionDirection dir, glm::vec2 diffVector);
 
   public:
-    GameState GameState = GameState::GAME_NONE;
+    GameState CurrentState = GAME_NONE;
     bool Keys[1024] = {false};
     unsigned int Width = 0;
     unsigned int Height = 0;

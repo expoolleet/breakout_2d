@@ -62,7 +62,7 @@ Game::Game(unsigned int width, unsigned int height, unsigned int attempts) : m_a
     m_textRenderer = nullptr;
     m_player = nullptr;
     m_particleEmitterBall = nullptr;
-    GameState = GAME_ACTIVE;
+    CurrentState = GAME_ACTIVE;
 }
 
 void Game::init() {
@@ -142,12 +142,12 @@ void Game::init() {
 }
 
 void Game::processInput(float dt) {
-    if (GameState == GAME_WIN) {
+    if (CurrentState == GAME_WIN) {
         if (Keys[GLFW_KEY_ENTER]) {
             nextLevel();
         }
     }
-    if (GameState != GAME_ACTIVE)
+    if (CurrentState != GAME_ACTIVE)
         return;
 
     glm::vec2 velocity = m_player->getVelocity();
@@ -169,7 +169,7 @@ void Game::processInput(float dt) {
 void Game::update(float dt) {}
 
 void Game::fixedUpdate(float dt) {
-    if (GameState != GAME_ACTIVE)
+    if (CurrentState != GAME_ACTIVE)
         return;
     m_player->fixedUpdate(dt);
     int particlesPerFrame = 2;
@@ -188,7 +188,7 @@ void Game::fixedUpdate(float dt) {
 }
 
 void Game::render(float alpha) {
-    if (GameState == GAME_MENU)
+    if (CurrentState == GAME_MENU)
         return;
 
     // objects
@@ -211,7 +211,7 @@ void Game::render(float alpha) {
     }
     // text
     m_textShader->use();
-    if (GameState == GAME_WIN) {
+    if (CurrentState == GAME_WIN) {
         m_textRenderer->renderMSDF(*m_textShader, "YOU WON! :)", Window::getWidth() / 2 - 350, Window::getHeight() / 2, 3.0f,
                                    glm::vec3(0.0f, 0.9f, 0.6f), false, {glm::vec3(0.0f), 5.0f});
     } else {
@@ -239,7 +239,7 @@ void Game::doCollisions() {
                 glm::vec2 diffVector = std::get<2>(collision);
                 _calcBallNewPositionAndVelocity(*ball, dir, diffVector);
                 if (m_currentLevel.isFinished()) {
-                    GameState = GAME_WIN;
+                    CurrentState = GAME_WIN;
                 }
             }
         }
@@ -252,7 +252,7 @@ void Game::nextLevel() {
     m_currentAttempt = m_attempts;
     m_currentLevel = getLevel(++m_currentLevelNumber);
     m_currentLevel.load();
-    GameState = GAME_ACTIVE;
+    CurrentState = GAME_ACTIVE;
 }
 
 GameLevel Game::getLevel(unsigned int number) {
