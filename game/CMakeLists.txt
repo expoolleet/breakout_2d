@@ -65,7 +65,6 @@ add_executable(${Project}
 
 target_include_directories(${Project} PRIVATE
     include
-    ${EXTERNAL_PATH}/includes
 )
 
 include(FetchContent)
@@ -75,7 +74,7 @@ message(STATUS "Looking for stb lib...")
 FetchContent_Declare(
     stb
     GIT_REPOSITORY https://github.com/nothings/stb.git
-    GIT_TAG master
+    GIT_TAG        f1c79c02822848a9bed4315b12c8c8f3761e1296 # master
 )
 FetchContent_MakeAvailable(stb)
 target_include_directories(${Project} PRIVATE ${stb_SOURCE_DIR})
@@ -86,7 +85,7 @@ message(STATUS "Looking for glm lib...")
 FetchContent_Declare(
     glm
     GIT_REPOSITORY https://github.com/g-truc/glm.git
-    GIT_TAG 1.0.3
+    GIT_TAG        8d1fd52e5ab5590e2c81768ace50c72bae28f2ed # 1.0.3
 )
 FetchContent_MakeAvailable(glm)
 target_include_directories(${Project} PRIVATE ${glm_SOURCE_DIR})
@@ -97,17 +96,17 @@ message(STATUS "Looking for nlohmann/json lib...")
 FetchContent_Declare(
     hlohmann_json
     GIT_REPOSITORY https://github.com/nlohmann/json.git
-    GIT_TAG v3.12.0
+    GIT_TAG        55f93686c01528224f448c19128836e7df245f72 # 3.12.0
 )
 FetchContent_MakeAvailable(hlohmann_json)
-target_include_directories(${Project} PRIVATE ${hlohmann_json_SOURCE_DIR})
+target_include_directories(${Project} PRIVATE ${hlohmann_json_SOURCE_DIR}/include)
 ###
 
 ### GLFW3 lib
 FetchContent_Declare(
     glfw
     GIT_REPOSITORY https://github.com/glfw/glfw.git
-    GIT_TAG 3.4
+    GIT_TAG        7b6aead9fb88b3623e3b3725ebb42670cbe4c579 # 3.4
 )
 find_package(glfw3 QUIET)
 if (glfw3_FOUND)
