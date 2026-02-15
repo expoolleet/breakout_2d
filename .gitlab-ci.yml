@@ -7,7 +7,7 @@ build-job:
   stage: build
   before_script:
     - apt-get update
-    - apt-get install -y mingw-w64 cmake ninja-build libfreetype6-dev libglfw3-dev build-essential
+    - apt-get install -y git mingw-w64 cmake ninja-build libfreetype6-dev libglfw3-dev build-essential
   script:
     - cmake --version
     - ninja --version
