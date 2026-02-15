@@ -1,0 +1,15 @@
+stages:          # List of stages for jobs, and their order of execution
+  - pre-build
+  - build
+
+pre-build-job:
+    stage: pre-build
+    script:
+        - "sudo apt-get update"
+        - "sudo apt-get install -y mingw-w64 cmake ninja-build libfreetype6-dev libglfw3-dev"
+
+build-job:       # This job runs in the build stage, which runs first.
+  stage: build
+  script:
+      - "cmake -G Ninja -DCMAKE_CXX_COMPILER=g++ -DCMAKE_C_COMPILER=gcc -DCMAKE_BUILD_TYPE=Release -B build -S ."
+      - "cmake --build build -j"
