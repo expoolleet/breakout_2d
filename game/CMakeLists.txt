@@ -103,16 +103,16 @@ target_include_directories(${Project} PRIVATE ${hlohmann_json_SOURCE_DIR}/includ
 ###
 
 ### GLFW3 lib
-FetchContent_Declare(
-    glfw
-    GIT_REPOSITORY https://github.com/glfw/glfw.git
-    GIT_TAG        7b6aead9fb88b3623e3b3725ebb42670cbe4c579 # 3.4
-)
 find_package(glfw3 QUIET)
 if (glfw3_FOUND)
     message(STATUS "GLFW3 package was found")
 else()
     message(STATUS "GLFW3 package was not found, fetching from repo...")
+    FetchContent_Declare(
+        glfw
+        GIT_REPOSITORY https://github.com/glfw/glfw.git
+        GIT_TAG        7b6aead9fb88b3623e3b3725ebb42670cbe4c579 # 3.4
+    )
     set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
     set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
     set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
@@ -122,17 +122,17 @@ target_link_libraries(${Project} PRIVATE glfw)
 ###
 
 ### Freetype lib
-FetchContent_Declare(
-    freetype
-    URL https://download.savannah.gnu.org/releases/freetype/freetype-2.14.1.tar.gz
-    URL_HASH SHA256=174d9e53402e1bf9ec7277e22ec199ba3e55a6be2c0740cb18c0ee9850fc8c34
-)
 find_package(Freetype QUIET)
 if (Freetype_FOUND)
     message(STATUS "Freetype package was found")
     target_link_libraries(${Project} PRIVATE Freetype::Freetype)
 else()
     message(STATUS "Freetype package was not found, fetching from repo...")
+    FetchContent_Declare(
+        freetype
+        URL https://download.savannah.gnu.org/releases/freetype/freetype-2.14.1.tar.gz
+        URL_HASH SHA256=174d9e53402e1bf9ec7277e22ec199ba3e55a6be2c0740cb18c0ee9850fc8c34
+    )
     set(FT_DISABLE_ZLIB ON CACHE BOOL "" FORCE)
     set(FT_DISABLE_BZIP2 ON CACHE BOOL "" FORCE)
     set(FT_DISABLE_PNG ON CACHE BOOL "" FORCE)
@@ -186,8 +186,10 @@ target_precompile_headers(${Project} PRIVATE
 
 target_compile_definitions(${Project} PRIVATE $<$<CONFIG:Debug>:DEBUG_MODE>)
 
-if (WIN32)
-    if (${CREATE_PACKAGE})
+# project packing
+if (${CREATE_PACKAGE})
+    if (WIN32)
+        message(STATUS "Project packing for current system (WIN32 based) is started...")
         set(MSYS_BIN "C:/msys64/ucrt64/bin")
         set(DLL_LIST
             "${MSYS_BIN}/glfw3.dll"
@@ -222,5 +224,11 @@ if (WIN32)
         set(CPACK_PACKAGE_VENDOR "expool")
         set(CPACK_GENERATOR "NSIS")
         include(CPack)
-    endif()
-endif(WIN32)
+        message(STATUS "Project packing is completed. Use command to get packet: cpack --config CPackConfig.cmake")
+    endif(WIN32)
+    if (UNIX)
+        message(STATUS "Project packing for current system (UNIX based) is started...")
+        #
+        message(STATUS "Project packing is completed. Use command to get packet: cpack --config CPackConfig.cmake")
+    endif(UNIX)
+endif()
