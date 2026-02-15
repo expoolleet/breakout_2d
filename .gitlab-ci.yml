@@ -6,9 +6,11 @@ stages:
 build-job:
   stage: build
   before_script:
-    - sudo apt-get update
-    - sudo apt-get install -y mingw-w64 cmake ninja-build libfreetype6-dev libglfw3-dev build-essential
+    - apt-get update
+    - apt-get install -y mingw-w64 cmake ninja-build libfreetype6-dev libglfw3-dev build-essential
   script:
+    - cmake --version
+    - ninja --version
     - cmake -G Ninja -DCMAKE_CXX_COMPILER=g++ -DCMAKE_C_COMPILER=gcc -DCMAKE_BUILD_TYPE=Release -B build -S .
     - cmake --build build -j$(nproc)
   artifacts:
