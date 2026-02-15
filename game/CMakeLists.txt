@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.25.x)
+cmake_minimum_required(VERSION 3.31.x)
 
 set(Project Breakout2D)
 
