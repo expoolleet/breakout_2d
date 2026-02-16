@@ -131,7 +131,7 @@ else()
     FetchContent_Declare(
         freetype
         GIT_REPOSITORY https://github.com/freetype/freetype.git
-        GIT_TAG        526ec5c47b9ebccc4754c85ac0c0cdf7c85a5e9b
+        GIT_TAG        526ec5c47b9ebccc4754c85ac0c0cdf7c85a5e9b # 2.14.1
     )
     set(FT_DISABLE_ZLIB ON CACHE BOOL "" FORCE)
     set(FT_DISABLE_BZIP2 ON CACHE BOOL "" FORCE)

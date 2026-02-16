@@ -111,9 +111,11 @@ void Game::init() {
     m_particleShader->setInt("sprite", 0);
     m_particleEmitterBall = std::make_unique<ParticleEmitter>(TextureManager::getTexture("ball"), 300);
     m_particleEmitterBall->setParticleDelay(0.9f);
-    m_particleEmitterBall->setParticleLifeTime(1.0f);
-    m_particleEmitterBall->setParticleAttenuationSpeed(2.5f);
+
+    m_particleEmitterBall->setParticleCount(500);
     m_particleEmitterBall->setParticleScale(15.0f);
+    m_particleEmitterBall->setParticleLifeTime(5.0f);
+    m_particleEmitterBall->setParticleAttenuationSpeed(2.5f);
     m_particleEmitterBall->setPositionRandomOffsetRange(-50.0f, 50.0f);
     m_particleEmitterBall->setVelocityRandomOffsetRange(-10.0f, 10.0f);
     m_particleEmitterBall->init();
@@ -177,8 +179,9 @@ void Game::fixedUpdate(float dt) {
     int particlesPerFrame = 2;
     for (auto &ball : m_balls) {
         ball->fixedUpdate(dt);
-        m_particleEmitterBall->update(dt, *ball, particlesPerFrame, glm::vec2(ball->getRadius() / 2));
+        m_particleEmitterBall->prepare(*ball, particlesPerFrame, glm::vec2(ball->getRadius() / 2));
     }
+    m_particleEmitterBall->update(dt);
 
     doCollisions();
 
@@ -206,7 +209,7 @@ void Game::render(float alpha) {
     m_spriteRenderer->drawSprite(*m_spriteShader, *m_player->Texture, _lerpPos(*m_player, alpha), m_player->getSize());
 
     m_particleShader->use();
-    m_particleEmitterBall->emit(*m_particleShader);
+    m_particleEmitterBall->render(*m_particleShader);
     m_spriteShader->use();
     for (auto &ball : m_balls) {
         m_spriteRenderer->drawSprite(*m_spriteShader, *ball->Texture, _lerpPos(*ball, alpha), ball->getSize());
@@ -222,9 +225,11 @@ void Game::render(float alpha) {
     }
     m_textRenderer->renderMSDF(*m_textShader, std::to_string(m_attempts - m_currentAttempt), 15, Window::getHeight() - 50);
 
-    m_textRenderer->renderMSDF(*m_textShader,
-                               std::format("Ball velocity.x: {}; velocity.y: {}", m_balls[0]->getVelocity().x, m_balls[0]->getVelocity().y),
-                               50, 5, 0.5f, glm::vec3(1.0f), false, {glm::vec3(0.0f), 1.0f});
+    if (m_balls.size() > 0) {
+        m_textRenderer->renderMSDF(
+            *m_textShader, std::format("Ball velocity.x: {}; velocity.y: {}", m_balls[0]->getVelocity().x, m_balls[0]->getVelocity().y), 50,
+            5, 0.5f, glm::vec3(1.0f), false, {glm::vec3(0.0f), 1.0f});
+    }
 }
 
 void Game::doCollisions() {
@@ -289,11 +294,7 @@ void Game::resetPlayer() {
 }
 
 void Game::cleanDestroyedBalls() {
-    size_t ballCount = m_balls.size();
     std::erase_if(m_balls, [](const std::unique_ptr<Ball> &ball) { return ball->isDead(); });
-    if (ballCount != m_balls.size()) {
-        m_particleEmitterBall->setParticleLimit(m_balls.size() * 500);
-    }
 }
 
 void Game::spawnBall() {
@@ -305,7 +306,6 @@ void Game::spawnBall() {
     ball->setStuck(false);
     resetBallPosition(*ball);
     m_balls.push_back(std::move(ball));
-    m_particleEmitterBall->setParticleLimit(m_balls.size() * 500);
 }
 
 Game::~Game() {

@@ -11,16 +11,14 @@
 #include <format>
 #include <glm/glm.hpp>
 
-#define MAX_PARTICLE_COUNT 5000
-
 int ParticleEmitter::_findFirstUnusedParticle() {
-    for (int i = m_lastUnusedParticle; i < m_particleLimit; ++i) {
+    for (int i = m_lastUnusedParticle; i < m_particleCount; ++i) {
         if (m_particlePool[i].lifeTime <= 0.0f) {
             m_lastUnusedParticle = i;
             return i;
         }
     }
-    for (int i = 0; i < m_particleLimit; ++i) {
+    for (int i = 0; i < m_particleCount; ++i) {
         if (m_particlePool[i].lifeTime <= 0.0f) {
             m_lastUnusedParticle = i;
             return i;
@@ -28,12 +26,20 @@ int ParticleEmitter::_findFirstUnusedParticle() {
     }
     _log::Warn("Particle emitter was cycled through all {} particles from pool and did not find the "
                "unused one. Increase particle limit or decrease particle life time",
-               m_particleLimit);
-    m_lastUnusedParticle = 0;
-    return 0;
+               m_particleCount);
+    m_lastUnusedParticle = (m_lastUnusedParticle + 1) % m_particleCount;
+    return m_lastUnusedParticle;
 }
 
-ParticleEmitter::ParticleEmitter(const Texture2D &texture, int limit) : m_texture(&texture), m_particleLimit(limit) {}
+void ParticleEmitter::_fillPool() {
+    m_particlePool.clear();
+    m_particlePool.reserve(m_particleCount);
+    for (int i = 0; i < m_particleCount; ++i) {
+        m_particlePool.push_back(Particle());
+    }
+}
+
+ParticleEmitter::ParticleEmitter(const Texture2D &texture, int limit) : m_texture(&texture), m_particleCount(limit) {}
 
 void ParticleEmitter::init() {
     if (m_initialized)
@@ -53,44 +59,73 @@ void ParticleEmitter::init() {
     glGenBuffers(1, &EBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), &indices[0], GL_STATIC_DRAW);
+
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)(0));
+
+    glGenBuffers(1, &m_particle_VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_particle_VBO);
+    glBufferData(GL_ARRAY_BUFFER, MAX_PARTICLES * sizeof(Particle), NULL, GL_DYNAMIC_DRAW);
+
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Particle), (void *)offsetof(Particle, position));
+    glVertexAttribDivisor(1, 1);
+
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(Particle), (void *)offsetof(Particle, color));
+    glVertexAttribDivisor(2, 1);
+
+    glEnableVertexAttribArray(3);
+    glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(Particle), (void *)offsetof(Particle, scale));
+    glVertexAttribDivisor(3, 1);
+
     glBindVertexArray(0);
 
-    m_particlePool.reserve(MAX_PARTICLE_COUNT);
-    for (int i = 0; i < MAX_PARTICLE_COUNT; ++i) {
-        m_particlePool.push_back(Particle());
-    }
+    _fillPool();
 }
 
-void ParticleEmitter::update(float dt, GameObject &gameObject, int newParticles, glm::vec2 offset) {
-    if (!m_emitWhenStanding && glm::length(gameObject.getPosition() - m_objectPosition) < 0.001) {
-        _update(dt);
+void ParticleEmitter::prepare(GameObject &gameObject, int newParticles, glm::vec2 offset) {
+    if (!m_emitWhenStanding && glm::length(gameObject.getPosition() - m_objectPositionMap[&gameObject]) < 0.001) {
         return;
     }
-    m_objectPosition = gameObject.getPosition();
-
+    m_objectPositionMap[&gameObject] = gameObject.getPosition();
     for (int i = 0; i < newParticles; ++i) {
         int unusedParticleIndex = _findFirstUnusedParticle();
         respawnParticle(m_particlePool[unusedParticleIndex], gameObject, offset);
     }
-    _update(dt);
 }
 
-void ParticleEmitter::emit(Shader &shader) {
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-    for (int i = 0; i < m_particleLimit; ++i) {
+void ParticleEmitter::update(float dt) {
+    for (int i = 0; i < m_particleCount; ++i) {
         Particle &particle = m_particlePool[i];
         if (particle.lifeTime <= 0.0f)
             continue;
-        shader.setVec4("color", particle.color);
-        shader.setVec2("offset", particle.position);
-        shader.setFloat("scale", m_particleScale);
-        m_texture->bind();
-        glBindVertexArray(m_VAO);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        glBindVertexArray(0);
+        particle.lifeTime -= dt;
+        particle.position -= particle.velocity * dt;
+        particle.color.a -= m_particleAttenuationSpeed * dt / particle.lifeTime;
+        particle.scale = m_particleScale * particle.color.a;
     }
+}
+
+void ParticleEmitter::render(Shader &shader) {
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+
+    int activeParticleCount = 0;
+    for (int i = 0; i < m_particleCount; ++i) {
+        if (m_particlePool[i].lifeTime <= 0.0f)
+            continue;
+        ++activeParticleCount;
+    }
+
+    m_texture->bind();
+    glBindBuffer(GL_ARRAY_BUFFER, m_particle_VBO);
+    glBufferData(GL_ARRAY_BUFFER, MAX_PARTICLES * sizeof(Particle), NULL, GL_DYNAMIC_DRAW); // buffer orphaning
+    glBufferSubData(GL_ARRAY_BUFFER, 0, activeParticleCount * sizeof(Particle), m_particlePool.data());
+
+    glBindVertexArray(m_VAO);
+    glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, activeParticleCount);
+    glBindVertexArray(0);
+
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
@@ -104,6 +139,7 @@ void ParticleEmitter::respawnParticle(Particle &particle, GameObject &gameObject
     particle.velocity = gameObject.getVelocity() * (1.0f - m_particleDelay) + glm::vec2(randomVelX, randomVelY);
     float randomColor = _fr::randomFloatInRange(0.3f, 0.7f);
     particle.color = glm::vec4(randomColor, randomColor, randomColor, 1.0f);
+    particle.scale = m_particleScale;
 }
 
 void ParticleEmitter::setParticleAttenuationSpeed(float speed) {
@@ -138,17 +174,13 @@ float ParticleEmitter::getParticleScale() {
     return m_particleScale;
 }
 
-void ParticleEmitter::setParticleLimit(int limit) {
-    if (limit > MAX_PARTICLE_COUNT) {
-        _log::Warn("Maximum particle count is {}, can not adjust limit with {}", MAX_PARTICLE_COUNT, limit);
-        return;
-    }
-    m_lastUnusedParticle = 0;
-    m_particleLimit = limit;
+void ParticleEmitter::setParticleCount(int limit) {
+    m_particleCount = limit;
+    _fillPool();
 }
 
-int ParticleEmitter::getParticleLimit() {
-    return m_particleLimit;
+int ParticleEmitter::getParticleCount() {
+    return m_particleCount;
 }
 
 void ParticleEmitter::setVelocityRandomOffsetRange(float a, float b) {
@@ -167,15 +199,4 @@ void ParticleEmitter::setPositionRandomOffsetRange(float a, float b) {
 
 void ParticleEmitter::setEmitWhenStanding(bool flag) {
     m_emitWhenStanding = flag;
-}
-
-void ParticleEmitter::_update(float dt) {
-    for (int i = 0; i < m_particleLimit; ++i) {
-        Particle &particle = m_particlePool[i];
-        if (particle.lifeTime <= 0.0f)
-            continue;
-        particle.lifeTime -= dt;
-        particle.position -= particle.velocity * dt;
-        particle.color.a -= m_particleAttenuationSpeed * dt;
-    }
 }

@@ -34,10 +34,6 @@ void key_callback(GLFWwindow *window, int key, int scanCode, int action, int mod
     if (key == GLFW_KEY_T && action == GLFW_PRESS) {
         game.spawnBall();
     }
-
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
-        glfwSetWindowShouldClose(window, true);
-    }
 }
 
 int main() {
