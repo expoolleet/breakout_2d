@@ -130,8 +130,8 @@ else()
     message(STATUS "Freetype package was not found, fetching from repo...")
     FetchContent_Declare(
         freetype
-        URL https://download.savannah.gnu.org/releases/freetype/freetype-2.14.1.tar.gz
-        URL_HASH SHA256=174d9e53402e1bf9ec7277e22ec199ba3e55a6be2c0740cb18c0ee9850fc8c34
+        GIT_REPOSITORY https://github.com/freetype/freetype.git
+        GIT_TAG        526ec5c47b9ebccc4754c85ac0c0cdf7c85a5e9b
     )
     set(FT_DISABLE_ZLIB ON CACHE BOOL "" FORCE)
     set(FT_DISABLE_BZIP2 ON CACHE BOOL "" FORCE)
