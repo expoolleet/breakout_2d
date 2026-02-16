@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.31.x)
 
 set(Project Breakout2D)
 
-set(CREATE_PACKAGE NO)
+set(CREATE_PACKAGE YES)
 
 project(${Project} LANGUAGES CXX)
 
@@ -189,46 +189,72 @@ target_compile_definitions(${Project} PRIVATE $<$<CONFIG:Debug>:DEBUG_MODE>)
 # project packing
 if (${CREATE_PACKAGE})
     if (WIN32)
-        message(STATUS "Project packing for current system (WIN32 based) is started...")
-        set(MSYS_BIN "C:/msys64/ucrt64/bin")
-        set(DLL_LIST
-            "${MSYS_BIN}/glfw3.dll"
-            "${MSYS_BIN}/libfreetype-6.dll"
-            "${MSYS_BIN}/libgcc_s_seh-1.dll"
-            "${MSYS_BIN}/libwinpthread-1.dll"
-            "${MSYS_BIN}/libstdc++-6.dll"
-            "${MSYS_BIN}/libbz2-1.dll"
-            "${MSYS_BIN}/libbrotlidec.dll"
-            "${MSYS_BIN}/libharfbuzz-0.dll"
-            "${MSYS_BIN}/zlib1.dll"
-            "${MSYS_BIN}/libpng16-16.dll"
-            "${MSYS_BIN}/libbrotlicommon.dll"
-            "${MSYS_BIN}/libglib-2.0-0.dll"
-            "${MSYS_BIN}/libgraphite2.dll"
-            "${MSYS_BIN}/libintl-8.dll"
-            "${MSYS_BIN}/libpcre2-8-0.dll"
-            "${MSYS_BIN}/libiconv-2.dll"
-        )
+        if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+            message(STATUS "Project packing (compiled with Clang) for current system (WIN32 based) is started...")
+            set(MSYS_BIN "C:/msys64/clang64/bin")
+            set(DLL_LIST
+                "${MSYS_BIN}/libc++.dll"
+                "${MSYS_BIN}/libbrotlidec.dll"
+                "${MSYS_BIN}/libbrotlicommon.dll"
+            )
+        endif()
+        if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+            message(STATUS "Project packing (compiled with GNU) for current system (WIN32 based) is started...")
+            set(MSYS_BIN "C:/msys64/ucrt64/bin")
+            set(DLL_LIST
+                "${MSYS_BIN}/glfw3.dll"
+                "${MSYS_BIN}/libfreetype-6.dll"
+                "${MSYS_BIN}/libgcc_s_seh-1.dll"
+                "${MSYS_BIN}/libwinpthread-1.dll"
+                "${MSYS_BIN}/libstdc++-6.dll"
+                "${MSYS_BIN}/libbz2-1.dll"
+                "${MSYS_BIN}/libbrotlidec.dll"
+                "${MSYS_BIN}/libharfbuzz-0.dll"
+                "${MSYS_BIN}/zlib1.dll"
+                "${MSYS_BIN}/libpng16-16.dll"
+                "${MSYS_BIN}/libbrotlicommon.dll"
+                "${MSYS_BIN}/libglib-2.0-0.dll"
+                "${MSYS_BIN}/libgraphite2.dll"
+                "${MSYS_BIN}/libintl-8.dll"
+                "${MSYS_BIN}/libpcre2-8-0.dll"
+                "${MSYS_BIN}/libiconv-2.dll"
+            )
+        endif()
+
 
         foreach(dll ${DLL_LIST})
             add_custom_command(TARGET ${Project} POST_BUILD
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different "${dll}" "$<TARGET_FILE_DIR:${Project}>"
             )
         endforeach()
-        install(TARGETS ${Project} DESTINATION .)
-        install(FILES ${DLL_LIST} DESTINATION .)
-        install(DIRECTORY ${RESOURCES_DIR} DESTINATION .)
+
+        install(TARGETS ${Project}
+            RUNTIME DESTINATION . COMPONENT runtime
+        )
+        install(FILES ${DLL_LIST} DESTINATION . COMPONENT runtime)
+        install(DIRECTORY ${RESOURCES_DIR} DESTINATION . COMPONENT runtime)
 
         set(CPACK_PACKAGE_NAME ${Project})
         set(CPACK_PACKAGE_VERSION "1.0.0")
         set(CPACK_PACKAGE_VENDOR "expool")
+        set(CPACK_NSIS_COMPONENT_INSTALL ON)
+        set(CPACK_COMPONENTS_ALL
+            runtime
+        )
+        set(CPACK_PACKAGE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/packaging)
         set(CPACK_GENERATOR "NSIS")
         include(CPack)
-        message(STATUS "Project packing is completed. Use command to get packet: cpack --config CPackConfig.cmake")
+        cpack_add_component(runtime
+            DISPLAY_NAME ${Project}
+            DESCRIPTION "Required files for the game."
+            REQUIRED
+        )
+
+        message(STATUS "Project packing is completed. Use command to get packet: cpack --config build/CPackConfig.cmake")
     endif(WIN32)
     if (UNIX)
         message(STATUS "Project packing for current system (UNIX based) is started...")
         #
-        message(STATUS "Project packing is completed. Use command to get packet: cpack --config CPackConfig.cmake")
+        message(STATUS "Project packing is completed. Use command to get packet: cpack --config build/CPackConfig.cmake")
     endif(UNIX)
 endif()

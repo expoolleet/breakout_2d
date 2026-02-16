@@ -68,12 +68,12 @@ class Game {
     void render(float alpha);
     void doCollisions();
     void nextLevel();
-    GameLevel getLevel(unsigned int number);
     void restartCurrentLevel();
     void resetBalls();
     void resetBallPosition(Ball &ball);
     void resetPlayer();
     void cleanDestroyedBalls();
-
     void spawnBall();
+
+    GameLevel getLevel(unsigned int number);
 };

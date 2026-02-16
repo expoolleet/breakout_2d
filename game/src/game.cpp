@@ -114,12 +114,14 @@ void Game::init() {
     m_particleEmitterBall->setParticleLifeTime(1.0f);
     m_particleEmitterBall->setParticleAttenuationSpeed(2.5f);
     m_particleEmitterBall->setParticleScale(15.0f);
+    m_particleEmitterBall->setPositionRandomOffsetRange(-50.0f, 50.0f);
+    m_particleEmitterBall->setVelocityRandomOffsetRange(-10.0f, 10.0f);
     m_particleEmitterBall->init();
 
     EventDispatcher::Get().subscribe<BallFliedOff>([this](const BallFliedOff &e) {
-        if (m_balls.size() == 1 && ++m_currentAttempt >= m_attempts)
+        if (m_balls.size() == 1 && ++m_currentAttempt >= m_attempts) {
             this->restartCurrentLevel();
-        else {
+        } else {
             e.ball.destroy();
         }
     });

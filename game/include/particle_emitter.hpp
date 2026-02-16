@@ -2,7 +2,6 @@
 
 #include "particle.hpp"
 
-#include <random>
 #include <vector>
 
 // fwd;
@@ -22,8 +21,14 @@ class ParticleEmitter {
     float m_particleLifeTime = 0.0f;
     float m_particleDelay = 0.9f;
     float m_particleScale = 10.0f;
+    std::pair<float, float> m_velocityOffsetRange = {-1.0f, 1.0f};
+    std::pair<float, float> m_positionOffsetRange = {0.0f, 0.0f};
+
+    glm::vec2 m_objectPosition;
+    bool m_emitWhenStanding = false;
 
     int _findFirstUnusedParticle();
+    void _update(float dt);
 
   public:
     ParticleEmitter(const Texture2D &texture, int limit);
@@ -47,4 +52,9 @@ class ParticleEmitter {
 
     void setParticleLimit(int limit);
     int getParticleLimit();
+
+    void setVelocityRandomOffsetRange(float a, float b);
+    void setPositionRandomOffsetRange(float a, float b);
+
+    void setEmitWhenStanding(bool flag);
 };

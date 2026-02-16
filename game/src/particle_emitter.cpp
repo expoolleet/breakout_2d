@@ -64,18 +64,17 @@ void ParticleEmitter::init() {
 }
 
 void ParticleEmitter::update(float dt, GameObject &gameObject, int newParticles, glm::vec2 offset) {
+    if (!m_emitWhenStanding && glm::length(gameObject.getPosition() - m_objectPosition) < 0.001) {
+        _update(dt);
+        return;
+    }
+    m_objectPosition = gameObject.getPosition();
+
     for (int i = 0; i < newParticles; ++i) {
         int unusedParticleIndex = _findFirstUnusedParticle();
         respawnParticle(m_particlePool[unusedParticleIndex], gameObject, offset);
     }
-    for (int i = 0; i < m_particleLimit; ++i) {
-        Particle &particle = m_particlePool[i];
-        particle.lifeTime -= dt;
-        if (particle.lifeTime <= 0.0f)
-            continue;
-        particle.position -= particle.velocity * dt;
-        particle.color.a -= m_particleAttenuationSpeed * dt;
-    }
+    _update(dt);
 }
 
 void ParticleEmitter::emit(Shader &shader) {
@@ -97,8 +96,12 @@ void ParticleEmitter::emit(Shader &shader) {
 
 void ParticleEmitter::respawnParticle(Particle &particle, GameObject &gameObject, glm::vec2 offset) {
     particle.lifeTime = m_particleLifeTime;
-    particle.position = gameObject.getPosition() + offset + _fr::randomFloatInRange(-5.0f, 5.0f);
-    particle.velocity = gameObject.getVelocity() * (1.0f - m_particleDelay);
+    float randomPosX = _fr::randomFloatInRange(m_positionOffsetRange.first, m_positionOffsetRange.second);
+    float randomPosY = _fr::randomFloatInRange(m_positionOffsetRange.first, m_positionOffsetRange.second);
+    particle.position = gameObject.getPosition() + offset + glm::vec2(randomPosX, randomPosY);
+    float randomVelX = _fr::randomFloatInRange(m_velocityOffsetRange.first, m_velocityOffsetRange.second);
+    float randomVelY = _fr::randomFloatInRange(m_velocityOffsetRange.first, m_velocityOffsetRange.second);
+    particle.velocity = gameObject.getVelocity() * (1.0f - m_particleDelay) + glm::vec2(randomVelX, randomVelY);
     float randomColor = _fr::randomFloatInRange(0.3f, 0.7f);
     particle.color = glm::vec4(randomColor, randomColor, randomColor, 1.0f);
 }
@@ -146,4 +149,33 @@ void ParticleEmitter::setParticleLimit(int limit) {
 
 int ParticleEmitter::getParticleLimit() {
     return m_particleLimit;
+}
+
+void ParticleEmitter::setVelocityRandomOffsetRange(float a, float b) {
+    if (a > b) {
+        _log::Warn("Could not set range for velocity random offset ({} > {})", a, b);
+    }
+    m_velocityOffsetRange = {a, b};
+}
+
+void ParticleEmitter::setPositionRandomOffsetRange(float a, float b) {
+    if (a > b) {
+        _log::Warn("Could not set range for position random offset ({} > {})", a, b);
+    }
+    m_positionOffsetRange = {a, b};
+}
+
+void ParticleEmitter::setEmitWhenStanding(bool flag) {
+    m_emitWhenStanding = flag;
+}
+
+void ParticleEmitter::_update(float dt) {
+    for (int i = 0; i < m_particleLimit; ++i) {
+        Particle &particle = m_particlePool[i];
+        if (particle.lifeTime <= 0.0f)
+            continue;
+        particle.lifeTime -= dt;
+        particle.position -= particle.velocity * dt;
+        particle.color.a -= m_particleAttenuationSpeed * dt;
+    }
 }
