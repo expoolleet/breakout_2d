@@ -39,7 +39,7 @@ void ParticleEmitter::_fillPool() {
     }
 }
 
-ParticleEmitter::ParticleEmitter(const Texture2D &texture, int limit) : m_texture(&texture), m_particleCount(limit) {}
+ParticleEmitter::ParticleEmitter(const Texture2D &texture, int count) : m_texture(&texture), m_particleCount(count) {}
 
 void ParticleEmitter::init() {
     if (m_initialized)
@@ -91,7 +91,14 @@ void ParticleEmitter::prepare(GameObject &gameObject, int newParticles, glm::vec
     m_objectPositionMap[&gameObject] = gameObject.getPosition();
     for (int i = 0; i < newParticles; ++i) {
         int unusedParticleIndex = _findFirstUnusedParticle();
-        respawnParticle(m_particlePool[unusedParticleIndex], gameObject, offset);
+        respawnParticleAtObject(m_particlePool[unusedParticleIndex], gameObject, offset);
+    }
+}
+
+void ParticleEmitter::prepareAtPosition(glm::vec2 position, int newParticles) {
+    for (int i = 0; i < newParticles; ++i) {
+        int unusedParticleIndex = _findFirstUnusedParticle();
+        respawnParticle(m_particlePool[unusedParticleIndex], position);
     }
 }
 
@@ -101,26 +108,25 @@ void ParticleEmitter::update(float dt) {
         if (particle.lifeTime <= 0.0f)
             continue;
         particle.lifeTime -= dt;
+        particle.velocity += (m_gravityEnabled ? glm::vec2(0.0f, GRAVITATIONAL_ACCELERATION) : glm::vec2(0.0f));
         particle.position -= particle.velocity * dt;
-        particle.color.a -= m_particleAttenuationSpeed * dt / particle.lifeTime;
+        particle.color.a -= (m_particleAttenuationSpeed * dt / particle.lifeTime);
         particle.scale = m_particleScale * particle.color.a;
     }
 }
 
 void ParticleEmitter::render(Shader &shader) {
+    auto partitionedParticles =
+        std::partition(m_particlePool.begin(), m_particlePool.end(), [](const Particle &p) { return p.lifeTime <= 0.0f; });
+    int activeParticleCount = std::distance(partitionedParticles, m_particlePool.end());
+    if (activeParticleCount == 0)
+        return;
+    m_texture->bind();
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
-    int activeParticleCount = 0;
-    for (int i = 0; i < m_particleCount; ++i) {
-        if (m_particlePool[i].lifeTime <= 0.0f)
-            continue;
-        ++activeParticleCount;
-    }
-
-    m_texture->bind();
     glBindBuffer(GL_ARRAY_BUFFER, m_particle_VBO);
     glBufferData(GL_ARRAY_BUFFER, MAX_PARTICLES * sizeof(Particle), NULL, GL_DYNAMIC_DRAW); // buffer orphaning
-    glBufferSubData(GL_ARRAY_BUFFER, 0, activeParticleCount * sizeof(Particle), m_particlePool.data());
+    glBufferSubData(GL_ARRAY_BUFFER, 0, activeParticleCount * sizeof(Particle), &(*partitionedParticles));
 
     glBindVertexArray(m_VAO);
     glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, activeParticleCount);
@@ -129,7 +135,7 @@ void ParticleEmitter::render(Shader &shader) {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
-void ParticleEmitter::respawnParticle(Particle &particle, GameObject &gameObject, glm::vec2 offset) {
+void ParticleEmitter::respawnParticleAtObject(Particle &particle, GameObject &gameObject, glm::vec2 offset) {
     particle.lifeTime = m_particleLifeTime;
     float randomPosX = _fr::randomFloatInRange(m_positionOffsetRange.first, m_positionOffsetRange.second);
     float randomPosY = _fr::randomFloatInRange(m_positionOffsetRange.first, m_positionOffsetRange.second);
@@ -137,8 +143,21 @@ void ParticleEmitter::respawnParticle(Particle &particle, GameObject &gameObject
     float randomVelX = _fr::randomFloatInRange(m_velocityOffsetRange.first, m_velocityOffsetRange.second);
     float randomVelY = _fr::randomFloatInRange(m_velocityOffsetRange.first, m_velocityOffsetRange.second);
     particle.velocity = gameObject.getVelocity() * (1.0f - m_particleDelay) + glm::vec2(randomVelX, randomVelY);
-    float randomColor = _fr::randomFloatInRange(0.3f, 0.7f);
-    particle.color = glm::vec4(randomColor, randomColor, randomColor, 1.0f);
+    float randomBrightness = _fr::randomFloatInRange(0.3f, 1.0f);
+    particle.color = m_particleColor * glm::vec4(randomBrightness, randomBrightness, randomBrightness, 1.0f);
+    particle.scale = m_particleScale;
+}
+
+void ParticleEmitter::respawnParticle(Particle &particle, glm::vec2 position) {
+    particle.lifeTime = m_particleLifeTime;
+    float randomPosX = _fr::randomFloatInRange(m_positionOffsetRange.first, m_positionOffsetRange.second);
+    float randomPosY = _fr::randomFloatInRange(m_positionOffsetRange.first, m_positionOffsetRange.second);
+    particle.position = position + glm::vec2(randomPosX, randomPosY);
+    float randomVelX = _fr::randomFloatInRange(m_velocityOffsetRange.first, m_velocityOffsetRange.second);
+    float randomVelY = _fr::randomFloatInRange(m_velocityOffsetRange.first, m_velocityOffsetRange.second);
+    particle.velocity = glm::vec2(randomVelX, randomVelY);
+    float randomBrightness = _fr::randomFloatInRange(0.5f, 1.0f);
+    particle.color = m_particleColor * glm::vec4(randomBrightness, randomBrightness, randomBrightness, 1.0f);
     particle.scale = m_particleScale;
 }
 
@@ -174,8 +193,8 @@ float ParticleEmitter::getParticleScale() {
     return m_particleScale;
 }
 
-void ParticleEmitter::setParticleCount(int limit) {
-    m_particleCount = limit;
+void ParticleEmitter::setNewParticleCount(int count) {
+    m_particleCount = count;
     _fillPool();
 }
 
@@ -199,4 +218,12 @@ void ParticleEmitter::setPositionRandomOffsetRange(float a, float b) {
 
 void ParticleEmitter::setEmitWhenStanding(bool flag) {
     m_emitWhenStanding = flag;
+}
+
+void ParticleEmitter::setGravityEnabled(bool flag) {
+    m_gravityEnabled = flag;
+}
+
+void ParticleEmitter::setParticleColor(glm::vec4 color) {
+    m_particleColor = color;
 }

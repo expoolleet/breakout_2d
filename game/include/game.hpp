@@ -39,7 +39,8 @@ class Game {
     std::unique_ptr<SpriteRenderer> m_spriteRenderer;
     std::unique_ptr<TextRenderer> m_textRenderer;
     std::unique_ptr<Player> m_player;
-    std::unique_ptr<ParticleEmitter> m_particleEmitterBall;
+    std::unique_ptr<ParticleEmitter> m_ballParticles;
+    std::unique_ptr<ParticleEmitter> m_collisionHitParticles;
     std::vector<std::unique_ptr<Ball>> m_balls;
     std::vector<GameLevel> m_levels;
     unsigned int m_currentLevelNumber = 0;
@@ -48,6 +49,8 @@ class Game {
     GameLevel m_currentLevel;
     std::atomic<bool> m_running = false;
     std::thread m_consoleInputThread;
+
+    std::vector<glm::vec2> m_collisionPointsHistory;
 
     glm::vec2 _lerpPos(GameObject &gameObject, float alpha);
     void _calcBallNewPositionAndVelocity(Ball &ball, CollisionDirection dir, glm::vec2 diffVector);

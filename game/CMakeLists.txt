@@ -103,11 +103,9 @@ target_include_directories(${Project} PRIVATE ${hlohmann_json_SOURCE_DIR}/includ
 ###
 
 ### GLFW3 lib
+message(STATUS "Looking for glfw3 package...")
 find_package(glfw3 QUIET)
-if (glfw3_FOUND)
-    message(STATUS "GLFW3 package was found")
-else()
-    message(STATUS "GLFW3 package was not found, fetching from repo...")
+if (NOT glfw3_FOUND)
     FetchContent_Declare(
         glfw
         GIT_REPOSITORY https://github.com/glfw/glfw.git
@@ -122,9 +120,9 @@ target_link_libraries(${Project} PRIVATE glfw)
 ###
 
 ### Freetype lib
+message(STATUS "Looking for Freetype package...")
 find_package(Freetype QUIET)
 if (Freetype_FOUND)
-    message(STATUS "Freetype package was found")
     target_link_libraries(${Project} PRIVATE Freetype::Freetype)
 else()
     message(STATUS "Freetype package was not found, fetching from repo...")

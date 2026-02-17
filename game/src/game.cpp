@@ -61,7 +61,7 @@ Game::Game(unsigned int width, unsigned int height, unsigned int attempts) : m_a
     m_spriteRenderer = nullptr;
     m_textRenderer = nullptr;
     m_player = nullptr;
-    m_particleEmitterBall = nullptr;
+    m_ballParticles = nullptr;
     CurrentState = GAME_ACTIVE;
 }
 
@@ -109,16 +109,25 @@ void Game::init() {
     m_particleShader = std::make_shared<Shader>(shadersPath + "/vs/particle.vs", shadersPath + "/fs/particle.fs");
     m_particleShader->setMat4("projection", projectionMat);
     m_particleShader->setInt("sprite", 0);
-    m_particleEmitterBall = std::make_unique<ParticleEmitter>(TextureManager::getTexture("ball"), 300);
-    m_particleEmitterBall->setParticleDelay(0.9f);
 
-    m_particleEmitterBall->setParticleCount(500);
-    m_particleEmitterBall->setParticleScale(15.0f);
-    m_particleEmitterBall->setParticleLifeTime(5.0f);
-    m_particleEmitterBall->setParticleAttenuationSpeed(2.5f);
-    m_particleEmitterBall->setPositionRandomOffsetRange(-50.0f, 50.0f);
-    m_particleEmitterBall->setVelocityRandomOffsetRange(-10.0f, 10.0f);
-    m_particleEmitterBall->init();
+    m_ballParticles = std::make_unique<ParticleEmitter>(TextureManager::getTexture("ball"), 1000);
+    m_ballParticles->setPositionRandomOffsetRange(-5.0f, 5.0f);
+    m_ballParticles->setVelocityRandomOffsetRange(-5.0f, 5.0f);
+    m_ballParticles->setParticleAttenuationSpeed(2.5f);
+    m_ballParticles->setParticleLifeTime(3.0f);
+    m_ballParticles->setParticleScale(15.0f);
+    m_ballParticles->setParticleDelay(0.9f);
+    m_ballParticles->init();
+
+    m_collisionHitParticles = std::make_unique<ParticleEmitter>(TextureManager::getTexture("ball"), 300);
+    m_collisionHitParticles->setPositionRandomOffsetRange(-10.0f, 10.0f);
+    m_collisionHitParticles->setVelocityRandomOffsetRange(-100.0f, 100.0f);
+    m_collisionHitParticles->setParticleAttenuationSpeed(2.0f);
+    m_collisionHitParticles->setParticleScale(10.0f);
+    m_collisionHitParticles->setParticleLifeTime(3.0f);
+    m_collisionHitParticles->setGravityEnabled(true);
+    m_collisionHitParticles->setParticleColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+    m_collisionHitParticles->init();
 
     EventDispatcher::Get().subscribe<BallFliedOff>([this](const BallFliedOff &e) {
         if (m_balls.size() == 1 && ++m_currentAttempt >= m_attempts) {
@@ -179,11 +188,19 @@ void Game::fixedUpdate(float dt) {
     int particlesPerFrame = 2;
     for (auto &ball : m_balls) {
         ball->fixedUpdate(dt);
-        m_particleEmitterBall->prepare(*ball, particlesPerFrame, glm::vec2(ball->getRadius() / 2));
+        m_ballParticles->prepare(*ball, particlesPerFrame, glm::vec2(ball->getRadius() / 2));
     }
-    m_particleEmitterBall->update(dt);
+    m_ballParticles->update(dt);
 
     doCollisions();
+
+    if (m_collisionPointsHistory.size() > 0) {
+        for (auto &pos : m_collisionPointsHistory) {
+            m_collisionHitParticles->prepareAtPosition(pos, 30);
+        }
+        m_collisionPointsHistory.clear();
+    }
+    m_collisionHitParticles->update(dt);
 
     if (m_balls.size() == 1 && m_balls[0]->isDead()) {
         resetBalls();
@@ -209,11 +226,13 @@ void Game::render(float alpha) {
     m_spriteRenderer->drawSprite(*m_spriteShader, *m_player->Texture, _lerpPos(*m_player, alpha), m_player->getSize());
 
     m_particleShader->use();
-    m_particleEmitterBall->render(*m_particleShader);
+    m_collisionHitParticles->render(*m_particleShader);
+    m_ballParticles->render(*m_particleShader);
     m_spriteShader->use();
     for (auto &ball : m_balls) {
         m_spriteRenderer->drawSprite(*m_spriteShader, *ball->Texture, _lerpPos(*ball, alpha), ball->getSize());
     }
+
     // text
     m_textShader->use();
     if (CurrentState == GAME_WIN) {
@@ -244,6 +263,7 @@ void Game::doCollisions() {
             if (std::get<0>(collision)) {
                 CollisionDirection dir = std::get<1>(collision);
                 glm::vec2 diffVector = std::get<2>(collision);
+                m_collisionPointsHistory.push_back(std::get<3>(collision));
                 _calcBallNewPositionAndVelocity(*ball, dir, diffVector);
                 if (m_currentLevel.isFinished()) {
                     CurrentState = GAME_WIN;

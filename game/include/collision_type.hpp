@@ -11,4 +11,4 @@ enum CollisionDirection {
     COLLISION_DIRECTION_NONE
 };
 
-typedef std::tuple<bool, CollisionDirection, glm::vec2> Collision;
+typedef std::tuple<bool, CollisionDirection, glm::vec2, glm::vec2> Collision;
