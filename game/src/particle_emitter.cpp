@@ -110,7 +110,7 @@ void ParticleEmitter::update(float dt) {
         particle.lifeTime -= dt;
         particle.velocity += (m_gravityEnabled ? glm::vec2(0.0f, GRAVITATIONAL_ACCELERATION) : glm::vec2(0.0f));
         particle.position -= particle.velocity * dt;
-        particle.color.a -= (m_particleAttenuationSpeed * dt / particle.lifeTime);
+        particle.color.a = particle.lifeTime / m_particleLifeTime;
         particle.scale = m_particleScale * particle.color.a;
     }
 }

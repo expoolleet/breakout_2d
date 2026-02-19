@@ -12,9 +12,13 @@
 #include <glm/glm.hpp>
 
 Ball::Ball(const Texture2D &texture, glm::vec2 position, glm::vec2 size, const Player &player)
-    : GameObject(texture, position, size), m_player(&player) {}
+    : GameObject(texture, position, size), m_player(&player) {
+    m_type = GameObjectType::GameObject_Ball;
+}
 
-Ball::Ball(const Texture2D &texture) : GameObject(texture) {}
+Ball::Ball(const Texture2D &texture) : GameObject(texture) {
+    m_type = GameObjectType::GameObject_Ball;
+}
 
 void Ball::move(float dt, float windowWidth, float windowHeight) {
     m_previousPosition = m_position;
@@ -51,18 +55,21 @@ void Ball::fixedUpdate(float dt) {
 Collision Ball::checkCollision(GameObject &gameObject) {
     if (isStuck())
         return _cd::NoneCollision;
-    if (Player *player = dynamic_cast<Player *>(&gameObject)) {
-        Collision playerCollision = _cd::checkCollision(*this, *player);
-        if (std::get<0>(playerCollision)) {
-            float centerBoard = m_player->getPosition().x + m_player->getSize().x / 2;
-            float distance = (getPosition().x + getRadius()) - centerBoard;
-            float percentage = distance / (m_player->getSize().x / 2.0f);
-            glm::vec2 newVelocity = getBounceVelocity() * percentage * player->getStrength();
-            newVelocity.y = std::abs(getVelocity().y);
-            setVelocity(glm::normalize(newVelocity) * glm::length(getVelocity()));
+    Collision collision = _cd::checkCollision(*this, gameObject);
+    if (gameObject.getObjectType() == GameObjectType::GameObject_Player && std::get<0>(collision)) {
+        Player *player = dynamic_cast<Player *>(&gameObject);
+        float centerBoard = m_player->getPosition().x + m_player->getSize().x / 2;
+        float distance = (getPosition().x + getRadius()) - centerBoard;
+        float percentage = distance / (m_player->getSize().x / 2.0f);
+        glm::vec2 newVelocity = getBounceVelocity() * percentage * player->getStrength();
+        newVelocity.y = std::abs(getVelocity().y);
+        setVelocity(glm::normalize(newVelocity) * glm::length(getVelocity()));
+
+        if (player->isSticky()) {
+            setStuck(true);
         }
     }
-    return _cd::NoneCollision;
+    return collision;
 }
 
 void Ball::assignPlayer(const Player &player) {

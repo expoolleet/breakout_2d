@@ -70,16 +70,16 @@ void GameLevel::load() {
 
             switch (code) {
             case -1:
-                m_bricks.push_back(Brick(TextureManager::getTexture(UNDESTROYABLE_BRICK), position, size, BrickType::BRICK_UNDESTROYABLE));
+                m_bricks.push_back(Brick(TextureManager::getTexture(UNDESTROYABLE_BRICK), position, size, BrickType::Undestroyable));
                 break;
             case 1:
-                m_bricks.push_back(Brick(TextureManager::getTexture(STANDARD_BRICK), position, size, BrickType::BRICK_STANDARD));
+                m_bricks.push_back(Brick(TextureManager::getTexture(STANDARD_BRICK), position, size, BrickType::Standard));
                 break;
             case 2:
-                m_bricks.push_back(Brick(TextureManager::getTexture(STANDARD_BRICK), position, size, BrickType::BRICK_HARD));
+                m_bricks.push_back(Brick(TextureManager::getTexture(STANDARD_BRICK), position, size, BrickType::Hard));
                 break;
             case 3:
-                m_bricks.push_back(Brick(TextureManager::getTexture(STANDARD_BRICK), position, size, BrickType::BRICK_EXTREMELY_TOUGH));
+                m_bricks.push_back(Brick(TextureManager::getTexture(STANDARD_BRICK), position, size, BrickType::ExtremelyTough));
                 break;
             }
         }

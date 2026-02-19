@@ -8,6 +8,7 @@
 class Player : public GameObject {
   private:
     float m_strength = 2.0f;
+    bool m_sticky = false;
 
   public:
     Player(const Texture2D &texture, glm::vec2 position, glm::vec2 size);
@@ -17,4 +18,7 @@ class Player : public GameObject {
 
     void setStrength(float strength);
     float getStrength();
+
+    bool isSticky();
+    void setStickyState(bool state);
 };

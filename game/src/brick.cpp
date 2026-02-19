@@ -11,12 +11,13 @@
 #include <glm/glm.hpp>
 
 Brick::Brick(const Texture2D &texture, glm::vec2 position, glm::vec2 size, BrickType type)
-    : GameObject(texture, position, size), m_type(type) {
+    : GameObject(texture, position, size), m_brickType(type) {
     BrickData data = getBrickData(type);
     m_isDestroyable = data.isDestroyable;
     m_hardnessPoints = data.maxHardnessPoints;
     m_maxHardnessPoints = data.maxHardnessPoints;
     Color = data.color;
+    m_type = GameObjectType::GameObject_Brick;
 }
 
 void Brick::update(float dt) {}
@@ -60,6 +61,17 @@ void Brick::reset() {
     m_hardnessPoints = m_maxHardnessPoints;
 }
 
-BrickType Brick::getType() const {
-    return m_type;
+BrickType Brick::getBrickType() const {
+    return m_brickType;
+}
+
+PowerUpType Brick::getPowerUpType() const {
+    return m_powerUp;
+}
+
+void Brick::setPowerUpType(PowerUpType type) {
+    PowerUpData data = ::getPowerUpData(type);
+    setColor(data.color);
+    Texture = &data.texture;
+    m_powerUp = type;
 }

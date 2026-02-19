@@ -4,20 +4,30 @@
 
 #include <glm/glm.hpp>
 
+enum GameObjectType {
+    GameObject_None,
+    GameObject_Player,
+    GameObject_Ball,
+    GameObject_Brick,
+    GameObject_PowerUp
+};
+
 class Texture2D; // fwd
 
 class GameObject {
   protected:
     bool m_isDestroyable = false;
     bool m_isDead = false;
+    bool m_isHidden = false;
     glm::vec2 m_position = glm::vec3(0.0f);
     glm::vec2 m_previousPosition = glm::vec3(0.0f);
     glm::vec2 m_size = glm::vec3(0.0f);
     glm::vec2 m_velocity = glm::vec2(0.0f);
     glm::vec2 m_acceleration = glm::vec2(0.0f);
+    glm::vec3 m_color = glm::vec3(1.0f);
     float m_accelerationAttenuation = 0.1f;
     float m_speed = 0.0f;
-    bool m_isHidden = false;
+    GameObjectType m_type = GameObjectType::GameObject_None;
 
   public:
     const Texture2D *Texture = nullptr;
@@ -30,15 +40,15 @@ class GameObject {
     virtual void update(float dt) = 0;
     virtual void fixedUpdate(float dt) = 0;
     virtual Collision checkCollision(GameObject &gameObject);
+    virtual GameObjectType getObjectType() const;
 
     virtual bool isDestroyable() const;
     virtual bool isDead() const;
+    virtual bool isHidden() const;
     virtual void setDestructibility(bool flag);
     virtual void destroy();
+    virtual void hide(bool state);
     virtual void reset();
-
-    virtual bool IsHidden() const;
-    virtual void Hide(bool state);
 
     virtual glm::vec2 getPosition() const;
     virtual glm::vec2 getPreviousPosition();
@@ -53,4 +63,7 @@ class GameObject {
 
     virtual float getSpeed() const;
     virtual void setSpeed(float speed);
+
+    virtual void setColor(glm::vec3 color);
+    virtual glm::vec3 getColor();
 };

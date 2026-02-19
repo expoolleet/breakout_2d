@@ -5,6 +5,9 @@
 
 #include <glm/glm.hpp>
 
+#define BALL_DEFAULT_SPEED 800.0f
+#define BALL_DEFAULT_SIZE glm::vec2(31.0f)
+
 class Texture2D; // fwd
 class Player;
 

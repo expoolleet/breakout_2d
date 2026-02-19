@@ -1,7 +1,10 @@
 #pragma once
 
 #include "collision_type.hpp"
+#include "event_type.hpp"
 #include "game_level.hpp"
+#include "powerup.hpp"
+#include "powerup_type.hpp"
 #include "sprite_renderer.hpp"
 
 #include <atomic>
@@ -23,6 +26,8 @@ class ParticleEmitter;
 #define INITIAL_BALL_VELOCITY (glm::vec2(0.5f, 1.0f))
 #define PLAYER_DEFAULT_SIZE (glm::vec2(256.0f, 32.0f))
 #define PLAYER_START_POSITION (glm::vec2(Window::getWidth() / 2.0f - PLAYER_DEFAULT_SIZE.x / 2.0f, 25.0f))
+#define MAX_BALL_DAMAGE 3
+#define MIN_BALL_DAMAGE 1
 
 enum GameState {
     GAME_NONE,
@@ -49,8 +54,9 @@ class Game {
     GameLevel m_currentLevel;
     std::atomic<bool> m_running = false;
     std::thread m_consoleInputThread;
+    std::vector<PowerUp> m_powerups;
 
-    std::vector<glm::vec2> m_collisionPointsHistory;
+    std::vector<glm::vec2> m_collisionPointHistory;
 
     glm::vec2 _lerpPos(GameObject &gameObject, float alpha);
     void _calcBallNewPositionAndVelocity(Ball &ball, CollisionDirection dir, glm::vec2 diffVector);
@@ -69,6 +75,7 @@ class Game {
     void update(float dt);
     void fixedUpdate(float dt);
     void render(float alpha);
+    void renderText(float alpha);
     void doCollisions();
     void nextLevel();
     void restartCurrentLevel();
@@ -76,7 +83,15 @@ class Game {
     void resetBallPosition(Ball &ball);
     void resetPlayer();
     void cleanDestroyedBalls();
-    void spawnBall();
+    void spawnBall(glm::vec2 position);
+    void spawnPowerUp(PowerUpType type, glm::vec2 position);
+    void updatePowerUps(float dt);
+    void cleanupPowerUps();
 
     GameLevel getLevel(unsigned int number);
+
+    // handlers
+    void onBallFliedOff(const BallFliedOff &e);
+    void onPowerUpActivated(const PowerUpActivated &e);
+    void onPowerUpFinished(const PowerUpFinished &e);
 };

@@ -14,4 +14,9 @@ inline static float randomFloatInRange(float min, float max) {
     std::uniform_real_distribution<float> distribution(min, max);
     return distribution(randomEngine_mt19937);
 }
+
+inline static int randomIntInRange(int min, int max) {
+    std::uniform_int_distribution<int> distribution(min, max);
+    return distribution(randomEngine_mt19937);
+}
 } // namespace _fr

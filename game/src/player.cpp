@@ -7,7 +7,9 @@
 
 class Texture2D; // fwd
 
-Player::Player(const Texture2D &texture, glm::vec2 position, glm::vec2 size) : GameObject(texture, position, size) {}
+Player::Player(const Texture2D &texture, glm::vec2 position, glm::vec2 size) : GameObject(texture, position, size) {
+    m_type = GameObjectType::GameObject_Player;
+}
 
 void Player::update(float dt) {}
 
@@ -32,4 +34,12 @@ void Player::setStrength(float strength) {
 
 float Player::getStrength() {
     return m_strength;
+}
+
+bool Player::isSticky() {
+    return m_sticky;
+}
+
+void Player::setStickyState(bool state) {
+    m_sticky = state;
 }

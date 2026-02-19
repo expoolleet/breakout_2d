@@ -25,6 +25,8 @@ set(Sources
     src/texture_2d.cpp
     src/texture_manager.cpp
     src/window.cpp
+    src/canvas.cpp
+    src/powerup.cpp
 )
 
 set(Headers
@@ -56,6 +58,9 @@ set(Headers
     include/texture_2d.hpp
     include/texture_manager.hpp
     include/window.hpp
+    include/canvas.hpp
+    include/powerup.hpp
+    include/powerup_type.hpp
 )
 
 add_executable(${Project}

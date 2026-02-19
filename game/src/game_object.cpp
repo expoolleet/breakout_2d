@@ -19,6 +19,10 @@ Collision GameObject::checkCollision(GameObject &gameObject) {
     return _cd::NoneCollision;
 }
 
+GameObjectType GameObject::getObjectType() const {
+    return m_type;
+}
+
 bool GameObject::isDestroyable() const {
     return m_isDestroyable;
 }
@@ -41,11 +45,11 @@ void GameObject::reset() {
     m_isHidden = false;
 }
 
-bool GameObject::IsHidden() const {
+bool GameObject::isHidden() const {
     return m_isHidden;
 }
 
-void GameObject::Hide(bool state) {
+void GameObject::hide(bool state) {
     m_isHidden = state;
 }
 
@@ -89,4 +93,12 @@ float GameObject::getSpeed() const {
 
 void GameObject::setSpeed(float speed) {
     m_speed = speed;
+}
+
+void GameObject::setColor(glm::vec3 color) {
+    m_color = color;
+}
+
+glm::vec3 GameObject::getColor() {
+    return m_color;
 }

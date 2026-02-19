@@ -3,6 +3,7 @@
 #include "brick_type.hpp"
 #include "collision_type.hpp"
 #include "game_object.hpp"
+#include "powerup_type.hpp"
 
 #include <glm/glm.hpp>
 
@@ -10,9 +11,10 @@ class Texture2D; // fwd
 
 class Brick : public GameObject {
   private:
-    BrickType m_type = BrickType::BRICK_NONE;
+    BrickType m_brickType = BrickType::None;
     int m_hardnessPoints = 0;
     int m_maxHardnessPoints = 0;
+    PowerUpType m_powerUp = PowerUp_None;
 
   public:
     glm::vec3 Color = glm::vec3(1.0f);
@@ -21,7 +23,9 @@ class Brick : public GameObject {
     void fixedUpdate(float dt) override;
     Collision checkCollision(GameObject &gameObject) override;
 
-    BrickType getType() const;
+    BrickType getBrickType() const;
+    PowerUpType getPowerUpType() const;
+    void setPowerUpType(PowerUpType type);
     int getCurrentHardnessPoints() const;
     int getMaxHardnessPoints() const;
     void doDamage(unsigned int damage);

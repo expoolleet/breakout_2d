@@ -1,3 +1,4 @@
+#include "canvas.hpp"
 #include "fast_random.hpp"
 #include "game.hpp"
 #include "glad/glad.h" // 1
@@ -32,7 +33,7 @@ void key_callback(GLFWwindow *window, int key, int scanCode, int action, int mod
     }
 
     if (key == GLFW_KEY_T && action == GLFW_PRESS) {
-        game.spawnBall();
+        game.spawnBall(glm::vec2(glm::vec2(Window::getWidth() / 2.0f, Window::getHeight() / 2.0f)));
     }
 }
 
@@ -52,7 +53,19 @@ int main() {
 
     glfwSwapInterval(1); // v-sync
 
-    RenderConfig::setupDefaultAlphaBlending();
+    _rc::setupDefaultAlphaBlending();
+
+    Canvas::init();
+    Canvas canvas;
+
+    _rc::setupMultisampling();
+    BufferObject resolveBuffer = _rc::getFramebuffer(1);
+    BufferObject msaaBuffer = _rc::getMultisamlpingFramebuffer(4);
+
+    std::string shaders = PathManager::getResourcePath("shaders");
+    Shader canvasShader(shaders + "/vs/canvas.glsl", shaders + "/fs/canvas.glsl");
+    canvasShader.setVec2("inverseScreenSize",
+                         glm::vec2(1.0f / static_cast<float>(Window::getWidth()), 1.0f / static_cast<float>(Window::getHeight())));
 
     _fr::initRandomEngine();
     PathManager::init();
@@ -77,9 +90,18 @@ int main() {
         }
         game.update(static_cast<float>(frameTime));
 
+        glBindFramebuffer(GL_FRAMEBUFFER, msaaBuffer.fbo);
         glClear(GL_COLOR_BUFFER_BIT);
         float alpha = static_cast<float>(accumulation / FIXED_FRAMETIME);
         game.render(alpha);
+        glBlitNamedFramebuffer(msaaBuffer.fbo, resolveBuffer.fbo, 0, 0, Window::getWidth(), Window::getHeight(), 0, 0, Window::getWidth(),
+                               Window::getHeight(), GL_COLOR_BUFFER_BIT, GL_NEAREST);
+
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glClear(GL_COLOR_BUFFER_BIT);
+        canvasShader.use();
+        canvas.render(canvasShader, resolveBuffer.textures);
+        game.renderText(alpha);
         glfwSwapBuffers(window);
         ShaderObserver::Get().update();
     }
