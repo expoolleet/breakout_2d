@@ -1,0 +1,15 @@
+if (WIN32)
+    set(CMAKE_SYSTEM_NAME Windows)
+endif()
+if (UNIX)
+    set(CMAKE_SYSTEM_NAME Linux)
+endif()
+
+set(UCRT_BIN "C:/msys64/ucrt64/bin")
+set(CMAKE_C_COMPILER "${UCRT_BIN}/gcc.exe")
+set(CMAKE_CXX_COMPILER "${UCRT_BIN}/g++.exe")
+set(CMAKE_LINKER "${UCRT_BIN}/ld.exe")
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+set(MSYS_PATH "C:/msys64/ucrt64")
+include_directories(SYSTEM "${MSYS_PATH}/include")

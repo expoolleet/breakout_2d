@@ -23,7 +23,6 @@ inline void setupDefaultAlphaBlending() {
 
 inline void setupMultisampling() {
     glEnable(GL_MULTISAMPLE);
-    // glEnable(GL_SAMPLE_ALPHA_TO_COVERAGE);
 }
 
 inline BufferObject getMultisamlpingFramebuffer(unsigned int samples) {

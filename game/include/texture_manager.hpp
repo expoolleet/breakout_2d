@@ -17,10 +17,9 @@
 class TextureManager {
   private:
     TextureManager() = delete;
-    TextureManager(TextureManager &) = delete;
-    TextureManager operator=(TextureManager &) = delete;
-    inline static std::unordered_map<std::string, std::unique_ptr<Texture2D>, string_hash, string_view_equal>
-        m_textures = {};
+    TextureManager(const TextureManager &) = delete;
+    TextureManager operator=(const TextureManager &) = delete;
+    inline static std::unordered_map<std::string, std::unique_ptr<Texture2D>, string_hash, string_view_equal> m_textures = {};
     inline static bool m_isDefaultTextureLoaded = false;
     static const Texture2D &_getDefaultTexture();
 

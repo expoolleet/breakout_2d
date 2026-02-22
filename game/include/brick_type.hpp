@@ -18,7 +18,9 @@ inline const char *toString(BrickType type) {
         return "Brick_ExtremelyTough";
     case Undestroyable:
         return "Brick_Undestroyable";
-    default:
+    case None:
         return "Brick_None";
+    default:
+        return "";
     }
 }

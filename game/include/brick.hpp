@@ -17,7 +17,6 @@ class Brick : public GameObject {
     PowerUpType m_powerUp = PowerUp_None;
 
   public:
-    glm::vec3 Color = glm::vec3(1.0f);
     Brick(const Texture2D &texture, glm::vec2 position, glm::vec2 size, BrickType type);
     void update(float dt) override;
     void fixedUpdate(float dt) override;

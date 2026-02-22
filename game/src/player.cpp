@@ -17,11 +17,11 @@ void Player::fixedUpdate(float dt) {
     float offset = 5.0f;
     glm::vec2 playerPosition = getPosition();
     playerPosition += getVelocity() * getSpeed() * dt;
-    int leftSide = 0.0f + offset;
+    float leftSide = 0.0f + offset;
     if (playerPosition.x <= leftSide) {
         playerPosition.x = leftSide;
     }
-    float rightSide = Window::getWidth() - getSize().x - offset;
+    float rightSide = static_cast<float>(Window::getWidth()) - getSize().x - offset;
     if (playerPosition.x >= rightSide) {
         playerPosition.x = rightSide;
     }

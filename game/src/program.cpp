@@ -1,3 +1,4 @@
+#include "audio_manager.hpp"
 #include "canvas.hpp"
 #include "fast_random.hpp"
 #include "game.hpp"
@@ -54,11 +55,10 @@ int main() {
     glfwSwapInterval(1); // v-sync
 
     _rc::setupDefaultAlphaBlending();
+    _rc::setupMultisampling();
 
     Canvas::init();
     Canvas canvas;
-
-    _rc::setupMultisampling();
     BufferObject resolveBuffer = _rc::getFramebuffer(1);
     BufferObject msaaBuffer = _rc::getMultisamlpingFramebuffer(4);
 
@@ -71,6 +71,10 @@ int main() {
     PathManager::init();
     ShaderObserver::Get().startObserving();
     game.init();
+
+    if (AudioManager::Get().init()) {
+        _log::Log("FMOD successfully initialized");
+    }
 
     double frameTime = 0.0;
     double lastTime = 0.0;

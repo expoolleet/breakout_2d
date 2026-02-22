@@ -99,6 +99,14 @@ void GameObject::setColor(glm::vec3 color) {
     m_color = color;
 }
 
-glm::vec3 GameObject::getColor() {
+glm::vec3 GameObject::getColor() const {
     return m_color;
+}
+
+void GameObject::setColliding(bool flag) {
+    m_isColliding = flag;
+}
+
+bool GameObject::isColliding() {
+    return m_isColliding;
 }

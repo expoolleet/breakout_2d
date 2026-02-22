@@ -1,0 +1,15 @@
+if (WIN32)
+    set(CMAKE_SYSTEM_NAME Windows)
+endif()
+if (UNIX)
+    set(CMAKE_SYSTEM_NAME Linux)
+endif()
+
+set(CLANG_BIN "C:/msys64/clang64/bin")
+set(CMAKE_C_COMPILER "${CLANG_BIN}/clang.exe")
+set(CMAKE_CXX_COMPILER "${CLANG_BIN}/clang++.exe")
+set(CMAKE_LINKER "${CLANG_BIN}/lld-link.exe")
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+set(MSYS_PATH "C:/msys64/clang64")
+include_directories(SYSTEM "${MSYS_PATH}/include")

@@ -13,10 +13,10 @@
 Brick::Brick(const Texture2D &texture, glm::vec2 position, glm::vec2 size, BrickType type)
     : GameObject(texture, position, size), m_brickType(type) {
     BrickData data = getBrickData(type);
-    m_isDestroyable = data.isDestroyable;
+    setDestructibility(data.isDestroyable);
+    setColor(data.color);
     m_hardnessPoints = data.maxHardnessPoints;
-    m_maxHardnessPoints = data.maxHardnessPoints;
-    Color = data.color;
+    m_maxHardnessPoints = m_hardnessPoints;
     m_type = GameObjectType::GameObject_Brick;
 }
 

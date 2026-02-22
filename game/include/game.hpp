@@ -43,9 +43,10 @@ class Game {
     std::shared_ptr<Shader> m_particleShader;
     std::unique_ptr<SpriteRenderer> m_spriteRenderer;
     std::unique_ptr<TextRenderer> m_textRenderer;
-    std::unique_ptr<Player> m_player;
     std::unique_ptr<ParticleEmitter> m_ballParticles;
     std::unique_ptr<ParticleEmitter> m_collisionHitParticles;
+    std::unique_ptr<Player> m_player;
+    Ball *m_heroBall = nullptr; // observer pointer
     std::vector<std::unique_ptr<Ball>> m_balls;
     std::vector<GameLevel> m_levels;
     unsigned int m_currentLevelNumber = 0;

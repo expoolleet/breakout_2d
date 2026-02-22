@@ -33,6 +33,8 @@ inline const char *toString(PowerUpType type) {
         return "PowerUp_WidePlayer";
     case PowerUp_None:
         return "PowerUp_None";
+    default:
+        return "PowerUp_Unknown";
     }
 }
 
@@ -42,12 +44,12 @@ inline PowerUpData getPowerUpData(PowerUpType type) {
     case PowerUp_FastBalls:
         return PowerUpData(glm::vec3(1.0f, 0.0f, 1.0f), 10.0f, TextureManager::getTexture(STANDARD_BRICK));
     case PowerUp_StickyPlayer:
-        return PowerUpData(glm::vec3(0.5f, 0.0f, 0.0f), 5.0f, TextureManager::getTexture(STANDARD_BRICK));
+        return PowerUpData(glm::vec3(0.5f, 0.0f, 0.0f), 10.0f, TextureManager::getTexture(STANDARD_BRICK));
     case PowerUp_PassTrough:
-        return PowerUpData(glm::vec3(0.0f, 1.0f, 0.0f), 3.0f, TextureManager::getTexture(STANDARD_BRICK));
+        return PowerUpData(glm::vec3(0.25f, 0.75f, 0.0f), 3.0f, TextureManager::getTexture(STANDARD_BRICK));
     case PowerUp_WidePlayer:
         return PowerUpData(glm::vec3(0.0f, 0.0f, 1.0f), 10.0f, TextureManager::getTexture(STANDARD_BRICK));
-    case PowerUp_None:
+    default:
         return PowerUpData();
     }
 }

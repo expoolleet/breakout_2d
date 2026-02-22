@@ -19,6 +19,7 @@ class GameObject {
     bool m_isDestroyable = false;
     bool m_isDead = false;
     bool m_isHidden = false;
+    bool m_isColliding = true;
     glm::vec2 m_position = glm::vec3(0.0f);
     glm::vec2 m_previousPosition = glm::vec3(0.0f);
     glm::vec2 m_size = glm::vec3(0.0f);
@@ -65,5 +66,8 @@ class GameObject {
     virtual void setSpeed(float speed);
 
     virtual void setColor(glm::vec3 color);
-    virtual glm::vec3 getColor();
+    virtual glm::vec3 getColor() const;
+
+    virtual void setColliding(bool flag);
+    virtual bool isColliding();
 };

@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.31.x)
 
 set(Project Breakout2D)
 
-set(CREATE_PACKAGE YES)
+set(CREATE_PACKAGE NO)
 
 project(${Project} LANGUAGES CXX)
 
@@ -27,6 +27,7 @@ set(Sources
     src/window.cpp
     src/canvas.cpp
     src/powerup.cpp
+    src/audio_manager.cpp
 )
 
 set(Headers
@@ -61,6 +62,7 @@ set(Headers
     include/canvas.hpp
     include/powerup.hpp
     include/powerup_type.hpp
+    include/audio_manager.hpp
 )
 
 add_executable(${Project}
@@ -70,7 +72,56 @@ add_executable(${Project}
 
 target_include_directories(${Project} PRIVATE
     include
+    ${EXTERNAL_DIR}/fmod/core/inc
+    ${EXTERNAL_DIR}/fmod/studio/inc
 )
+
+set(FMOD_CORE_LIB_PATH ${EXTERNAL_DIR}/fmod/core/lib/x64)
+set(FMOD_STUDIO_LIB_PATH ${EXTERNAL_DIR}/fmod/studio/lib/x64)
+
+# if(MSVC)
+#     set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+#     set_target_properties(${Project} PROPERTIES LINK_FLAGS "/SUBSYSTEM:CONSOLE")
+# endif()
+
+# if(MSVC)
+#     if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+#         message(STATUS "Configuring for clang-cl for MSVC-like environment...")
+#         add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-Xclang --target=x86_64-pc-windows-msvc>)
+#         add_link_options("/MANIFEST:NO")
+#     endif()
+# endif()
+
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+message(STATUS "Linking static import libraries (.lib)...")
+target_link_libraries(${Project} PRIVATE
+    $<$<CONFIG:Debug>:${FMOD_CORE_LIB_PATH}/fmodL_vc.lib>
+    $<$<CONFIG:Release>:${FMOD_CORE_LIB_PATH}/fmod_vc.lib>
+    $<$<CONFIG:Debug>:${FMOD_STUDIO_LIB_PATH}/fmodstudioL_vc.lib>
+    $<$<CONFIG:Release>:${FMOD_STUDIO_LIB_PATH}/fmodstudio_vc.lib>
+)
+else()
+message(STATUS "Linking static import libraries (.a)...")
+target_link_libraries(${Project} PRIVATE
+    $<$<CONFIG:Debug>:${FMOD_CORE_LIB_PATH}/libfmodL.a>
+    $<$<CONFIG:Release>:${FMOD_CORE_LIB_PATH}/libfmod.a>
+    $<$<CONFIG:Debug>:${FMOD_STUDIO_LIB_PATH}/libfmodstudioL.a>
+    $<$<CONFIG:Release>:${FMOD_STUDIO_LIB_PATH}/libfmodstudio.a>
+)
+endif()
+
+add_custom_command(TARGET ${Project} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    "$<IF:$<CONFIG:Debug>,${FMOD_CORE_LIB_PATH}/fmodL.dll,${FMOD_CORE_LIB_PATH}/fmod.dll>"
+    $<TARGET_FILE_DIR:${Project}>
+)
+
+add_custom_command(TARGET ${Project} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    "$<IF:$<CONFIG:Debug>,${FMOD_STUDIO_LIB_PATH}/fmodstudioL.dll,${FMOD_STUDIO_LIB_PATH}/fmodstudio.dll>"
+    $<TARGET_FILE_DIR:${Project}>
+)
+
 
 include(FetchContent)
 

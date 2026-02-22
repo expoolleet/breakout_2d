@@ -100,6 +100,9 @@ void Game::init() {
     m_currentLevel.load();
 
     m_currentLevel.getBricks()[0].setPowerUpType(PowerUpType::PowerUp_StickyPlayer);
+    m_currentLevel.getBricks()[1].setPowerUpType(PowerUpType::PowerUp_WidePlayer);
+    m_currentLevel.getBricks()[2].setPowerUpType(PowerUpType::PowerUp_PassTrough);
+    m_currentLevel.getBricks()[3].setPowerUpType(PowerUpType::PowerUp_FastBalls);
 
     m_player = std::make_unique<Player>(TextureManager::getTexture("player"), PLAYER_START_POSITION, PLAYER_DEFAULT_SIZE);
     m_player->setSpeed(500.0f);
@@ -110,6 +113,7 @@ void Game::init() {
     ball->setSpeed(BALL_DEFAULT_SPEED);
     ball->setDamage(1);
     m_balls.push_back(std::move(ball));
+    m_heroBall = ball.get();
 
     m_particleShader = std::make_shared<Shader>(shadersPath + "/vs/particle.glsl", shadersPath + "/fs/particle.glsl");
     m_particleShader->setMat4("projection", projectionMat);
@@ -225,7 +229,7 @@ void Game::render(float alpha) {
                                  glm::vec2(float(Window::getWidth()), float(Window::getHeight())));
     for (const auto &brick : m_currentLevel.getBricks()) {
         if (!brick.isHidden()) {
-            m_spriteRenderer->drawSprite(*m_spriteShader, *brick.Texture, brick.getPosition(), brick.getSize(), 0.0f, brick.Color);
+            m_spriteRenderer->drawSprite(*m_spriteShader, *brick.Texture, brick.getPosition(), brick.getSize(), 0.0f, brick.getColor());
         }
     }
 
@@ -367,13 +371,20 @@ void Game::onBallFliedOff(const BallFliedOff &e) {
 void Game::onPowerUpActivated(const PowerUpActivated &e) {
     switch (e.type) {
     case PowerUp_FastBalls:
+        for (auto &ball : m_balls) {
+            ball->setSpeed(BALL_DEFAULT_SPEED * 1.5);
+        }
         break;
     case PowerUp_WidePlayer:
+        m_player->setSize(glm::vec2(PLAYER_DEFAULT_SIZE.x * 1.5f, PLAYER_DEFAULT_SIZE.y));
         break;
     case PowerUp_StickyPlayer:
         m_player->setStickyState(true);
         break;
     case PowerUp_PassTrough:
+        for (auto &ball : m_balls) {
+            ball->setColliding(false);
+        }
         break;
     default:
         break;
@@ -389,13 +400,20 @@ void Game::onPowerUpFinished(const PowerUpFinished &e) {
 
     switch (e.type) {
     case PowerUp_FastBalls:
+        for (auto &ball : m_balls) {
+            ball->setSpeed(BALL_DEFAULT_SPEED);
+        }
         break;
     case PowerUp_WidePlayer:
+        m_player->setSize(PLAYER_DEFAULT_SIZE);
         break;
     case PowerUp_StickyPlayer:
         m_player->setStickyState(false);
         break;
     case PowerUp_PassTrough:
+        for (auto &ball : m_balls) {
+            ball->setColliding(true);
+        }
         break;
     default:
         break;
@@ -413,6 +431,8 @@ void Game::doCollisions() {
         if (brick.isDead())
             continue;
         for (auto &ball : m_balls) {
+            if (!ball->isColliding())
+                continue;
             Collision collision = brick.checkCollision(*ball);
             if (std::get<0>(collision)) {
                 CollisionDirection dir = std::get<1>(collision);
@@ -422,7 +442,7 @@ void Game::doCollisions() {
                 _calcBallNewPositionAndVelocity(*ball, dir, diffVector);
 
                 if (brick.getPowerUpType() != PowerUp_None) {
-                    spawnPowerUp(brick.getPowerUpType(), collisionPoint);
+                    spawnPowerUp(brick.getPowerUpType(), brick.getPosition());
                 }
 
                 if (m_currentLevel.isFinished()) {
