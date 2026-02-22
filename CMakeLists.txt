@@ -9,10 +9,15 @@ set(CMAKE_CXX_SCAN_FOR_MODULES OFF) # disable modules because of clangd
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(EXTERNAL_PATH "C:/Program Files/OpenGL") # path to includes(headers) and libs on your system
+# path to includes and libs on your system
+if(WIN32)
+    set(SYSTEM_EXTERNAL_PATH "C:/Program Files/OpenGL")
+else()
+    set(SYSTEM_EXTERNAL_PATH "")
+endif()
 
 set(GladLib glad)
-set(EXTERNAL_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external) # using g++ compiled libs
+set(EXTERNAL_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external)
 set(RESOURCES_DIR ${CMAKE_CURRENT_SOURCE_DIR}/resources)
 
 add_subdirectory(${GladLib})
