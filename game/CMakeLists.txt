@@ -63,6 +63,7 @@ set(Headers
     include/powerup.hpp
     include/powerup_type.hpp
     include/audio_manager.hpp
+    include/custom_attributes.hpp
 )
 
 add_executable(${Project}
@@ -78,19 +79,6 @@ target_include_directories(${Project} PRIVATE
 
 set(FMOD_CORE_LIB_PATH ${EXTERNAL_DIR}/fmod/core/lib/x64)
 set(FMOD_STUDIO_LIB_PATH ${EXTERNAL_DIR}/fmod/studio/lib/x64)
-
-# if(MSVC)
-#     set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
-#     set_target_properties(${Project} PROPERTIES LINK_FLAGS "/SUBSYSTEM:CONSOLE")
-# endif()
-
-# if(MSVC)
-#     if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-#         message(STATUS "Configuring for clang-cl for MSVC-like environment...")
-#         add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-Xclang --target=x86_64-pc-windows-msvc>)
-#         add_link_options("/MANIFEST:NO")
-#     endif()
-# endif()
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 message(STATUS "Linking static import libraries (.lib)...")
@@ -124,7 +112,6 @@ add_custom_command(TARGET ${Project} POST_BUILD
 
 
 include(FetchContent)
-
 ### stb header files
 message(STATUS "Looking for stb lib...")
 FetchContent_Declare(

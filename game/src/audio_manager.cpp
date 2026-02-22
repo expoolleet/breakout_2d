@@ -1,5 +1,7 @@
 #include "audio_manager.hpp"
 
+#include "custom_attributes.hpp"
+
 #include <fmod.hpp>
 
 AudioManager::~AudioManager() {
@@ -9,7 +11,7 @@ AudioManager::~AudioManager() {
 }
 
 AudioManager &AudioManager::Get() {
-    static AudioManager manager;
+    NO_DESTROY_ATTR static AudioManager manager;
     return manager;
 }
 

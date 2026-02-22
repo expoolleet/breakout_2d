@@ -1,5 +1,6 @@
 #pragma once
 
+#include "custom_attributes.hpp"
 #include "string_operators.hpp"
 #include "texture_2d.hpp"
 
@@ -16,11 +17,12 @@
 
 class TextureManager {
   private:
-    TextureManager() = delete;
-    TextureManager(const TextureManager &) = delete;
-    TextureManager operator=(const TextureManager &) = delete;
-    inline static std::unordered_map<std::string, std::unique_ptr<Texture2D>, string_hash, string_view_equal> m_textures = {};
+    NO_DESTROY_ATTR inline static std::unordered_map<std::string, std::unique_ptr<Texture2D>, string_hash, string_view_equal> m_textures =
+        {};
     inline static bool m_isDefaultTextureLoaded = false;
+    TextureManager operator=(const TextureManager &) = delete;
+    TextureManager(const TextureManager &) = delete;
+    TextureManager() = delete;
     static const Texture2D &_getDefaultTexture();
 
   public:

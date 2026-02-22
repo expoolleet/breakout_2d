@@ -11,7 +11,7 @@ build-job:
   script:
     - cmake --version
     - ninja --version
-    - cmake -G Ninja -DCMAKE_CXX_COMPILER=g++ -DCMAKE_C_COMPILER=gcc -DCMAKE_BUILD_TYPE=Release -B build -S .
+    - cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=toolchains/gcc.cmake -DCMAKE_BUILD_TYPE=Release -B build -S .
     - cmake --build build -j$(nproc)
   # artifacts:
   #   paths:
