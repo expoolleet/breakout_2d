@@ -30,7 +30,7 @@ inline void parseIncludesCPU(std::string &includes, std::string &sourceCode) {
             source = stream.str();
             readStream.close();
         } catch (std::ifstream::failure e) {
-            _log::Error("Includes initialization: file was not successfully read\n{}", entry.path().string());
+            logging::Error("Includes initialization: file was not successfully read\n{}", entry.path().string());
         }
 
         std::string includeName = "/" + entry.path().filename().string();

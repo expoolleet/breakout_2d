@@ -33,7 +33,7 @@ int Shader::_getUniformLocation(std::string_view name) {
         static std::unordered_set<std::string, string_hash, string_view_equal> warningUniforms;
         if (!warningUniforms.contains(name)) {
             warningUniforms.insert(std::string{name});
-            _log::Warn("Invalid uniform name: {}", name);
+            logging::Warn("Invalid uniform name: {}", name);
         }
     }
     return location;

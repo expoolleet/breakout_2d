@@ -6,14 +6,16 @@
 
 struct BufferObject {
     unsigned int fbo;
-    std::vector<unsigned int> textures;
+    std::vector<unsigned int> attachments;
+    size_t samples;
 
-    BufferObject() : fbo(0), textures({}) {}
-    BufferObject(int buffer, std::vector<unsigned int> textures) : fbo(buffer), textures(textures) {}
+    BufferObject() : fbo(0), attachments({}) {}
+    BufferObject(unsigned int buffer, std::vector<unsigned int> tex) : fbo(buffer), attachments(tex), samples(1) {}
+    BufferObject(unsigned int buffer, std::vector<unsigned int> tex, size_t count) : fbo(buffer), attachments(tex), samples(count) {}
 };
 
 // RenderConfig
-namespace _rc {
+namespace render {
 
 inline void setupDefaultAlphaBlending() {
     glEnable(GL_BLEND);
@@ -25,7 +27,7 @@ inline void setupMultisampling() {
     glEnable(GL_MULTISAMPLE);
 }
 
-inline BufferObject getMultisamlpingFramebuffer(unsigned int samples) {
+inline BufferObject getMultisamlpingFramebuffer(size_t samples) {
     unsigned int fbo = 0;
     glCreateFramebuffers(1, &fbo);
     unsigned int colorAttachment = 0;
@@ -34,7 +36,7 @@ inline BufferObject getMultisamlpingFramebuffer(unsigned int samples) {
     glNamedFramebufferTexture(fbo, GL_COLOR_ATTACHMENT0, colorAttachment, 0);
 
     if (glCheckNamedFramebufferStatus(fbo, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-        _log::Error("Could not create multisampled framebuffer");
+        logging::Error("Could not create multisampled framebuffer");
     }
 
     return BufferObject(fbo, {colorAttachment});
@@ -63,4 +65,22 @@ inline BufferObject getFramebuffer(unsigned int colorAttachmentCount) {
     return BufferObject(fbo, colorAttachments);
 }
 
-} // namespace _rc
+inline BufferObject resizeFrambuffer(BufferObject oldBuffer) {
+    glDeleteFramebuffers(1, &oldBuffer.fbo);
+    for (auto &att : oldBuffer.attachments) {
+        glDeleteTextures(1, &att);
+    }
+    unsigned int attachmentCount = static_cast<unsigned int>(oldBuffer.attachments.size());
+    oldBuffer.attachments.clear();
+    return getFramebuffer(attachmentCount);
+}
+
+inline BufferObject resizeMultisamplingFrambuffer(BufferObject oldBuffer) {
+    glDeleteFramebuffers(1, &oldBuffer.fbo);
+    for (auto &att : oldBuffer.attachments) {
+        glDeleteTextures(1, &att);
+    }
+    return getMultisamlpingFramebuffer(oldBuffer.samples);
+}
+
+} // namespace render

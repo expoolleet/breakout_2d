@@ -2,8 +2,9 @@
 
 class Window {
   private:
-    static int m_width;
-    static int m_height;
+    inline static int m_width = 800;
+    inline static int m_height = 600;
+    inline static GLFWwindow *m_window = nullptr;
 
     // Removing default constructor
     Window() = delete;
@@ -25,4 +26,8 @@ class Window {
     inline static void setHeight(int height) {
         m_height = height;
     }
+
+    static std::pair<int, int> getMousePosition();
+
+    static GLFWwindow *createWindow(std::string name, int width, int height);
 };

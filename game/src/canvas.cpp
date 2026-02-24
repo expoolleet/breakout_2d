@@ -5,7 +5,7 @@
 
 void Canvas::init() {
     if (m_initialized) {
-        _log::Warn("Could not initialize Canvas VAO because it is already initialized");
+        logging::Warn("Could not initialize Canvas VAO because it is already initialized");
         return;
     }
     m_initialized = true;

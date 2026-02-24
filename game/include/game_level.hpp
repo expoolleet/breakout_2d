@@ -26,4 +26,6 @@ class GameLevel {
     std::vector<Brick> &getBricks();
     bool isFinished();
     bool isLoaded();
+    int getWidth() const;
+    int getHeight() const;
 };

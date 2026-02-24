@@ -27,6 +27,7 @@ set(Sources
     src/window.cpp
     src/canvas.cpp
     src/powerup.cpp
+    src/powerup_factory.cpp
     src/audio_manager.cpp
 )
 
@@ -62,6 +63,7 @@ set(Headers
     include/canvas.hpp
     include/powerup.hpp
     include/powerup_type.hpp
+    include/powerup_factory.hpp
     include/audio_manager.hpp
     include/custom_attributes.hpp
 )

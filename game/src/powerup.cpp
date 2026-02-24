@@ -12,7 +12,7 @@ PowerUp::PowerUp(PowerUpType type, glm::vec3 color, float duration, const Textur
     : GameObject(texture, position, size), m_powerUpType(type), m_duration(duration) {
     m_type = GameObjectType::GameObject_PowerUp;
     setVelocity(glm::vec2(0.0, -1.0f));
-    setSpeed(_fr::randomFloatInRange(200.0f, 300.0f));
+    setSpeed(fastrand::randomFloatInRange(200.0f, 300.0f));
     setColor(color);
 }
 
@@ -24,7 +24,7 @@ void PowerUp::fixedUpdate(float dt) {
 
         if (isFinished()) {
             EventDispatcher::Get().emit(PowerUpFinished{m_powerUpType});
-            _log::Log("PowerUp: {} is finished", toString(m_powerUpType));
+            logging::Log("PowerUp: {} is finished", toString(m_powerUpType));
         }
         return;
     }
@@ -55,11 +55,11 @@ PowerUpType PowerUp::getType() const {
 }
 
 Collision PowerUp::checkCollision(GameObject &gameObject) {
-    Collision collision = _cd::checkCollision(*this, gameObject);
+    Collision collision = cd::checkCollision(*this, gameObject);
     if (std::get<0>(collision) && !isActivated() && gameObject.getObjectType() == GameObjectType::GameObject_Player) {
         hide(true);
         EventDispatcher::Get().emit(PowerUpActivated{m_powerUpType});
-        _log::Log("PowerUp: {} is activated", toString(m_powerUpType));
+        logging::Log("PowerUp: {} is activated", toString(m_powerUpType));
         activate();
     }
     return collision;

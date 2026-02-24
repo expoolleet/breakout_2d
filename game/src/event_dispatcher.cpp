@@ -21,7 +21,7 @@ template <typename T> void EventDispatcher::subscribe(std::function<void(const T
 template <typename T> void EventDispatcher::emit(const T &eventData) {
     auto it = m_events.find(typeid(T));
     if (it == m_events.end()) {
-        _log::Warn("No event has been registered with name {}", typeid(T).name());
+        logging::Warn("No event has been registered with name {}", typeid(T).name());
         return;
     }
     for (auto &callback : it->second) {
@@ -44,3 +44,6 @@ template void EventDispatcher::emit<PowerUpActivated>(const PowerUpActivated &ev
 
 template void EventDispatcher::subscribe<PowerUpFinished>(std::function<void(const PowerUpFinished &)> callback);
 template void EventDispatcher::emit<PowerUpFinished>(const PowerUpFinished &eventData);
+
+template void EventDispatcher::subscribe<BallHit>(std::function<void(const BallHit &)> callback);
+template void EventDispatcher::emit<BallHit>(const BallHit &eventData);

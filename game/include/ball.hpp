@@ -32,7 +32,7 @@ class Ball : public GameObject {
 
     void reset() override;
 
-    void move(float dt, float windowWidth, float windowHeight);
+    void move(float dt);
 
     bool isStuck();
     void setStuck(bool state);

@@ -28,7 +28,7 @@ inline BrickData getBrickData(BrickType type) {
     case BrickType::Undestroyable:
         return BrickData(glm::vec3(1.0f, 1.0f, 1.0f), 0, false);
     default:
-        _log::Warn("Specified wrong BrickType type: {} ({})", toString(type), int(type));
+        logging::Warn("Specified wrong BrickType type: {} ({})", toString(type), int(type));
         return BrickData();
     }
 }

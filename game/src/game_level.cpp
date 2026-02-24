@@ -22,7 +22,7 @@ GameLevel::GameLevel(std::string levelPath, int width, int height, glm::vec2 off
         std::ifstream fileStream(levelPath);
 
         if (!fileStream.is_open()) {
-            _log::Error("Could not load the level file: {}", levelPath);
+            logging::Error("Could not load the level file: {}", levelPath);
             return;
         }
         int tileCode;
@@ -37,7 +37,7 @@ GameLevel::GameLevel(std::string levelPath, int width, int height, glm::vec2 off
             }
         }
     } catch (std::ifstream::failure e) {
-        _log::Error("{}", e.what());
+        logging::Error("{}", e.what());
     }
 }
 
@@ -54,8 +54,8 @@ void GameLevel::load() {
     int gridWidth = m_tileCodes[0].size();
 
     float offset = 3.0f;
-    float unitWidth = m_width / (static_cast<float>(gridWidth));
-    float unitHeight = m_height / static_cast<float>(gridHeight);
+    float unitWidth = static_cast<float>(m_width) / (static_cast<float>(gridWidth));
+    float unitHeight = static_cast<float>(m_height) / static_cast<float>(gridHeight);
     for (int i = 0; i < gridHeight; ++i) {
         for (int j = 0; j < gridWidth; ++j) {
             int code = m_tileCodes[i][j];
@@ -63,8 +63,8 @@ void GameLevel::load() {
                 continue;
 
             // float xOffset = j * unitWidth + offset / 2;
-            float xPos = (Window::getWidth() - m_width) / 2.0f + j * unitWidth + offset / 2;
-            float yPos = Window::getHeight() - (unitHeight + i * unitHeight + offset);
+            float xPos = static_cast<float>((Window::getWidth() - m_width)) / 2.0f + static_cast<float>(j) * unitWidth + offset / 2;
+            float yPos = static_cast<float>(Window::getHeight()) - (unitHeight + static_cast<float>(i) * unitHeight + offset);
             glm::vec2 position = glm::vec2(xPos, yPos) - m_offset;
             glm::vec2 size = glm::vec2(unitWidth - offset, unitHeight - offset);
 
@@ -111,4 +111,12 @@ bool GameLevel::isFinished() {
 
 bool GameLevel::isLoaded() {
     return m_isLoaded;
+}
+
+int GameLevel::getWidth() const {
+    return m_width;
+}
+
+int GameLevel::getHeight() const {
+    return m_height;
 }

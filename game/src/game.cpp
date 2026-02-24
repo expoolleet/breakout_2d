@@ -1,5 +1,6 @@
 #include "game.hpp"
 
+#include "audio_manager.hpp"
 #include "ball.hpp"
 #include "collision_type.hpp"
 #include "event_dispatcher.hpp"
@@ -57,7 +58,7 @@ void Game::_calcBallNewPositionAndVelocity(Ball &ball, CollisionDirection dir, g
     ball.setPosition(ballPosition);
 }
 
-Game::Game(unsigned int width, unsigned int height, unsigned int attempts) : m_attempts(attempts), Width(width), Height(height) {
+Game::Game(unsigned int attempts) : m_attempts(attempts) {
     m_spriteShader = nullptr;
     m_textShader = nullptr;
     m_particleShader = nullptr;
@@ -91,10 +92,10 @@ void Game::init() {
     TextureManager::loadTexture(texturesPath + "/player_skin_2.png", true, "player");
 
     std::string levelsPath = PathManager::getResourcePath("levels");
-    m_levels.push_back(GameLevel(levelsPath + "/1.lvl", Window::getWidth() / 1.5, Window::getHeight() / 2));
-    m_levels.push_back(GameLevel(levelsPath + "/2.lvl", Window::getWidth() / 1.5, Window::getHeight() / 2));
-    m_levels.push_back(GameLevel(levelsPath + "/3.lvl", Window::getWidth() / 1.5, Window::getHeight() / 2));
-    m_levels.push_back(GameLevel(levelsPath + "/4.lvl", Window::getWidth() / 1.5, Window::getHeight()));
+    m_levels.push_back(GameLevel(levelsPath + "/1.lvl", static_cast<int>(Window::getWidth() / 1.5), Window::getHeight() / 2));
+    m_levels.push_back(GameLevel(levelsPath + "/2.lvl", static_cast<int>(Window::getWidth() / 1.5), Window::getHeight() / 2));
+    m_levels.push_back(GameLevel(levelsPath + "/3.lvl", static_cast<int>(Window::getWidth() / 1.5), Window::getHeight() / 2));
+    m_levels.push_back(GameLevel(levelsPath + "/4.lvl", static_cast<int>(Window::getWidth() / 1.5), Window::getHeight()));
     m_currentLevelNumber = 1;
     m_currentLevel = m_levels[m_currentLevelNumber - 1];
     m_currentLevel.load();
@@ -112,8 +113,8 @@ void Game::init() {
     ball->setRadius(ball->getSize().x / 2);
     ball->setSpeed(BALL_DEFAULT_SPEED);
     ball->setDamage(1);
-    m_balls.push_back(std::move(ball));
     m_heroBall = ball.get();
+    m_balls.push_back(std::move(ball));
 
     m_particleShader = std::make_shared<Shader>(shadersPath + "/vs/particle.glsl", shadersPath + "/fs/particle.glsl");
     m_particleShader->setMat4("projection", projectionMat);
@@ -139,6 +140,8 @@ void Game::init() {
     m_collisionHitParticles->init();
 
     EventDispatcher::Get().subscribe<BallFliedOff>([this](const BallFliedOff &e) { this->onBallFliedOff(e); });
+
+    EventDispatcher::Get().subscribe<BallHit>([this](const BallHit &e) { this->onBallHit(e); });
 
     EventDispatcher::Get().subscribe<PowerUpActivated>([this](const PowerUpActivated &e) { this->onPowerUpActivated(e); });
 
@@ -209,11 +212,10 @@ void Game::fixedUpdate(float dt) {
     }
     m_collisionHitParticles->update(dt);
 
-    if (m_balls.size() == 1 && m_balls[0]->isDead()) {
-        resetBalls();
-    } else {
-        cleanDestroyedBalls();
+    if (m_heroBall->isDead()) {
+        resetHeroBall();
     }
+    cleanDestroyedBalls();
 
     updatePowerUps(dt);
     cleanupPowerUps();
@@ -262,25 +264,28 @@ void Game::renderText(float dt) {
     }
     m_textRenderer->renderMSDF(*m_textShader, std::to_string(m_attempts - m_currentAttempt), 15, Window::getHeight() - 50);
 
-    if (m_balls.size() > 0) {
-        m_textRenderer->renderMSDF(
-            *m_textShader, std::format("Ball velocity.x: {}; velocity.y: {}", m_balls[0]->getVelocity().x, m_balls[0]->getVelocity().y), 50,
-            5, 0.5f, glm::vec3(1.0f), false, {glm::vec3(0.0f), 1.0f});
-    }
+    m_textRenderer->renderMSDF(
+        *m_textShader, std::format("Ball velocity.x: {:.2f}; velocity.y: {:.2f}", m_heroBall->getVelocity().x, m_heroBall->getVelocity().y),
+        30, 5, 0.5f, glm::vec3(1.0f), false, {glm::vec3(0.0f), 1.0f});
+    m_textRenderer->renderMSDF(
+        *m_textShader, std::format("Ball position.x: {:.2f}; position.y: {:.2f}", m_heroBall->getPosition().x, m_heroBall->getPosition().y),
+        30, 30, 0.5f, glm::vec3(1.0f), false, {glm::vec3(0.0f), 1.0f});
 }
 
 void Game::nextLevel() {
     resetPlayer();
-    resetBalls();
+    resetHeroBall();
+    cleanUpBallsExceptHeroBall();
     m_currentAttempt = m_attempts;
     m_currentLevel = getLevel(++m_currentLevelNumber);
+    m_powerups.clear();
     m_currentLevel.load();
     CurrentState = GAME_ACTIVE;
 }
 
 GameLevel Game::getLevel(unsigned int number) {
     if (number > m_levels.size()) {
-        _log::Warn("Could not return level with number {} because level count is {}. Returned first level.", number, m_levels.size());
+        logging::Warn("Could not return level with number {} because level count is {}. Returned first level.", number, m_levels.size());
         return m_levels[0];
     }
     return m_levels[number - 1];
@@ -288,16 +293,15 @@ GameLevel Game::getLevel(unsigned int number) {
 
 void Game::restartCurrentLevel() {
     resetPlayer();
-    resetBalls();
+    resetHeroBall();
+    cleanUpBallsExceptHeroBall();
     m_currentLevel.restart();
     m_currentAttempt = 0;
 }
 
-void Game::resetBalls() {
-    for (auto &ball : m_balls) {
-        ball->reset();
-        resetBallPosition(*ball);
-    }
+void Game::resetHeroBall() {
+    m_heroBall->reset();
+    resetBallPosition(*m_heroBall);
 }
 
 void Game::resetBallPosition(Ball &ball) {
@@ -309,20 +313,30 @@ void Game::resetPlayer() {
     m_player->resetPosition(PLAYER_START_POSITION);
 }
 
+void Game::resetProjectionMatrix() {
+    glm::mat4 projectionMat = glm::ortho(0.0f, float(Window::getWidth()), 0.0f, float(Window::getHeight()));
+    m_spriteShader->setMat4("projection", projectionMat);
+    m_particleShader->setMat4("projection", projectionMat);
+}
+
 void Game::cleanDestroyedBalls() {
-    std::erase_if(m_balls, [](const std::unique_ptr<Ball> &ball) { return ball->isDead(); });
+    std::erase_if(m_balls, [this](const std::unique_ptr<Ball> &ball) { return (ball->isDead() && &(*ball) != m_heroBall); });
+}
+
+void Game::cleanUpBallsExceptHeroBall() {
+    std::erase_if(m_balls, [this](const std::unique_ptr<Ball> &ball) { return &(*ball) != m_heroBall; });
 }
 
 void Game::spawnBall(glm::vec2 position) {
     auto ball = std::make_unique<Ball>(TextureManager::getTexture("ball"), glm::vec2(0.0f), BALL_DEFAULT_SIZE, *m_player);
     ball->setPosition(position);
-    glm::vec2 randomVelocity =
-        glm::normalize(glm::vec2(_fr::randomFloatInRange(-1.0f, 1.0f), INITIAL_BALL_VELOCITY.y + _fr::randomFloatInRange(-0.5f, 0.5f)));
+    glm::vec2 randomVelocity = glm::normalize(
+        glm::vec2(fastrand::randomFloatInRange(-1.0f, 1.0f), INITIAL_BALL_VELOCITY.y + fastrand::randomFloatInRange(-0.5f, 0.5f)));
     ball->setVelocity(randomVelocity);
     ball->setRadius(ball->getSize().x / 2);
     float speedOffset = 50.0f;
-    ball->setSpeed(_fr::randomFloatInRange(BALL_DEFAULT_SPEED - speedOffset, BALL_DEFAULT_SPEED + speedOffset));
-    int damage = _fr::randomIntInRange(MIN_BALL_DAMAGE, MAX_BALL_DAMAGE);
+    ball->setSpeed(fastrand::randomFloatInRange(BALL_DEFAULT_SPEED - speedOffset, BALL_DEFAULT_SPEED + speedOffset));
+    int damage = fastrand::randomIntInRange(MIN_BALL_DAMAGE, MAX_BALL_DAMAGE);
     switch (damage) {
     case 1:
         ball->setColor(glm::vec3(1.0f));
@@ -350,7 +364,7 @@ void Game::cleanupPowerUps() {
 }
 
 void Game::spawnPowerUp(PowerUpType type, glm::vec2 position) {
-    m_powerups.push_back(_pf::createPowerUp(type, position));
+    m_powerups.push_back(PowerUpFactory::createPowerUp(type, position));
 }
 
 Game::~Game() {
@@ -362,7 +376,7 @@ Game::~Game() {
 
 void Game::onBallFliedOff(const BallFliedOff &e) {
     if (m_balls.size() == 1 && ++m_currentAttempt >= m_attempts) {
-        this->restartCurrentLevel();
+        restartCurrentLevel();
     } else {
         e.ball.destroy();
     }
@@ -420,12 +434,21 @@ void Game::onPowerUpFinished(const PowerUpFinished &e) {
     }
 }
 
+void Game::onBallHit(const BallHit &e) {
+    float panValue = (e.position.x / static_cast<float>(Window::getWidth())) * 2.0f - 1.0f;
+    AudioManager::Get().changeGlobalParameter("Pan", panValue);
+    AudioManager::Get().playOneShot("ball_hit");
+}
+
 void Game::doCollisions() {
     for (auto &poweup : m_powerups) {
         poweup.checkCollision(*m_player);
     }
     for (auto &ball : m_balls) {
-        ball->checkCollision(*m_player);
+        Collision collision = ball->checkCollision(*m_player);
+        if (std::get<0>(collision)) {
+            EventDispatcher::Get().emit(BallHit(std::get<3>(collision)));
+        }
     }
     for (auto &brick : m_currentLevel.getBricks()) {
         if (brick.isDead())
@@ -435,10 +458,12 @@ void Game::doCollisions() {
                 continue;
             Collision collision = brick.checkCollision(*ball);
             if (std::get<0>(collision)) {
+
                 CollisionDirection dir = std::get<1>(collision);
                 glm::vec2 diffVector = std::get<2>(collision);
                 glm::vec2 collisionPoint = std::get<3>(collision);
                 m_collisionPointHistory.push_back(collisionPoint);
+                EventDispatcher::Get().emit(BallHit(collisionPoint));
                 _calcBallNewPositionAndVelocity(*ball, dir, diffVector);
 
                 if (brick.getPowerUpType() != PowerUp_None) {

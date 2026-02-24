@@ -40,7 +40,7 @@ bool ShaderManager::_readShaderFile(std::string &sSource, std::string_view sPath
         sStream.close();
         sSource = sStringStream.str();
     } catch (std::ifstream::failure e) {
-        _log::Error("Error appeared when read the shader file ({}): {}", sPath, e.what());
+        logging::Error("Error appeared when read the shader file ({}): {}", sPath, e.what());
         return false;
     }
     return true;
@@ -72,21 +72,21 @@ void ShaderManager::compileProgram(unsigned int &programID, std::string_view vsP
     unsigned int vertexShader = 0;
     if (!_compileShader(vertexShader, GL_VERTEX_SHADER, &vsCompileSource)) {
         glGetShaderInfoLog(vertexShader, SHADER_INFO_LOG_SIZE, NULL, log);
-        _log::Error("Failed to compile the vertex shader:\n{}\n{}", vsPath, log);
+        logging::Error("Failed to compile the vertex shader:\n{}\n{}", vsPath, log);
         return;
     }
 
     unsigned int fragmentShader = 0;
     if (!_compileShader(fragmentShader, GL_FRAGMENT_SHADER, &fsCompileSource)) {
         glGetShaderInfoLog(fragmentShader, SHADER_INFO_LOG_SIZE, NULL, log);
-        _log::Error("Failed to compile the vertex shader:\n{}\n{}", fsPath, log);
+        logging::Error("Failed to compile the vertex shader:\n{}\n{}", fsPath, log);
         return;
     }
 
     std::vector<unsigned int> shaders = {vertexShader, fragmentShader};
     if (!_linkShaders(programID, shaders)) {
         glGetProgramInfoLog(programID, SHADER_INFO_LOG_SIZE, NULL, log);
-        _log::Error("Failed to link shaders:\n{}\n{}\n{}", vsPath, fsPath, log);
+        logging::Error("Failed to link shaders:\n{}\n{}\n{}", vsPath, fsPath, log);
         return;
     }
 
@@ -113,28 +113,28 @@ void ShaderManager::compileProgram(unsigned int &programID, std::string_view vsP
     unsigned int vertexShader = 0;
     if (!_compileShader(vertexShader, GL_VERTEX_SHADER, &vsCompileSource)) {
         glGetShaderInfoLog(vertexShader, SHADER_INFO_LOG_SIZE, NULL, log);
-        _log::Error("Failed to compile the vertex shader:\n{}\n{}", vsPath, log);
+        logging::Error("Failed to compile the vertex shader:\n{}\n{}", vsPath, log);
         return;
     }
 
     unsigned int geometryShader = 0;
     if (!_compileShader(geometryShader, GL_GEOMETRY_SHADER, &gsCompileSource)) {
         glGetShaderInfoLog(geometryShader, SHADER_INFO_LOG_SIZE, NULL, log);
-        _log::Error("Failed to compile the geometry shader:\n{}\n{}", gsPath, log);
+        logging::Error("Failed to compile the geometry shader:\n{}\n{}", gsPath, log);
         return;
     }
 
     unsigned int fragmentShader = 0;
     if (!_compileShader(fragmentShader, GL_FRAGMENT_SHADER, &fsCompileSource)) {
         glGetShaderInfoLog(fragmentShader, SHADER_INFO_LOG_SIZE, NULL, log);
-        _log::Error("Failed to compile the vertex shader:\n{}\n{}", fsPath, log);
+        logging::Error("Failed to compile the vertex shader:\n{}\n{}", fsPath, log);
         return;
     }
 
     std::vector<unsigned int> shaders = {vertexShader, geometryShader, fragmentShader};
     if (!_linkShaders(programID, shaders)) {
         glGetProgramInfoLog(programID, SHADER_INFO_LOG_SIZE, NULL, log);
-        _log::Error("Failed to link shaders:\n{}\n{}\n{}\n{}", vsPath, gsPath, fsPath, log);
+        logging::Error("Failed to link shaders:\n{}\n{}\n{}\n{}", vsPath, gsPath, fsPath, log);
         return;
     }
 
@@ -143,7 +143,7 @@ void ShaderManager::compileProgram(unsigned int &programID, std::string_view vsP
 
 void ShaderManager::saveShader(unsigned int &programID, Shader &shader) {
     if (m_shaders.contains(&programID)) {
-        _log::Error("Can not save shader {} because it is already in container", programID);
+        logging::Error("Can not save shader {} because it is already in container", programID);
         return;
     }
     m_shaders.insert({&programID, shader});
@@ -160,7 +160,7 @@ void ShaderManager::reloadShader(unsigned int &programID, std::vector<std::strin
         break;
     };
     if (reloadedProgramID == 0) {
-        _log::Log("An error occurred while reloading the shader with ID: {}", programID);
+        logging::Log("An error occurred while reloading the shader with ID: {}", programID);
         return;
     }
     glDeleteProgram(programID);
@@ -179,7 +179,7 @@ void ShaderManager::initIncludes(std::string pathToIncludes) {
     if (!std::filesystem::is_directory(pathToIncludes))
         throw std::invalid_argument("Parsing shaders includes error: path leads to a file (not directory): " + pathToIncludes);
     if (!SHADING_LANGUAGE_INCLUDE_SUPPORT) {
-        _log::Warn("'GL_ARB_shading_language_include' extension is not supported by the hardware, will do CPU parsing\n");
+        logging::Warn("'GL_ARB_shading_language_include' extension is not supported by the hardware, will do CPU parsing\n");
         return;
     }
     ShaderParser::parseIncludesGPU(m_pathToIncludes);
@@ -192,10 +192,10 @@ void ShaderManager::checkIncludes(std::string &shaderCode) {
 }
 
 void ShaderManager::printSavedShaders() {
-    _log::Log("Printing available shaders:");
+    logging::Log("Printing available shaders:");
     int count = 0;
     for (auto &[id, shader] : m_shaders) {
-        _log::LogSilent("{}. {}", ++count, *id);
+        logging::LogSilent("{}. {}", ++count, *id);
     }
 }
 

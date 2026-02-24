@@ -24,9 +24,9 @@ int ParticleEmitter::_findFirstUnusedParticle() {
             return i;
         }
     }
-    _log::Warn("Particle emitter was cycled through all {} particles from pool and did not find the "
-               "unused one. Increase particle limit or decrease particle life time",
-               m_particleCount);
+    logging::Warn("Particle emitter was cycled through all {} particles from pool and did not find the "
+                  "unused one. Increase particle limit or decrease particle life time",
+                  m_particleCount);
     m_lastUnusedParticle = (m_lastUnusedParticle + 1) % m_particleCount;
     return m_lastUnusedParticle;
 }
@@ -137,26 +137,26 @@ void ParticleEmitter::render(Shader &shader) {
 
 void ParticleEmitter::respawnParticleAtObject(Particle &particle, GameObject &gameObject, glm::vec2 offset) {
     particle.lifeTime = m_particleLifeTime;
-    float randomPosX = _fr::randomFloatInRange(m_positionOffsetRange.first, m_positionOffsetRange.second);
-    float randomPosY = _fr::randomFloatInRange(m_positionOffsetRange.first, m_positionOffsetRange.second);
+    float randomPosX = fastrand::randomFloatInRange(m_positionOffsetRange.first, m_positionOffsetRange.second);
+    float randomPosY = fastrand::randomFloatInRange(m_positionOffsetRange.first, m_positionOffsetRange.second);
     particle.position = gameObject.getPosition() + offset + glm::vec2(randomPosX, randomPosY);
-    float randomVelX = _fr::randomFloatInRange(m_velocityOffsetRange.first, m_velocityOffsetRange.second);
-    float randomVelY = _fr::randomFloatInRange(m_velocityOffsetRange.first, m_velocityOffsetRange.second);
+    float randomVelX = fastrand::randomFloatInRange(m_velocityOffsetRange.first, m_velocityOffsetRange.second);
+    float randomVelY = fastrand::randomFloatInRange(m_velocityOffsetRange.first, m_velocityOffsetRange.second);
     particle.velocity = gameObject.getVelocity() * (1.0f - m_particleDelay) + glm::vec2(randomVelX, randomVelY);
-    float randomBrightness = _fr::randomFloatInRange(0.3f, 1.0f);
+    float randomBrightness = fastrand::randomFloatInRange(0.3f, 1.0f);
     particle.color = m_particleColor * glm::vec4(randomBrightness, randomBrightness, randomBrightness, 1.0f);
     particle.scale = m_particleScale;
 }
 
 void ParticleEmitter::respawnParticle(Particle &particle, glm::vec2 position) {
     particle.lifeTime = m_particleLifeTime;
-    float randomPosX = _fr::randomFloatInRange(m_positionOffsetRange.first, m_positionOffsetRange.second);
-    float randomPosY = _fr::randomFloatInRange(m_positionOffsetRange.first, m_positionOffsetRange.second);
+    float randomPosX = fastrand::randomFloatInRange(m_positionOffsetRange.first, m_positionOffsetRange.second);
+    float randomPosY = fastrand::randomFloatInRange(m_positionOffsetRange.first, m_positionOffsetRange.second);
     particle.position = position + glm::vec2(randomPosX, randomPosY);
-    float randomVelX = _fr::randomFloatInRange(m_velocityOffsetRange.first, m_velocityOffsetRange.second);
-    float randomVelY = _fr::randomFloatInRange(m_velocityOffsetRange.first, m_velocityOffsetRange.second);
+    float randomVelX = fastrand::randomFloatInRange(m_velocityOffsetRange.first, m_velocityOffsetRange.second);
+    float randomVelY = fastrand::randomFloatInRange(m_velocityOffsetRange.first, m_velocityOffsetRange.second);
     particle.velocity = glm::vec2(randomVelX, randomVelY);
-    float randomBrightness = _fr::randomFloatInRange(0.5f, 1.0f);
+    float randomBrightness = fastrand::randomFloatInRange(0.5f, 1.0f);
     particle.color = m_particleColor * glm::vec4(randomBrightness, randomBrightness, randomBrightness, 1.0f);
     particle.scale = m_particleScale;
 }
@@ -204,14 +204,14 @@ int ParticleEmitter::getParticleCount() {
 
 void ParticleEmitter::setVelocityRandomOffsetRange(float a, float b) {
     if (a > b) {
-        _log::Warn("Could not set range for velocity random offset ({} > {})", a, b);
+        logging::Warn("Could not set range for velocity random offset ({} > {})", a, b);
     }
     m_velocityOffsetRange = {a, b};
 }
 
 void ParticleEmitter::setPositionRandomOffsetRange(float a, float b) {
     if (a > b) {
-        _log::Warn("Could not set range for position random offset ({} > {})", a, b);
+        logging::Warn("Could not set range for position random offset ({} > {})", a, b);
     }
     m_positionOffsetRange = {a, b};
 }

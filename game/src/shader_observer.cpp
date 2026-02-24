@@ -25,7 +25,7 @@ void ShaderObserver::_checkFiles() {
                     changed = true;
                 }
             } catch (fs::filesystem_error &e) {
-                _log::Warn("{}", e.what());
+                logging::Warn("{}", e.what());
                 continue;
             }
         }
@@ -52,7 +52,7 @@ ShaderObserver &ShaderObserver::Get() {
 
 void ShaderObserver::registerShader(unsigned int &programID, std::vector<std::string> shaderPaths) {
     if (m_shadersToObserve.contains(&programID)) {
-        _log::Warn("Shader {} is already registered in ShaderObserver instance", programID);
+        logging::Warn("Shader {} is already registered in ShaderObserver instance", programID);
         return;
     }
     try {
@@ -60,7 +60,7 @@ void ShaderObserver::registerShader(unsigned int &programID, std::vector<std::st
             m_shadersToObserve[&programID].push_back({fs::last_write_time(path), path});
         }
     } catch (fs::filesystem_error &e) {
-        _log::Error("{}", e.what());
+        logging::Error("{}", e.what());
     }
 }
 

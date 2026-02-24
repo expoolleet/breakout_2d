@@ -8,7 +8,7 @@
 #include <tuple>
 
 // Collision Detection namespace
-namespace _cd {
+namespace cd {
 inline Collision NoneCollision = std::tuple(false, COLLISION_DIRECTION_NONE, glm::vec2(0.0f), glm::vec2(0.0f));
 
 inline CollisionDirection _getCollisionDirection(glm::vec2 target) {
@@ -72,4 +72,4 @@ inline Collision checkCollision(Ball &ball, GameObject &gameObject) {
     }
     return NoneCollision;
 }
-} // namespace _cd
+} // namespace cd

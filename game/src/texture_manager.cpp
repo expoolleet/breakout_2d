@@ -26,7 +26,7 @@ TextureManager::~TextureManager() {
 
 void TextureManager::loadTexture(std::string path, bool alpha, std::string name) {
     if (m_textures.contains(name)) {
-        _log::Warn("Texture with name {} is already loaded, check if you wrong", name);
+        logging::Warn("Texture with name {} is already loaded, check if you wrong", name);
         return;
     }
 
@@ -37,7 +37,7 @@ void TextureManager::loadTexture(std::string path, bool alpha, std::string name)
     if (data) {
         texture->generate(width, height, alpha, data);
     } else {
-        _log::Error("Could not load texture by path: {}", path);
+        logging::Error("Could not load texture by path: {}", path);
         return;
     }
     m_textures[name] = std::move(texture);
@@ -47,7 +47,7 @@ void TextureManager::loadTexture(std::string path, bool alpha, std::string name)
 const Texture2D &TextureManager::getTexture(std::string_view name) {
     auto it = m_textures.find(name);
     if (it == m_textures.end()) {
-        _log::Error("No texture with name {} was loaded", name);
+        logging::Error("No texture with name {} was loaded", name);
         return _getDefaultTexture();
     }
     return *(it->second);

@@ -25,7 +25,7 @@ class ParticleEmitter;
 #define GAME_NAME "BRAKEOUT 2D"
 #define INITIAL_BALL_VELOCITY (glm::vec2(0.5f, 1.0f))
 #define PLAYER_DEFAULT_SIZE (glm::vec2(256.0f, 32.0f))
-#define PLAYER_START_POSITION (glm::vec2(Window::getWidth() / 2.0f - PLAYER_DEFAULT_SIZE.x / 2.0f, 25.0f))
+#define PLAYER_START_POSITION (glm::vec2(float(Window::getWidth()) / 2.0f - PLAYER_DEFAULT_SIZE.x / 2.0f, 25.0f))
 #define MAX_BALL_DAMAGE 3
 #define MIN_BALL_DAMAGE 1
 
@@ -65,10 +65,8 @@ class Game {
   public:
     GameState CurrentState = GAME_NONE;
     bool Keys[1024] = {false};
-    unsigned int Width = 0;
-    unsigned int Height = 0;
 
-    Game(unsigned int width, unsigned int height, unsigned int attempts);
+    Game(unsigned int attempts);
     ~Game();
 
     void init();
@@ -80,10 +78,12 @@ class Game {
     void doCollisions();
     void nextLevel();
     void restartCurrentLevel();
-    void resetBalls();
+    void resetHeroBall();
     void resetBallPosition(Ball &ball);
     void resetPlayer();
+    void resetProjectionMatrix();
     void cleanDestroyedBalls();
+    void cleanUpBallsExceptHeroBall();
     void spawnBall(glm::vec2 position);
     void spawnPowerUp(PowerUpType type, glm::vec2 position);
     void updatePowerUps(float dt);
@@ -95,4 +95,5 @@ class Game {
     void onBallFliedOff(const BallFliedOff &e);
     void onPowerUpActivated(const PowerUpActivated &e);
     void onPowerUpFinished(const PowerUpFinished &e);
+    void onBallHit(const BallHit &e);
 };

@@ -5,7 +5,7 @@
 #include <format>
 #include <iostream>
 
-namespace _log {
+namespace logging {
 NO_DESTROY_ATTR inline std::string m_lastInfoMessage;
 NO_DESTROY_ATTR inline std::string m_lastWarnMessage;
 NO_DESTROY_ATTR inline std::string m_lastErrorMessage;
@@ -43,6 +43,6 @@ template <typename... Args> inline void Error(std::format_string<Args...> messag
         return;
     }
     m_lastErrorMessage = formatedMessage;
-    std::cout << "ERROR: " + formatedMessage << "\n";
+    std::cerr << "ERROR: " + formatedMessage << "\n";
 }
-} // namespace _log
+} // namespace logging

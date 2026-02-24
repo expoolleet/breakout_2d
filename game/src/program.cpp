@@ -1,5 +1,6 @@
 #include "audio_manager.hpp"
 #include "canvas.hpp"
+#include "custom_attributes.hpp"
 #include "fast_random.hpp"
 #include "game.hpp"
 #include "glad/glad.h" // 1
@@ -13,9 +14,12 @@
 #define FIXED_FRAMETIME (1.0 / 100.0) // 100 Hz fixed update loop
 #define MAX_FRAMETIME 0.25
 
-bool DEBUG_WIREFRAME = false;
+#define MSAA_SAMPLES 4
 
-Game game(Window::getWidth(), Window::getHeight(), 3);
+static bool enableWireframe = false;
+NO_DESTROY_ATTR static BufferObject resolveBuffer;
+NO_DESTROY_ATTR static BufferObject msaaBuffer;
+NO_DESTROY_ATTR static Game game(3);
 
 void key_callback(GLFWwindow *window, int key, int scanCode, int action, int mods) {
     if (action == GLFW_PRESS) {
@@ -25,8 +29,8 @@ void key_callback(GLFWwindow *window, int key, int scanCode, int action, int mod
     }
 
     if (key == GLFW_KEY_P && action == GLFW_PRESS) {
-        DEBUG_WIREFRAME = !DEBUG_WIREFRAME;
-        if (DEBUG_WIREFRAME) {
+        enableWireframe = !enableWireframe;
+        if (enableWireframe) {
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         } else {
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -38,12 +42,23 @@ void key_callback(GLFWwindow *window, int key, int scanCode, int action, int mod
     }
 }
 
+void framebuffer_resize_callback(GLFWwindow *window, int width, int height) {
+    Window::setWidth(width);
+    Window::setHeight(height);
+    glViewport(0, 0, width, height);
+    game.resetProjectionMatrix();
+    resolveBuffer = render::resizeFrambuffer(resolveBuffer);
+    msaaBuffer = render::resizeMultisamplingFrambuffer(msaaBuffer);
+}
+
 int main() {
     glfwInit();
     glfwWindowHint(GLFW_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_VERSION_MINOR, 5);
-    GLFWwindow *window = glfwCreateWindow(Window::getWidth(), Window::getHeight(), "Breakout2D", NULL, NULL);
+    // GLFWwindow *window = glfwCreateWindow(Window::getWidth(), Window::getHeight(), "Breakout2D", NULL, NULL);
+    GLFWwindow *window = Window::createWindow("Breakout2D", 1280, 720);
     glfwMakeContextCurrent(window);
+    glfwSetFramebufferSizeCallback(window, framebuffer_resize_callback);
     glfwSetKeyCallback(window, key_callback);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
@@ -54,27 +69,26 @@ int main() {
 
     glfwSwapInterval(1); // v-sync
 
-    _rc::setupDefaultAlphaBlending();
-    _rc::setupMultisampling();
+    render::setupDefaultAlphaBlending();
+    render::setupMultisampling();
 
     Canvas::init();
     Canvas canvas;
-    BufferObject resolveBuffer = _rc::getFramebuffer(1);
-    BufferObject msaaBuffer = _rc::getMultisamlpingFramebuffer(4);
+    resolveBuffer = render::getFramebuffer(1);
+    msaaBuffer = render::getMultisamlpingFramebuffer(MSAA_SAMPLES);
 
     std::string shaders = PathManager::getResourcePath("shaders");
     Shader canvasShader(shaders + "/vs/canvas.glsl", shaders + "/fs/canvas.glsl");
     canvasShader.setVec2("inverseScreenSize",
                          glm::vec2(1.0f / static_cast<float>(Window::getWidth()), 1.0f / static_cast<float>(Window::getHeight())));
 
-    _fr::initRandomEngine();
+    fastrand::initRandomEngine();
     PathManager::init();
     ShaderObserver::Get().startObserving();
     game.init();
 
-    if (AudioManager::Get().init()) {
-        _log::Log("FMOD successfully initialized");
-    }
+    AudioManager::Get().init();
+    AudioManager::Get().loadBank("master");
 
     double frameTime = 0.0;
     double lastTime = 0.0;
@@ -101,10 +115,12 @@ int main() {
         glBlitNamedFramebuffer(msaaBuffer.fbo, resolveBuffer.fbo, 0, 0, Window::getWidth(), Window::getHeight(), 0, 0, Window::getWidth(),
                                Window::getHeight(), GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
+        AudioManager::Get().update();
+
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glClear(GL_COLOR_BUFFER_BIT);
         canvasShader.use();
-        canvas.render(canvasShader, resolveBuffer.textures);
+        canvas.render(canvasShader, resolveBuffer.attachments);
         game.renderText(alpha);
         glfwSwapBuffers(window);
         ShaderObserver::Get().update();

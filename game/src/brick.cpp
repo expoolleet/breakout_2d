@@ -26,7 +26,7 @@ void Brick::fixedUpdate(float dt) {}
 
 Collision Brick::checkCollision(GameObject &gameObject) {
     if (Ball *ball = dynamic_cast<Ball *>(&gameObject)) {
-        Collision collision = _cd::checkCollision(*ball, *this);
+        Collision collision = cd::checkCollision(*ball, *this);
         if (std::get<0>(collision)) {
             if (isDestroyable()) {
                 doDamage(ball->getDamage());
@@ -34,7 +34,7 @@ Collision Brick::checkCollision(GameObject &gameObject) {
             return collision;
         }
     }
-    return _cd::NoneCollision;
+    return cd::NoneCollision;
 }
 
 int Brick::getCurrentHardnessPoints() const {

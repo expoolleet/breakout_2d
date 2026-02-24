@@ -35,8 +35,8 @@
 
 #externals
 ![Ee]xternal/fmod/core/inc
-![Ee]xternal/fsbank/core/inc
-![Ee]xternal/studio/core/inc
+![Ee]xternal/fmod/fsbank/inc
+![Ee]xternal/fmod/studio/inc
 
 # Build results
 [Bb]uild/

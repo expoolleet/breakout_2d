@@ -38,7 +38,7 @@ void TextRenderer::initRenderer() {
     if (is_initialized)
         return;
     if (FT_Init_FreeType(&m_ft))
-        _log::Error("Could not init FreeType Library");
+        logging::Error("Could not init FreeType Library");
 
     glGenVertexArrays(1, &m_VAO);
     glGenBuffers(1, &m_VBO);
@@ -58,13 +58,13 @@ void TextRenderer::initRenderer() {
 void TextRenderer::initFont(std::string_view font, unsigned int fontSize) {
     FT_Face face;
     if (FT_New_Face(m_ft, (m_pathToFonts / font).string().c_str(), 0, &face))
-        _log::Error("Failed to load font");
+        logging::Error("Failed to load font");
 
     FT_Set_Pixel_Sizes(face, 0, fontSize);
     m_atlasData.fontSize = fontSize;
 
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    _log::Log("Initializing font: {}", font);
+    logging::Log("Initializing font: {}", font);
 
     glCreateTextures(GL_TEXTURE_2D, 1, &m_atlasData.textureID);
     glTextureStorage2D(m_atlasData.textureID, 1, GL_R8, m_atlasData.width, m_atlasData.height);
@@ -79,7 +79,7 @@ void TextRenderer::initFont(std::string_view font, unsigned int fontSize) {
     unsigned int maxRowHeight = 0;
     for (unsigned char c = ASCII_TABLE_START; c <= ASCII_TABLE_END; ++c) {
         if (FT_Load_Char(face, c, FT_LOAD_RENDER)) {
-            _log::Error("Failed to load Glyph: {}", (char)c);
+            logging::Error("Failed to load Glyph: {}", (char)c);
             continue;
         }
         unsigned int w = face->glyph->bitmap.width;
@@ -102,14 +102,14 @@ void TextRenderer::initFont(std::string_view font, unsigned int fontSize) {
         maxRowHeight = std::max(maxRowHeight, h);
     }
     glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
-    _log::Log("Initializing of font is done");
+    logging::Log("Initializing of font is done");
     FT_Done_Face(face);
 }
 
 void TextRenderer::initFontMSDF(std::string_view atlasPath, std::string_view jsonPath) {
     std::ifstream f(jsonPath.data());
     if (!f.is_open()) {
-        _log::Error("Could not open the JSON file: {}", jsonPath);
+        logging::Error("Could not open the JSON file: {}", jsonPath);
         return;
     }
     json j = json::parse(f);
@@ -143,7 +143,7 @@ void TextRenderer::initFontMSDF(std::string_view atlasPath, std::string_view jso
             m_glyphs[glyphData.unicode] = glyphData;
         }
     } catch (json::exception e) {
-        _log::Error("{}", e.what());
+        logging::Error("{}", e.what());
         return;
     }
 

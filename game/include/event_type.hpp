@@ -10,6 +10,10 @@ struct BallFliedOff {
     Ball &ball;
 };
 
+struct BallHit {
+    glm::vec2 position;
+};
+
 struct PlayerMoved {
     glm::vec2 position;
 };

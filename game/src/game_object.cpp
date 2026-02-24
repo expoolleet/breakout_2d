@@ -16,7 +16,7 @@ GameObject::GameObject(const Texture2D &texture) : Texture(&texture) {
 }
 
 Collision GameObject::checkCollision(GameObject &gameObject) {
-    return _cd::NoneCollision;
+    return cd::NoneCollision;
 }
 
 GameObjectType GameObject::getObjectType() const {

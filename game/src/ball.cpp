@@ -20,21 +20,9 @@ Ball::Ball(const Texture2D &texture) : GameObject(texture) {
     m_type = GameObjectType::GameObject_Ball;
 }
 
-void Ball::move(float dt, float windowWidth, float windowHeight) {
+void Ball::move(float dt) {
     m_previousPosition = m_position;
     m_position += m_velocity * m_speed * dt;
-    if (m_position.x <= 0.0f) {
-        m_position.x = 0.0f;
-        m_velocity.x = -m_velocity.x;
-    }
-    if (m_position.x + m_size.x >= windowWidth) {
-        m_position.x = windowWidth - m_size.x;
-        m_velocity.x = -m_velocity.x;
-    }
-    if (m_position.y + m_size.y >= windowHeight) {
-        m_position.y = windowHeight - m_size.y;
-        m_velocity.y = -m_velocity.y;
-    }
 }
 
 void Ball::update(float dt) {}
@@ -44,18 +32,36 @@ void Ball::fixedUpdate(float dt) {
         glm::vec2 ballPosition = m_player->getPosition() + glm::vec2(m_player->getSize().x / 2, m_size.y);
         setPosition(ballPosition);
     } else {
-        move(dt, static_cast<float>(Window::getWidth()), static_cast<float>(Window::getHeight()));
+        move(dt);
     }
 
     if (m_position.y <= 0.0f) {
         EventDispatcher::Get().emit(BallFliedOff{*this});
     }
+
+    float levelWidth = static_cast<float>(Window::getWidth());
+    float levelHeight = static_cast<float>(Window::getHeight());
+    if (m_position.x > 0.0f && m_position.x + m_size.x < levelWidth && m_position.y + m_size.y < levelHeight)
+        return;
+    else {
+        if (m_position.x <= 0.0f) {
+            m_position.x = 0.0f;
+            m_velocity.x = -m_velocity.x;
+        } else if (m_position.x + m_size.x >= levelWidth) {
+            m_position.x = levelWidth - m_size.x;
+            m_velocity.x = -m_velocity.x;
+        } else if (m_position.y + m_size.y >= levelHeight) {
+            m_position.y = levelHeight - m_size.y;
+            m_velocity.y = -m_velocity.y;
+        }
+        EventDispatcher::Get().emit(BallHit(m_position));
+    }
 }
 
 Collision Ball::checkCollision(GameObject &gameObject) {
     if (isStuck())
-        return _cd::NoneCollision;
-    Collision collision = _cd::checkCollision(*this, gameObject);
+        return cd::NoneCollision;
+    Collision collision = cd::checkCollision(*this, gameObject);
     if (gameObject.getObjectType() == GameObjectType::GameObject_Player && std::get<0>(collision)) {
         Player *player = dynamic_cast<Player *>(&gameObject);
         float centerBoard = m_player->getPosition().x + m_player->getSize().x / 2;
