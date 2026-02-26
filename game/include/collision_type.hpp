@@ -3,12 +3,21 @@
 #include <glm/glm.hpp>
 #include <tuple>
 
+// Order is important
 enum CollisionDirection {
-    COLLISION_DIRECTION_UP,
-    COLLISION_DIRECTION_RIGHT,
-    COLLISION_DIRECTION_DOWN,
-    COLLISION_DIRECTION_LEFT,
-    COLLISION_DIRECTION_NONE
+    CollisionDirection_Up,
+    CollisionDirection_Right,
+    CollisionDirection_Down,
+    CollisionDirection_Left,
+    CollisionDirection_None
 };
 
+enum CollisionType {
+    CollisionType_Obstacle,
+    CollisionType_Brick,
+    CollisionType_Player,
+    CollisionType_None
+};
+
+// isCollided, CollisionDirection, diffVector, collisionPoint
 typedef std::tuple<bool, CollisionDirection, glm::vec2, glm::vec2> Collision;

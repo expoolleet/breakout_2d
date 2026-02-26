@@ -21,9 +21,6 @@ template <typename... Args> inline void Log(std::format_string<Args...> message,
 
 template <typename... Args> inline void LogSilent(std::format_string<Args...> message, Args &&...args) {
     auto formatedMessage = std::format(message, std::forward<Args>(args)...);
-    if (m_lastInfoMessage == formatedMessage) {
-        return;
-    }
     m_lastInfoMessage = formatedMessage;
     std::cout << formatedMessage << "\n";
 }

@@ -8,7 +8,7 @@
 #include "logging.hpp"
 #include "powerup_type.hpp"
 
-PowerUp::PowerUp(PowerUpType type, glm::vec3 color, float duration, const Texture2D &texture, glm::vec2 position, glm::vec2 size)
+PowerUp::PowerUp(PowerUpType type, glm::vec4 color, float duration, const Texture2D &texture, glm::vec2 position, glm::vec2 size)
     : GameObject(texture, position, size), m_powerUpType(type), m_duration(duration) {
     m_type = GameObjectType::GameObject_PowerUp;
     setVelocity(glm::vec2(0.0, -1.0f));

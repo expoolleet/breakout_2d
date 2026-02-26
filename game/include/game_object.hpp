@@ -25,7 +25,7 @@ class GameObject {
     glm::vec2 m_size = glm::vec3(0.0f);
     glm::vec2 m_velocity = glm::vec2(0.0f);
     glm::vec2 m_acceleration = glm::vec2(0.0f);
-    glm::vec3 m_color = glm::vec3(1.0f);
+    glm::vec4 m_color = glm::vec4(1.0f);
     float m_accelerationAttenuation = 0.1f;
     float m_speed = 0.0f;
     GameObjectType m_type = GameObjectType::GameObject_None;
@@ -65,8 +65,8 @@ class GameObject {
     virtual float getSpeed() const;
     virtual void setSpeed(float speed);
 
-    virtual void setColor(glm::vec3 color);
-    virtual glm::vec3 getColor() const;
+    virtual void setColor(glm::vec4 color);
+    virtual glm::vec4 getColor() const;
 
     virtual void setColliding(bool flag);
     virtual bool isColliding();

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "collision_type.hpp"
 #include "powerup_type.hpp"
 
 #include <glm/glm.hpp>
@@ -10,8 +11,18 @@ struct BallFliedOff {
     Ball &ball;
 };
 
+struct BallUnstuck {
+    Ball &ball;
+};
+
+struct BallStuck {
+    Ball &ball;
+};
+
 struct BallHit {
     glm::vec2 position;
+    Ball &ball;
+    CollisionType collisionType;
 };
 
 struct PlayerMoved {

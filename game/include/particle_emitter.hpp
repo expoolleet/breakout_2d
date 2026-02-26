@@ -42,11 +42,11 @@ class ParticleEmitter {
     ParticleEmitter(const Texture2D &texture, int count);
     ~ParticleEmitter() = default;
     void init();
-    void prepare(GameObject &gameObject, int newParticles, glm::vec2 offset = glm::vec2(0.0f));
+    void prepare(GameObject &gameObject, int newParticles, glm::vec2 offset = glm::vec2(0.0f), bool overrideColor = false);
     void prepareAtPosition(glm::vec2 position, int newParticles);
     void update(float dt);
     void render(Shader &shader);
-    void respawnParticleAtObject(Particle &particle, GameObject &gameObject, glm::vec2 offset = glm::vec2(0.0f));
+    void respawnParticleAtObject(Particle &particle, GameObject &gameObject, glm::vec2 offset = glm::vec2(0.0f), bool overrideColor = false);
     void respawnParticle(Particle &particle, glm::vec2 position);
 
     void setParticleAttenuationSpeed(float speed);

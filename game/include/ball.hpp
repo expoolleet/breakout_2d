@@ -14,10 +14,11 @@ class Player;
 class Ball : public GameObject {
   private:
     glm::vec2 m_bounceVelocity = glm::vec2(0.3f, 1.0f);
+    glm::vec2 m_stuckPosition = glm::vec2(0.0f);
     const Player *m_player = nullptr;
     float m_radius = 0.0;
     unsigned int m_damage = 1;
-    bool m_stuck = true;
+    bool m_stuck = false;
 
   public:
     Ball(const Texture2D &texture, glm::vec2 position, glm::vec2 size, const Player &player);
@@ -45,4 +46,6 @@ class Ball : public GameObject {
 
     glm::vec2 getBounceVelocity();
     void setBounceVelocity(glm::vec2 velocity);
+
+    void setStuckLocalPosition(glm::vec2 stuckPosition);
 };

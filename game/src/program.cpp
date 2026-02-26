@@ -56,7 +56,7 @@ int main() {
     glfwWindowHint(GLFW_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_VERSION_MINOR, 5);
     // GLFWwindow *window = glfwCreateWindow(Window::getWidth(), Window::getHeight(), "Breakout2D", NULL, NULL);
-    GLFWwindow *window = Window::createWindow("Breakout2D", 1280, 720);
+    GLFWwindow *window = Window::createWindow("Breakout2D", 1280, 1080);
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_resize_callback);
     glfwSetKeyCallback(window, key_callback);

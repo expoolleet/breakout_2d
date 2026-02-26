@@ -31,7 +31,7 @@ SpriteRenderer::SpriteRenderer() {
 }
 
 void SpriteRenderer::drawSprite(Shader &shader, const Texture2D &texture, glm::vec2 position, glm::vec2 size,
-                                float rotate, glm::vec3 color) {
+                                float rotate, glm::vec4 color) {
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, glm::vec3(position, 0.0f));
 
@@ -42,7 +42,7 @@ void SpriteRenderer::drawSprite(Shader &shader, const Texture2D &texture, glm::v
     model = glm::scale(model, glm::vec3(size, 1.0f));
 
     shader.setMat4("model", model);
-    shader.setVec3("spriteColor", color);
+    shader.setVec4("spriteColor", color);
 
     glActiveTexture(GL_TEXTURE0);
     texture.bind();

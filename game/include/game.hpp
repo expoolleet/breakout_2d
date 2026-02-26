@@ -23,7 +23,7 @@ class ParticleEmitter;
 //
 
 #define GAME_NAME "BRAKEOUT 2D"
-#define INITIAL_BALL_VELOCITY (glm::vec2(0.5f, 1.0f))
+#define INITIAL_BALL_VELOCITY (glm::vec2(0.0f, 1.0f))
 #define PLAYER_DEFAULT_SIZE (glm::vec2(256.0f, 32.0f))
 #define PLAYER_START_POSITION (glm::vec2(float(Window::getWidth()) / 2.0f - PLAYER_DEFAULT_SIZE.x / 2.0f, 25.0f))
 #define MAX_BALL_DAMAGE 3
@@ -38,6 +38,11 @@ enum GameState {
 
 class Game {
   private:
+    std::vector<GameLevel> m_levels;
+    std::vector<PowerUp> m_powerups;
+    std::vector<std::unique_ptr<Ball>> m_balls;
+    std::vector<std::unique_ptr<Ball>> m_queueBalls;
+    std::vector<Ball *> m_stuckBalls;
     std::shared_ptr<Shader> m_spriteShader;
     std::shared_ptr<Shader> m_textShader;
     std::shared_ptr<Shader> m_particleShader;
@@ -46,16 +51,14 @@ class Game {
     std::unique_ptr<ParticleEmitter> m_ballParticles;
     std::unique_ptr<ParticleEmitter> m_collisionHitParticles;
     std::unique_ptr<Player> m_player;
+    GameLevel m_currentLevel;
     Ball *m_heroBall = nullptr; // observer pointer
-    std::vector<std::unique_ptr<Ball>> m_balls;
-    std::vector<GameLevel> m_levels;
     unsigned int m_currentLevelNumber = 0;
     unsigned int m_attempts = 0;
     unsigned int m_currentAttempt = 0;
-    GameLevel m_currentLevel;
+    size_t m_maxCountBallsStuckToPlayer = 0;
     std::atomic<bool> m_running = false;
     std::thread m_consoleInputThread;
-    std::vector<PowerUp> m_powerups;
 
     std::vector<glm::vec2> m_collisionPointHistory;
 
@@ -83,17 +86,24 @@ class Game {
     void resetPlayer();
     void resetProjectionMatrix();
     void cleanDestroyedBalls();
-    void cleanUpBallsExceptHeroBall();
+    void destroyBallsExceptHeroBall();
     void spawnBall(glm::vec2 position);
     void spawnPowerUp(PowerUpType type, glm::vec2 position);
     void updatePowerUps(float dt);
     void cleanupPowerUps();
+    void repositionStuckBallsOnPlayer();
+    void stickBallToPlayer(Ball &ball);
+    void unstickBallFromPlayer(Ball &ball);
+    void clearStuckBallsExceptHeroBall();
 
     GameLevel getLevel(unsigned int number);
+    std::vector<std::unique_ptr<Ball>> &getBalls();
 
     // handlers
     void onBallFliedOff(const BallFliedOff &e);
     void onPowerUpActivated(const PowerUpActivated &e);
     void onPowerUpFinished(const PowerUpFinished &e);
     void onBallHit(const BallHit &e);
+    void onBallUnstuck(const BallUnstuck &e);
+    void onBallStuck(const BallStuck &e);
 };

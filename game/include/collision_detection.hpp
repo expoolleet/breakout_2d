@@ -9,7 +9,7 @@
 
 // Collision Detection namespace
 namespace cd {
-inline Collision NoneCollision = std::tuple(false, COLLISION_DIRECTION_NONE, glm::vec2(0.0f), glm::vec2(0.0f));
+inline Collision NoneCollision = std::tuple(false, CollisionDirection_None, glm::vec2(0.0f), glm::vec2(0.0f));
 
 inline CollisionDirection _getCollisionDirection(glm::vec2 target) {
     static glm::vec2 directions[4] = {

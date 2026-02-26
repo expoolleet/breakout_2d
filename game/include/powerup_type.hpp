@@ -5,12 +5,12 @@
 class Texture2D; // fwd
 
 struct PowerUpData {
-    glm::vec3 color;
+    glm::vec4 color;
     float duration;
     const Texture2D &texture;
 
-    PowerUpData() : color(glm::vec3(1.0f)), duration(0.0f), texture(TextureManager::getTexture("")) {}
-    PowerUpData(glm::vec3 color, float duration, const Texture2D &texture) : color(color), duration(duration), texture(texture) {}
+    PowerUpData() : color(glm::vec4(1.0f)), duration(0.0f), texture(TextureManager::getTexture("")) {}
+    PowerUpData(glm::vec4 color, float duration, const Texture2D &texture) : color(color), duration(duration), texture(texture) {}
 };
 
 enum PowerUpType {
@@ -42,13 +42,13 @@ namespace {
 inline PowerUpData getPowerUpData(PowerUpType type) {
     switch (type) {
     case PowerUp_FastBalls:
-        return PowerUpData(glm::vec3(1.0f, 0.0f, 1.0f), 10.0f, TextureManager::getTexture(STANDARD_BRICK));
+        return PowerUpData(glm::vec4(1.0f, 0.0f, 1.0f, 1.0f), 10.0f, TextureManager::getTexture(STANDARD_BRICK));
     case PowerUp_StickyPlayer:
-        return PowerUpData(glm::vec3(0.5f, 0.0f, 0.0f), 10.0f, TextureManager::getTexture(STANDARD_BRICK));
+        return PowerUpData(glm::vec4(0.5f, 0.0f, 0.0f, 1.0f), 10.0f, TextureManager::getTexture(STANDARD_BRICK));
     case PowerUp_PassTrough:
-        return PowerUpData(glm::vec3(0.25f, 0.75f, 0.0f), 3.0f, TextureManager::getTexture(STANDARD_BRICK));
+        return PowerUpData(glm::vec4(0.25f, 0.75f, 0.0f, 1.0f), 3.0f, TextureManager::getTexture(STANDARD_BRICK));
     case PowerUp_WidePlayer:
-        return PowerUpData(glm::vec3(0.0f, 0.0f, 1.0f), 10.0f, TextureManager::getTexture(STANDARD_BRICK));
+        return PowerUpData(glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), 10.0f, TextureManager::getTexture(STANDARD_BRICK));
     default:
         return PowerUpData();
     }

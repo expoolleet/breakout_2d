@@ -29,14 +29,14 @@ void Ball::update(float dt) {}
 
 void Ball::fixedUpdate(float dt) {
     if (isStuck()) {
-        glm::vec2 ballPosition = m_player->getPosition() + glm::vec2(m_player->getSize().x / 2, m_size.y);
-        setPosition(ballPosition);
+        setPosition(m_player->getPosition() + m_stuckPosition);
     } else {
         move(dt);
     }
 
     if (m_position.y <= 0.0f) {
         EventDispatcher::Get().emit(BallFliedOff{*this});
+        return;
     }
 
     float levelWidth = static_cast<float>(Window::getWidth());
@@ -54,7 +54,7 @@ void Ball::fixedUpdate(float dt) {
             m_position.y = levelHeight - m_size.y;
             m_velocity.y = -m_velocity.y;
         }
-        EventDispatcher::Get().emit(BallHit(m_position));
+        EventDispatcher::Get().emit(BallHit(m_position, *this, CollisionType::CollisionType_Obstacle));
     }
 }
 
@@ -70,10 +70,6 @@ Collision Ball::checkCollision(GameObject &gameObject) {
         glm::vec2 newVelocity = getBounceVelocity() * percentage * player->getStrength();
         newVelocity.y = std::abs(getVelocity().y);
         setVelocity(glm::normalize(newVelocity) * glm::length(getVelocity()));
-
-        if (player->isSticky()) {
-            setStuck(true);
-        }
     }
     return collision;
 }
@@ -84,7 +80,6 @@ void Ball::assignPlayer(const Player &player) {
 
 void Ball::reset() {
     GameObject::reset();
-    setStuck(true);
 }
 
 bool Ball::isStuck() {
@@ -117,4 +112,8 @@ glm::vec2 Ball::getBounceVelocity() {
 
 void Ball::setBounceVelocity(glm::vec2 velocity) {
     m_bounceVelocity = velocity;
+}
+
+void Ball::setStuckLocalPosition(glm::vec2 stuckPosition) {
+    m_stuckPosition = stuckPosition;
 }

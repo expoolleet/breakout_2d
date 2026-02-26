@@ -19,4 +19,9 @@ inline static int randomIntInRange(int min, int max) {
     std::uniform_int_distribution<int> distribution(min, max);
     return distribution(randomEngine_mt19937);
 }
+
+inline static unsigned int randomUIntInRange(unsigned int min, unsigned int max) {
+    std::uniform_int_distribution<unsigned int> distribution(min, max);
+    return distribution(randomEngine_mt19937);
+}
 } // namespace fastrand

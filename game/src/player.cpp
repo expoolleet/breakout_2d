@@ -40,6 +40,6 @@ bool Player::isSticky() {
     return m_sticky;
 }
 
-void Player::setStickyState(bool state) {
+void Player::setStickness(bool state) {
     m_sticky = state;
 }

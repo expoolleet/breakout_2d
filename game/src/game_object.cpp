@@ -95,11 +95,11 @@ void GameObject::setSpeed(float speed) {
     m_speed = speed;
 }
 
-void GameObject::setColor(glm::vec3 color) {
+void GameObject::setColor(glm::vec4 color) {
     m_color = color;
 }
 
-glm::vec3 GameObject::getColor() const {
+glm::vec4 GameObject::getColor() const {
     return m_color;
 }
 

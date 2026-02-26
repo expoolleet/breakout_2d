@@ -20,5 +20,5 @@ class Player : public GameObject {
     float getStrength();
 
     bool isSticky();
-    void setStickyState(bool state);
+    void setStickness(bool state);
 };
