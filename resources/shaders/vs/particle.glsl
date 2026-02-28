@@ -8,10 +8,11 @@ layout (location = 3) in float scale;
 out vec2 TexCoords;
 out vec4 ParticleColor;
 
+uniform mat4 view;
 uniform mat4 projection;
 
 void main() {
-    gl_Position = projection * vec4(vertexData.xy * scale + offset, 0.0, 1.0);
+    gl_Position = projection * view * vec4(vertexData.xy * scale + offset, 0.0, 1.0);
     ParticleColor = color;
     TexCoords = vertexData.zw;
 }

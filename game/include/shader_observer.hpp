@@ -23,7 +23,7 @@ struct ReloadTask {
 };
 
 class ShaderObserver {
-  private:
+   private:
     std::unordered_map<unsigned int *, std::vector<ShaderObserveInfo>> m_shadersToObserve;
     std::chrono::steady_clock::time_point m_lastCheck;
     std::vector<ReloadTask> m_reloadTasks;
@@ -36,7 +36,7 @@ class ShaderObserver {
     ~ShaderObserver();
     void _checkFiles();
 
-  public:
+   public:
     ShaderObserver(const ShaderObserver &) = delete;
     ShaderObserver operator=(const ShaderObserver &) = delete;
     static ShaderObserver &Get();

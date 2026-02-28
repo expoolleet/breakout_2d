@@ -1,5 +1,8 @@
 #include "particle_emitter.hpp"
 
+#include <format>
+#include <glm/glm.hpp>
+
 #include "fast_random.hpp"
 #include "game_object.hpp"
 #include "glad/glad.h"
@@ -7,9 +10,6 @@
 #include "particle.hpp"
 #include "shader.hpp"
 #include "texture_2d.hpp"
-
-#include <format>
-#include <glm/glm.hpp>
 
 int ParticleEmitter::_findFirstUnusedParticle() {
     for (int i = m_lastUnusedParticle; i < m_particleCount; ++i) {
@@ -24,9 +24,10 @@ int ParticleEmitter::_findFirstUnusedParticle() {
             return i;
         }
     }
-    logging::Warn("Particle emitter was cycled through all {} particles from pool and did not find the "
-                  "unused one. Increase particle limit or decrease particle life time",
-                  m_particleCount);
+    logging::Warn(
+        "Particle emitter was cycled through all {} particles from pool and did not find the "
+        "unused one. Increase particle limit or decrease particle life time",
+        m_particleCount);
     m_lastUnusedParticle = (m_lastUnusedParticle + 1) % m_particleCount;
     return m_lastUnusedParticle;
 }
@@ -42,8 +43,7 @@ void ParticleEmitter::_fillPool() {
 ParticleEmitter::ParticleEmitter(const Texture2D &texture, int count) : m_texture(&texture), m_particleCount(count) {}
 
 void ParticleEmitter::init() {
-    if (m_initialized)
-        return;
+    if (m_initialized) return;
     m_initialized = true;
 
     float vertices[16] = {1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f};
@@ -105,10 +105,9 @@ void ParticleEmitter::prepareAtPosition(glm::vec2 position, int newParticles) {
 void ParticleEmitter::update(float dt) {
     for (int i = 0; i < m_particleCount; ++i) {
         Particle &particle = m_particlePool[i];
-        if (particle.lifeTime <= 0.0f)
-            continue;
+        if (particle.lifeTime <= 0.0f) continue;
         particle.lifeTime -= dt;
-        particle.velocity += (m_gravityEnabled ? glm::vec2(0.0f, GRAVITATIONAL_ACCELERATION) : glm::vec2(0.0f));
+        particle.velocity += (m_gravityEnabled ? glm::vec2(0.0f, GRAVITATIONAL_ACCELERATION) * dt : glm::vec2(0.0f));
         particle.position -= particle.velocity * dt;
         particle.color.a = particle.lifeTime / m_particleLifeTime;
         particle.scale = m_particleScale * particle.color.a;
@@ -119,13 +118,12 @@ void ParticleEmitter::render(Shader &shader) {
     auto partitionedParticles =
         std::partition(m_particlePool.begin(), m_particlePool.end(), [](const Particle &p) { return p.lifeTime <= 0.0f; });
     size_t activeParticleCount = std::distance(partitionedParticles, m_particlePool.end());
-    if (activeParticleCount == 0)
-        return;
+    if (activeParticleCount == 0) return;
     m_texture->bind();
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
     glBindBuffer(GL_ARRAY_BUFFER, m_particle_VBO);
-    glBufferData(GL_ARRAY_BUFFER, MAX_PARTICLES * sizeof(Particle), NULL, GL_DYNAMIC_DRAW); // buffer orphaning
+    glBufferData(GL_ARRAY_BUFFER, MAX_PARTICLES * sizeof(Particle), NULL, GL_DYNAMIC_DRAW);  // buffer orphaning
     glBufferSubData(GL_ARRAY_BUFFER, 0, activeParticleCount * sizeof(Particle), &(*partitionedParticles));
 
     glBindVertexArray(m_VAO);
@@ -160,14 +158,6 @@ void ParticleEmitter::respawnParticle(Particle &particle, glm::vec2 position) {
     float randomBrightness = fastrand::randomFloatInRange(0.5f, 1.0f);
     particle.color = m_particleColor * glm::vec4(randomBrightness, randomBrightness, randomBrightness, 1.0f);
     particle.scale = m_particleScale;
-}
-
-void ParticleEmitter::setParticleAttenuationSpeed(float speed) {
-    m_particleAttenuationSpeed = speed;
-}
-
-float ParticleEmitter::getParticleAttenuationSpeed() {
-    return m_particleAttenuationSpeed;
 }
 
 void ParticleEmitter::setParticleLifeTime(float time) {

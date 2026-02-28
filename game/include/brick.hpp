@@ -1,22 +1,23 @@
 #pragma once
 
+#include <glm/glm.hpp>
+
 #include "brick_type.hpp"
 #include "collision_type.hpp"
 #include "game_object.hpp"
 #include "powerup_type.hpp"
+#include "texture_2d.hpp"
 
-#include <glm/glm.hpp>
-
-class Texture2D; // fwd
+#define BRICK_SIZE (glm::vec2(2.0f, 1.0f))
 
 class Brick : public GameObject {
-  private:
+   private:
     BrickType m_brickType = BrickType::None;
     int m_hardnessPoints = 0;
     int m_maxHardnessPoints = 0;
     PowerUpType m_powerUp = PowerUp_None;
 
-  public:
+   public:
     Brick(const Texture2D &texture, glm::vec2 position, glm::vec2 size, BrickType type);
     void update(float dt) override;
     void fixedUpdate(float dt) override;

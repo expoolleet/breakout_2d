@@ -66,6 +66,8 @@ set(Headers
     include/powerup_factory.hpp
     include/audio_manager.hpp
     include/custom_attributes.hpp
+    include/audio_events.hpp
+    include/game_core.hpp
 )
 
 add_executable(${Project}

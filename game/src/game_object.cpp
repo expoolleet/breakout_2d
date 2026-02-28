@@ -1,10 +1,10 @@
 #include "game_object.hpp"
 
-#include "collision_detection.hpp"
-#include "collision_type.hpp"
-
 #include <cassert>
 #include <glm/glm.hpp>
+
+#include "collision_detection.hpp"
+#include "collision_type.hpp"
 
 GameObject::GameObject(const Texture2D &texture, glm::vec2 position, glm::vec2 size)
     : m_position(position), m_size(size), Texture(&texture) {

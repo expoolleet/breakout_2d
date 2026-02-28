@@ -1,10 +1,5 @@
 #include "shader_manager.hpp"
 
-#include "glad/glad.h"
-#include "logging.hpp"
-#include "shader.hpp"
-#include "shader_parser.hpp"
-
 #include <format>
 #include <fstream>
 #include <sstream>
@@ -12,6 +7,11 @@
 #include <string_view>
 #include <unordered_map>
 #include <vector>
+
+#include "glad/glad.h"
+#include "logging.hpp"
+#include "shader.hpp"
+#include "shader_parser.hpp"
 
 void ShaderManager::_deleteShaders(std::vector<unsigned int> &shaders) {
     for (unsigned int &shader : shaders) {
@@ -58,8 +58,7 @@ bool ShaderManager::_compileShader(unsigned int &shaderID, unsigned int shaderTy
 void ShaderManager::compileProgram(unsigned int &programID, std::string_view vsPath, std::string_view fsPath) {
     std::string vsSource;
     std::string fsSource;
-    if (!_readShaderFile(vsSource, vsPath) || !_readShaderFile(fsSource, fsPath))
-        return;
+    if (!_readShaderFile(vsSource, vsPath) || !_readShaderFile(fsSource, fsPath)) return;
 
     checkIncludes(vsSource);
     checkIncludes(fsSource);
@@ -97,8 +96,7 @@ void ShaderManager::compileProgram(unsigned int &programID, std::string_view vsP
     std::string vsSource;
     std::string gsSource;
     std::string fsSource;
-    if (!_readShaderFile(vsSource, vsPath) || !_readShaderFile(gsSource, gsPath) || !_readShaderFile(fsSource, fsPath))
-        return;
+    if (!_readShaderFile(vsSource, vsPath) || !_readShaderFile(gsSource, gsPath) || !_readShaderFile(fsSource, fsPath)) return;
 
     checkIncludes(vsSource);
     checkIncludes(gsSource);
@@ -152,12 +150,12 @@ void ShaderManager::saveShader(unsigned int &programID, Shader &shader) {
 void ShaderManager::reloadShader(unsigned int &programID, std::vector<std::string> &shaderPaths) {
     unsigned int reloadedProgramID = 0;
     switch (shaderPaths.size()) {
-    case 2:
-        compileProgram(reloadedProgramID, shaderPaths[0], shaderPaths[1]);
-        break;
-    case 3:
-        compileProgram(reloadedProgramID, shaderPaths[0], shaderPaths[1], shaderPaths[2]);
-        break;
+        case 2:
+            compileProgram(reloadedProgramID, shaderPaths[0], shaderPaths[1]);
+            break;
+        case 3:
+            compileProgram(reloadedProgramID, shaderPaths[0], shaderPaths[1], shaderPaths[2]);
+            break;
     };
     if (reloadedProgramID == 0) {
         logging::Log("An error occurred while reloading the shader with ID: {}", programID);

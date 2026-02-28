@@ -5,6 +5,7 @@
 #include "event_dispatcher.hpp"
 #include "event_type.hpp"
 #include "fast_random.hpp"
+#include "game_core.hpp"
 #include "logging.hpp"
 #include "powerup_type.hpp"
 
@@ -12,7 +13,7 @@ PowerUp::PowerUp(PowerUpType type, glm::vec4 color, float duration, const Textur
     : GameObject(texture, position, size), m_powerUpType(type), m_duration(duration) {
     m_type = GameObjectType::GameObject_PowerUp;
     setVelocity(glm::vec2(0.0, -1.0f));
-    setSpeed(fastrand::randomFloatInRange(200.0f, 300.0f));
+    setSpeed(fastrand::randomFloatInRange(5.0f, 8.0f));
     setColor(color);
 }
 
@@ -32,7 +33,9 @@ void PowerUp::fixedUpdate(float dt) {
     m_previousPosition = m_position;
     m_position += m_velocity * m_speed * dt;
 
-    if (m_position.y <= 0.0f) {
+    glm::vec4 worldAABB = core::getWorldAABB();
+    float bottomSide = worldAABB.y;
+    if (m_position.y <= bottomSide) {
         m_duration = 0.0f;
         return;
     }

@@ -1,25 +1,25 @@
 #include "text_renderer.hpp"
 
+#include <freetype/freetype.h>
+#include <stb_image.h>
+
+#include <algorithm>
+#include <format>
+#include <fstream>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <string_view>
+#include <vector>
+
 #include "glad/glad.h"
 #include "logging.hpp"
 #include "shader.hpp"
 #include "window.hpp"
 
-#include <algorithm>
-#include <format>
-#include <freetype/freetype.h>
-#include <fstream>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <stb_image.h>
-#include <string_view>
-#include <vector>
-
 TextRenderer::TextRenderer(const char *pathToFonts) : m_pathToFonts(pathToFonts) {}
 
 void TextRenderer::m_renderText(std::vector<TextVertex> &vertices) {
-    if (vertices.empty())
-        return;
+    if (vertices.empty()) return;
 
     glBindTextureUnit(0, m_atlasData.textureID);
 
@@ -35,10 +35,8 @@ TextRenderer::~TextRenderer() {
 }
 
 void TextRenderer::initRenderer() {
-    if (is_initialized)
-        return;
-    if (FT_Init_FreeType(&m_ft))
-        logging::Error("Could not init FreeType Library");
+    if (is_initialized) return;
+    if (FT_Init_FreeType(&m_ft)) logging::Error("Could not init FreeType Library");
 
     glGenVertexArrays(1, &m_VAO);
     glGenBuffers(1, &m_VBO);
@@ -57,8 +55,7 @@ void TextRenderer::initRenderer() {
 
 void TextRenderer::initFont(std::string_view font, unsigned int fontSize) {
     FT_Face face;
-    if (FT_New_Face(m_ft, (m_pathToFonts / font).string().c_str(), 0, &face))
-        logging::Error("Failed to load font");
+    if (FT_New_Face(m_ft, (m_pathToFonts / font).string().c_str(), 0, &face)) logging::Error("Failed to load font");
 
     FT_Set_Pixel_Sizes(face, 0, fontSize);
     m_atlasData.fontSize = fontSize;
@@ -201,7 +198,7 @@ void TextRenderer::render(Shader &shader, std::string_view text, int x, int y, f
     shader.use();
     shader.setVec3("textColor", color);
     shader.setMat4("projection", glm::ortho(0.0f, float(Window::getWidth()), 0.0f,
-                                            float(Window::getHeight()))); // move this to better place
+                                            float(Window::getHeight())));  // move this to better place
     m_renderText(vertices);
 }
 
@@ -219,8 +216,7 @@ void TextRenderer::renderMSDF(Shader &shader, std::string_view text, int x, int 
     float xCursor = x;
     float yCursor = y;
     for (const char &c : text) {
-        if (!m_glyphs.contains((int)c))
-            continue;
+        if (!m_glyphs.contains((int)c)) continue;
         GlyphData &glyph = m_glyphs[(int)c];
 
         if (glyph.hasBounds) {

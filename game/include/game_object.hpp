@@ -1,8 +1,9 @@
 #pragma once
 
-#include "collision_type.hpp"
-
 #include <glm/glm.hpp>
+
+#include "collision_type.hpp"
+#include "texture_2d.hpp"
 
 enum GameObjectType {
     GameObject_None,
@@ -12,10 +13,8 @@ enum GameObjectType {
     GameObject_PowerUp
 };
 
-class Texture2D; // fwd
-
 class GameObject {
-  protected:
+   protected:
     bool m_isDestroyable = false;
     bool m_isDead = false;
     bool m_isHidden = false;
@@ -30,7 +29,7 @@ class GameObject {
     float m_speed = 0.0f;
     GameObjectType m_type = GameObjectType::GameObject_None;
 
-  public:
+   public:
     const Texture2D *Texture = nullptr;
 
     GameObject(const Texture2D &texture, glm::vec2 position, glm::vec2 size);

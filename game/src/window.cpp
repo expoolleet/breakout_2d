@@ -2,10 +2,10 @@
 
 #include <GLFW/glfw3.h>
 
-std::pair<int, int> Window::getMousePosition() {
+std::pair<float, float> Window::getMousePosition() {
     double xpos = 0, ypos = 0;
     glfwGetCursorPos(m_window, &xpos, &ypos);
-    return {static_cast<int>(xpos), static_cast<int>(ypos)};
+    return {xpos, ypos};
 }
 
 GLFWwindow *Window::createWindow(std::string name, int width, int height) {

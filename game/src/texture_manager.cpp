@@ -5,9 +5,10 @@
 #include "texture_2d.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
+
 #include <format>
 #include <memory>
-#include <stb_image.h>
 #include <string>
 #include <string_view>
 #include <utility>

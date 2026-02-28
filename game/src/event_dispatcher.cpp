@@ -1,24 +1,26 @@
 #include "event_dispatcher.hpp"
 
-#include "event_type.hpp"
-#include "logging.hpp"
-
 #include <format>
 #include <functional>
 #include <typeindex>
+
+#include "event_type.hpp"
+#include "logging.hpp"
 
 EventDispatcher &EventDispatcher::Get() {
     static EventDispatcher dispatcher;
     return dispatcher;
 }
 
-template <typename T> void EventDispatcher::subscribe(std::function<void(const T &)> callback) {
+template <typename T>
+void EventDispatcher::subscribe(std::function<void(const T &)> callback) {
     // type erasure
     auto wrapper = [callback](const void *eventData) { callback(*static_cast<const T *>(eventData)); };
     m_events[std::type_index(typeid(T))].push_back(wrapper);
 }
 
-template <typename T> void EventDispatcher::emit(const T &eventData) {
+template <typename T>
+void EventDispatcher::emit(const T &eventData) {
     auto it = m_events.find(typeid(T));
     if (it == m_events.end()) {
         logging::Warn("No event has been registered with name {}", typeid(T).name());

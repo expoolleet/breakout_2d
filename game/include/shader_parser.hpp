@@ -1,8 +1,5 @@
 #pragma once
 
-#include "glad/glad.h"
-#include "logging.hpp"
-
 #include <filesystem>
 #include <format>
 #include <fstream>
@@ -11,14 +8,16 @@
 #include <string>
 #include <unordered_set>
 
+#include "glad/glad.h"
+#include "logging.hpp"
+
 namespace ShaderParser {
 inline static std::unordered_set<std::string> includeFormats = {".glsl"};
 
 inline void parseIncludesCPU(std::string &includes, std::string &sourceCode) {
     std::string extLine = "#extension GL_ARB_shading_language_include : require";
     for (const auto &entry : std::filesystem::directory_iterator(includes)) {
-        if (!includeFormats.count(entry.path().extension().string()))
-            continue;
+        if (!includeFormats.count(entry.path().extension().string())) continue;
 
         std::ifstream readStream;
         std::string source;
@@ -51,9 +50,7 @@ inline void parseIncludesCPU(std::string &includes, std::string &sourceCode) {
 
 inline void parseIncludesGPU(std::string &includes) {
     for (const auto &entry : std::filesystem::directory_iterator(includes)) {
-
-        if (!includeFormats.count(entry.path().extension().string()))
-            continue;
+        if (!includeFormats.count(entry.path().extension().string())) continue;
 
         std::ifstream readStream;
         std::string source;
@@ -74,4 +71,4 @@ inline void parseIncludesGPU(std::string &includes) {
                          static_cast<unsigned int>(source.size()), source.c_str());
     }
 }
-} // namespace ShaderParser
+}  // namespace ShaderParser

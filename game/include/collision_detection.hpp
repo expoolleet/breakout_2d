@@ -1,11 +1,12 @@
 #pragma once
 
+#include <glm/glm.hpp>
+#include <tuple>
+
 #include "ball.hpp"
 #include "collision_type.hpp"
 #include "game_object.hpp"
-
-#include <glm/glm.hpp>
-#include <tuple>
+#include "logging.hpp"
 
 // Collision Detection namespace
 namespace cd {
@@ -20,7 +21,7 @@ inline CollisionDirection _getCollisionDirection(glm::vec2 target) {
     };
 
     float maxContribution = 0.0f;
-    unsigned int bestMatch = -1;
+    unsigned int bestMatch = 0;
     for (unsigned int i = 0; i < 4; ++i) {
         float cosAngle = glm::dot(directions[i], glm::normalize(target));
         if (cosAngle > maxContribution) {
@@ -72,4 +73,4 @@ inline Collision checkCollision(Ball &ball, GameObject &gameObject) {
     }
     return NoneCollision;
 }
-} // namespace cd
+}  // namespace cd

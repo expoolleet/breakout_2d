@@ -83,4 +83,4 @@ inline BufferObject resizeMultisamplingFrambuffer(BufferObject oldBuffer) {
     return getMultisamlpingFramebuffer(oldBuffer.samples);
 }
 
-} // namespace render
+}  // namespace render

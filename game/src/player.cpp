@@ -1,11 +1,11 @@
 #include "player.hpp"
 
-#include "game_object.hpp"
-#include "window.hpp"
-
 #include <glm/glm.hpp>
 
-class Texture2D; // fwd
+#include "game_core.hpp"
+#include "game_object.hpp"
+
+class Texture2D;  // fwd
 
 Player::Player(const Texture2D &texture, glm::vec2 position, glm::vec2 size) : GameObject(texture, position, size) {
     m_type = GameObjectType::GameObject_Player;
@@ -14,14 +14,16 @@ Player::Player(const Texture2D &texture, glm::vec2 position, glm::vec2 size) : G
 void Player::update(float dt) {}
 
 void Player::fixedUpdate(float dt) {
-    float offset = 5.0f;
     glm::vec2 playerPosition = getPosition();
-    playerPosition += getVelocity() * getSpeed() * dt;
-    float leftSide = 0.0f + offset;
+    playerPosition += m_velocity * m_speed * dt;
+
+    glm::vec4 worldAABB = core::getWorldAABB();
+    float offset = 0.5f;
+    float leftSide = worldAABB.x + offset;
+    float rightSide = worldAABB.z - getSize().x - offset;
     if (playerPosition.x <= leftSide) {
         playerPosition.x = leftSide;
     }
-    float rightSide = static_cast<float>(Window::getWidth()) - getSize().x - offset;
     if (playerPosition.x >= rightSide) {
         playerPosition.x = rightSide;
     }

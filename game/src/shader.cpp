@@ -1,11 +1,5 @@
 #include "shader.hpp"
 
-#include "glad/glad.h"
-#include "logging.hpp"
-#include "shader_manager.hpp"
-#include "shader_observer.hpp"
-#include "string_operators.hpp"
-
 #include <format>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -14,6 +8,12 @@
 #include <type_traits>
 #include <unordered_set>
 #include <variant>
+
+#include "glad/glad.h"
+#include "logging.hpp"
+#include "shader_manager.hpp"
+#include "shader_observer.hpp"
+#include "string_operators.hpp"
 
 Shader::Shader(std::string vsPath, std::string fsPath) {
     ShaderManager::compileProgram(m_ID, vsPath, fsPath);
@@ -48,12 +48,10 @@ void Shader::use() const {
 }
 
 void Shader::clear() {
-    if (m_ID == 0)
-        return;
+    if (m_ID == 0) return;
     int activeShaderID;
     glGetIntegerv(GL_CURRENT_PROGRAM, &activeShaderID);
-    if (static_cast<unsigned int>(activeShaderID) == m_ID)
-        glUseProgram(0);
+    if (static_cast<unsigned int>(activeShaderID) == m_ID) glUseProgram(0);
     glDeleteProgram(m_ID);
     m_ID = 0;
 }
@@ -154,8 +152,7 @@ void Shader::setInt(std::string_view name, int value) {
 void Shader::resetUniforms() {
     for (const auto &[name, value] : m_uniformValues) {
         int location = glGetUniformLocation(m_ID, name.data());
-        if (location == -1)
-            continue;
+        if (location == -1) continue;
 
         std::visit(
             [&](auto &&arg) {
@@ -179,7 +176,8 @@ void Shader::resetUniforms() {
     }
 }
 
-template <typename T> void Shader::saveValue(std::string_view name, T value) {
+template <typename T>
+void Shader::saveValue(std::string_view name, T value) {
     auto it = m_uniformValues.find(name);
     if (it != m_uniformValues.end()) {
         it->second = value;

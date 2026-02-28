@@ -1,13 +1,16 @@
 #pragma once
 
-#include <filesystem>
 #include <freetype/config/ftheader.h>
+
+#include <filesystem>
 #include <glm/glm.hpp>
 #include <nlohmann/json.hpp>
 #include <string_view>
 #include <unordered_map>
 #include <vector>
 #include FT_FREETYPE_H
+
+#include "shader.hpp"
 
 using json = nlohmann::json;
 namespace fs = std::filesystem;
@@ -21,8 +24,6 @@ namespace fs = std::filesystem;
 
 #define ASCII_TABLE_START 32
 #define ASCII_TABLE_END 126
-
-class Shader; // fwd
 
 struct Character {
     glm::ivec2 position;
@@ -76,8 +77,7 @@ struct OutlineData {
 };
 
 class TextRenderer {
-
-  private:
+   private:
     fs::path m_pathToFonts;
     FT_Library m_ft = nullptr;
     std::unordered_map<char, Character> m_characters;
@@ -91,16 +91,15 @@ class TextRenderer {
 
     void m_renderText(std::vector<TextVertex> &vertices);
 
-  public:
+   public:
     TextRenderer(const char *pathToFonts);
     ~TextRenderer();
 
     void initRenderer();
     void initFont(std::string_view font, unsigned int fontSize);
     void initFontMSDF(std::string_view atlasPath, std::string_view jsonPath);
-    void render(Shader &shader, std::string_view text, int x, int y, float scale = 1.0f,
-                glm::vec3 color = glm::vec3(1.0f));
-    void renderMSDF(Shader &shader, std::string_view text, int x, int y, float scale = 1.0f,
-                    glm::vec3 color = glm::vec3(1.0f), bool bold = false, OutlineData outlineData = {});
+    void render(Shader &shader, std::string_view text, int x, int y, float scale = 1.0f, glm::vec3 color = glm::vec3(1.0f));
+    void renderMSDF(Shader &shader, std::string_view text, int x, int y, float scale = 1.0f, glm::vec3 color = glm::vec3(1.0f),
+                    bool bold = false, OutlineData outlineData = {});
     void setCharLimit(unsigned int limit);
 };

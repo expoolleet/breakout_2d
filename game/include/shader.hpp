@@ -1,12 +1,12 @@
 #pragma once
 
-#include "string_operators.hpp"
-
 #include <glm/glm.hpp>
 #include <string>
 #include <string_view>
 #include <unordered_map>
 #include <variant>
+
+#include "string_operators.hpp"
 
 // max texture units (slots) is 32
 #define SKY_BOX_SLOT 10
@@ -21,13 +21,13 @@
 using UniformValue = std::variant<int, bool, float, glm::vec2, glm::vec3, glm::vec4, glm::mat3, glm::mat4>;
 
 class Shader {
-  private:
+   private:
     unsigned int m_ID = 0;
     std::unordered_map<std::string, UniformValue, string_hash, string_view_equal> m_uniformValues;
     int _getUniformLocation(std::string_view name);
 
-    Shader(const Shader &) = delete; // delete copy constructor
-  public:
+    Shader(const Shader &) = delete;  // delete copy constructor
+   public:
     Shader() = default;
     ~Shader();
     Shader(std::string vsPath, std::string fsPath);
@@ -57,5 +57,6 @@ class Shader {
     void setInt(std::string_view name, int value);
     void resetUniforms();
 
-    template <typename T> void saveValue(std::string_view name, T value);
+    template <typename T>
+    void saveValue(std::string_view name, T value);
 };

@@ -1,15 +1,16 @@
 #include "ball.hpp"
 
+#include <glm/glm.hpp>
+
 #include "collision_detection.hpp"
 #include "collision_type.hpp"
 #include "event_dispatcher.hpp"
 #include "event_type.hpp"
+#include "game_core.hpp"
 #include "game_object.hpp"
+#include "logging.hpp"
 #include "player.hpp"
 #include "texture_2d.hpp"
-#include "window.hpp"
-
-#include <glm/glm.hpp>
 
 Ball::Ball(const Texture2D &texture, glm::vec2 position, glm::vec2 size, const Player &player)
     : GameObject(texture, position, size), m_player(&player) {
@@ -20,38 +21,35 @@ Ball::Ball(const Texture2D &texture) : GameObject(texture) {
     m_type = GameObjectType::GameObject_Ball;
 }
 
-void Ball::move(float dt) {
-    m_previousPosition = m_position;
-    m_position += m_velocity * m_speed * dt;
-}
-
 void Ball::update(float dt) {}
 
 void Ball::fixedUpdate(float dt) {
     if (isStuck()) {
         setPosition(m_player->getPosition() + m_stuckPosition);
     } else {
-        move(dt);
+        setPosition(m_position + m_velocity * m_speed * dt);
     }
 
-    if (m_position.y <= 0.0f) {
+    glm::vec4 worldAABB = core::getWorldAABB();
+    float leftSide = worldAABB.x;
+    float bottomSide = worldAABB.y;
+    float rightSide = worldAABB.z;
+    float topSide = worldAABB.w;
+    if (m_position.y <= bottomSide) {
         EventDispatcher::Get().emit(BallFliedOff{*this});
         return;
     }
-
-    float levelWidth = static_cast<float>(Window::getWidth());
-    float levelHeight = static_cast<float>(Window::getHeight());
-    if (m_position.x > 0.0f && m_position.x + m_size.x < levelWidth && m_position.y + m_size.y < levelHeight)
+    if (m_position.x > leftSide && m_position.x + m_size.x < rightSide && m_position.y + m_size.y < topSide)
         return;
     else {
-        if (m_position.x <= 0.0f) {
-            m_position.x = 0.0f;
+        if (m_position.x <= leftSide) {
+            m_position.x = leftSide;
             m_velocity.x = -m_velocity.x;
-        } else if (m_position.x + m_size.x >= levelWidth) {
-            m_position.x = levelWidth - m_size.x;
+        } else if (m_position.x + m_size.x >= rightSide) {
+            m_position.x = rightSide - m_size.x;
             m_velocity.x = -m_velocity.x;
-        } else if (m_position.y + m_size.y >= levelHeight) {
-            m_position.y = levelHeight - m_size.y;
+        } else if (m_position.y + m_size.y >= topSide) {
+            m_position.y = topSide - m_size.y;
             m_velocity.y = -m_velocity.y;
         }
         EventDispatcher::Get().emit(BallHit(m_position, *this, CollisionType::CollisionType_Obstacle));
@@ -59,11 +57,10 @@ void Ball::fixedUpdate(float dt) {
 }
 
 Collision Ball::checkCollision(GameObject &gameObject) {
-    if (isStuck())
-        return cd::NoneCollision;
+    if (isStuck()) return cd::NoneCollision;
     Collision collision = cd::checkCollision(*this, gameObject);
     if (gameObject.getObjectType() == GameObjectType::GameObject_Player && std::get<0>(collision)) {
-        Player *player = dynamic_cast<Player *>(&gameObject);
+        Player *player = static_cast<Player *>(&gameObject);
         float centerBoard = m_player->getPosition().x + m_player->getSize().x / 2;
         float distance = (getPosition().x + getRadius()) - centerBoard;
         float percentage = distance / (m_player->getSize().x / 2.0f);

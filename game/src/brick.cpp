@@ -1,14 +1,14 @@
 #include "brick.hpp"
 
+#include <algorithm>
+#include <glm/glm.hpp>
+
 #include "ball.hpp"
 #include "brick_data.hpp"
 #include "brick_type.hpp"
 #include "collision_detection.hpp"
 #include "collision_type.hpp"
 #include "game_object.hpp"
-
-#include <algorithm>
-#include <glm/glm.hpp>
 
 Brick::Brick(const Texture2D &texture, glm::vec2 position, glm::vec2 size, BrickType type)
     : GameObject(texture, position, size), m_brickType(type) {

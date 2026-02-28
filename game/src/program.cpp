@@ -1,17 +1,18 @@
+#include <GLFW/glfw3.h>  // 2
+
 #include "audio_manager.hpp"
 #include "canvas.hpp"
 #include "custom_attributes.hpp"
 #include "fast_random.hpp"
 #include "game.hpp"
-#include "glad/glad.h" // 1
+#include "game_core.hpp"
+#include "glad/glad.h"  // 1
 #include "path_manager.hpp"
 #include "render_config.hpp"
 #include "shader_observer.hpp"
 #include "window.hpp"
 
-#include <GLFW/glfw3.h> // 2
-
-#define FIXED_FRAMETIME (1.0 / 100.0) // 100 Hz fixed update loop
+#define FIXED_FRAMETIME (1.0 / 100.0)  // 100 Hz fixed update loop
 #define MAX_FRAMETIME 0.25
 
 #define MSAA_SAMPLES 4
@@ -38,15 +39,16 @@ void key_callback(GLFWwindow *window, int key, int scanCode, int action, int mod
     }
 
     if (key == GLFW_KEY_T && action == GLFW_PRESS) {
-        game.spawnBall(glm::vec2(glm::vec2(Window::getWidth() / 2.0f, Window::getHeight() / 2.0f)));
+        game.spawnBall(glm::vec2(0.0f));
     }
 }
 
 void framebuffer_resize_callback(GLFWwindow *window, int width, int height) {
+    if (width < 1 || height < 1) return;
     Window::setWidth(width);
     Window::setHeight(height);
     glViewport(0, 0, width, height);
-    game.resetProjectionMatrix();
+    game.setProjectionMatrix();
     resolveBuffer = render::resizeFrambuffer(resolveBuffer);
     msaaBuffer = render::resizeMultisamplingFrambuffer(msaaBuffer);
 }
@@ -55,8 +57,7 @@ int main() {
     glfwInit();
     glfwWindowHint(GLFW_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_VERSION_MINOR, 5);
-    // GLFWwindow *window = glfwCreateWindow(Window::getWidth(), Window::getHeight(), "Breakout2D", NULL, NULL);
-    GLFWwindow *window = Window::createWindow("Breakout2D", 1280, 1080);
+    GLFWwindow *window = Window::createWindow("Breakout2D", 1280, 720);
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_resize_callback);
     glfwSetKeyCallback(window, key_callback);
@@ -67,7 +68,7 @@ int main() {
     glViewport(0, 0, Window::getWidth(), Window::getHeight());
     glClearColor(0.0, 0.0, 0.0, 1.0);
 
-    glfwSwapInterval(1); // v-sync
+    glfwSwapInterval(1);  // v-sync
 
     render::setupDefaultAlphaBlending();
     render::setupMultisampling();
@@ -97,8 +98,7 @@ int main() {
         double currentTime = glfwGetTime();
         frameTime = currentTime - lastTime;
         lastTime = currentTime;
-        if (frameTime > MAX_FRAMETIME)
-            frameTime = MAX_FRAMETIME;
+        if (frameTime > MAX_FRAMETIME) frameTime = MAX_FRAMETIME;
         accumulation += frameTime;
         glfwPollEvents();
         game.processInput(static_cast<float>(frameTime));

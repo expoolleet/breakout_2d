@@ -1,31 +1,28 @@
 #pragma once
 
-#include "collision_type.hpp"
-#include "event_type.hpp"
-#include "game_level.hpp"
-#include "powerup.hpp"
-#include "powerup_type.hpp"
-#include "sprite_renderer.hpp"
-
 #include <atomic>
 #include <glm/glm.hpp>
 #include <memory>
 #include <thread>
 #include <vector>
 
-// fwd
-class GameObject;
-class Shader;
-class TextRenderer;
-class Ball;
-class Player;
-class ParticleEmitter;
-//
+#include "ball.hpp"
+#include "collision_type.hpp"
+#include "event_type.hpp"
+#include "game_level.hpp"
+#include "game_object.hpp"
+#include "particle_emitter.hpp"
+#include "player.hpp"
+#include "powerup.hpp"
+#include "powerup_type.hpp"
+#include "shader.hpp"
+#include "sprite_renderer.hpp"
+#include "text_renderer.hpp"
 
 #define GAME_NAME "BRAKEOUT 2D"
 #define INITIAL_BALL_VELOCITY (glm::vec2(0.0f, 1.0f))
-#define PLAYER_DEFAULT_SIZE (glm::vec2(256.0f, 32.0f))
-#define PLAYER_START_POSITION (glm::vec2(float(Window::getWidth()) / 2.0f - PLAYER_DEFAULT_SIZE.x / 2.0f, 25.0f))
+#define PLAYER_DEFAULT_SIZE (glm::vec2(4.0f, 0.65f))
+#define PLAYER_START_POSITION (glm::vec2(-PLAYER_DEFAULT_SIZE.x / 2.0f, -(core::getWorldHeight() / 2.0f) + 1.0f))
 #define MAX_BALL_DAMAGE 3
 #define MIN_BALL_DAMAGE 1
 
@@ -37,7 +34,7 @@ enum GameState {
 };
 
 class Game {
-  private:
+   private:
     std::vector<GameLevel> m_levels;
     std::vector<PowerUp> m_powerups;
     std::vector<std::unique_ptr<Ball>> m_balls;
@@ -52,7 +49,7 @@ class Game {
     std::unique_ptr<ParticleEmitter> m_collisionHitParticles;
     std::unique_ptr<Player> m_player;
     GameLevel m_currentLevel;
-    Ball *m_heroBall = nullptr; // observer pointer
+    Ball *m_heroBall = nullptr;  // observer pointer
     unsigned int m_currentLevelNumber = 0;
     unsigned int m_attempts = 0;
     unsigned int m_currentAttempt = 0;
@@ -65,7 +62,7 @@ class Game {
     glm::vec2 _lerpPos(GameObject &gameObject, float alpha);
     void _calcBallNewPositionAndVelocity(Ball &ball, CollisionDirection dir, glm::vec2 diffVector);
 
-  public:
+   public:
     GameState CurrentState = GAME_NONE;
     bool Keys[1024] = {false};
 
@@ -84,7 +81,7 @@ class Game {
     void resetHeroBall();
     void resetBallPosition(Ball &ball);
     void resetPlayer();
-    void resetProjectionMatrix();
+    void setProjectionMatrix();
     void cleanDestroyedBalls();
     void destroyBallsExceptHeroBall();
     void spawnBall(glm::vec2 position);

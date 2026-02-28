@@ -1,16 +1,16 @@
 #pragma once
 
+#include <glm/glm.hpp>
+
 #include "game_object.hpp"
 #include "texture_2d.hpp"
 
-#include <glm/glm.hpp>
-
 class Player : public GameObject {
-  private:
+   private:
     float m_strength = 2.0f;
     bool m_sticky = false;
 
-  public:
+   public:
     Player(const Texture2D &texture, glm::vec2 position, glm::vec2 size);
 
     void update(float dt) override;

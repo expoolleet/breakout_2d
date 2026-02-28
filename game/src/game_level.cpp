@@ -1,11 +1,5 @@
 #include "game_level.hpp"
 
-#include "brick.hpp"
-#include "brick_type.hpp"
-#include "logging.hpp"
-#include "texture_manager.hpp"
-#include "window.hpp"
-
 #include <algorithm>
 #include <format>
 #include <fstream>
@@ -15,7 +9,13 @@
 #include <string>
 #include <vector>
 
-GameLevel::GameLevel(std::string levelPath, int width, int height, glm::vec2 offset) : m_width(width), m_height(height), m_offset(offset) {
+#include "brick.hpp"
+#include "brick_type.hpp"
+#include "game_core.hpp"
+#include "logging.hpp"
+#include "texture_manager.hpp"
+
+GameLevel::GameLevel(std::string levelPath) {
     m_bricks.clear();
     try {
         std::string line;
@@ -46,29 +46,25 @@ GameLevel::~GameLevel() {
 }
 
 void GameLevel::load() {
-    if (m_isLoaded)
-        return;
+    if (m_isLoaded) return;
     m_isLoaded = true;
 
-    int gridHeight = m_tileCodes.size();
-    int gridWidth = m_tileCodes[0].size();
-
-    float offset = 3.0f;
-    float unitWidth = static_cast<float>(m_width) / (static_cast<float>(gridWidth));
-    float unitHeight = static_cast<float>(m_height) / static_cast<float>(gridHeight);
-    for (int i = 0; i < gridHeight; ++i) {
-        for (int j = 0; j < gridWidth; ++j) {
-            int code = m_tileCodes[i][j];
-            if (code == 0)
-                continue;
-
-            // float xOffset = j * unitWidth + offset / 2;
-            float xPos = static_cast<float>((Window::getWidth() - m_width)) / 2.0f + static_cast<float>(j) * unitWidth + offset / 2;
-            float yPos = static_cast<float>(Window::getHeight()) - (unitHeight + static_cast<float>(i) * unitHeight + offset);
-            glm::vec2 position = glm::vec2(xPos, yPos) - m_offset;
-            glm::vec2 size = glm::vec2(unitWidth - offset, unitHeight - offset);
-
-            switch (code) {
+    size_t rows = m_tileCodes.size();
+    size_t columns = m_tileCodes[0].size();
+    size_t brickCount = rows * columns;
+    float offset = 0.1f;
+    float xStart = -(static_cast<float>(columns) * BRICK_SIZE.x / 2.0f) - offset;
+    float yStart = core::getWorldAABB().w - BRICK_SIZE.y;
+    for (size_t i = 0; i < brickCount; ++i) {
+        size_t row = i / columns;
+        size_t col = i % columns;
+        int code = m_tileCodes[row][col];
+        if (code == 0) continue;  // air
+        float xPos = xStart + BRICK_SIZE.x * static_cast<float>(col) + offset / 2.0F;
+        float yPos = yStart - BRICK_SIZE.y * static_cast<float>(row) - offset;
+        glm::vec2 position = glm::vec2(xPos + offset, yPos - offset);
+        glm::vec2 size = BRICK_SIZE - offset;
+        switch (code) {
             case -1:
                 m_bricks.push_back(Brick(TextureManager::getTexture(UNDESTROYABLE_BRICK), position, size, BrickType::Undestroyable));
                 break;
@@ -81,7 +77,9 @@ void GameLevel::load() {
             case 3:
                 m_bricks.push_back(Brick(TextureManager::getTexture(STANDARD_BRICK), position, size, BrickType::ExtremelyTough));
                 break;
-            }
+            default:
+                logging::Warn("Could not load a brick with code: {}", code);
+                break;
         }
     }
     std::partition(m_bricks.begin(), m_bricks.end(), [](auto &brick) { return brick.isDestroyable(); });
@@ -89,8 +87,7 @@ void GameLevel::load() {
 
 void GameLevel::restart() {
     for (auto &brick : m_bricks) {
-        if (!brick.isDestroyable())
-            continue;
+        if (!brick.isDestroyable()) continue;
         brick.reset();
     }
 }
@@ -101,10 +98,8 @@ std::vector<Brick> &GameLevel::getBricks() {
 
 bool GameLevel::isFinished() {
     for (auto &brick : m_bricks) {
-        if (!brick.isDestroyable())
-            continue;
-        if (brick.getCurrentHardnessPoints() > 0)
-            return false;
+        if (!brick.isDestroyable()) continue;
+        if (brick.getCurrentHardnessPoints() > 0) return false;
     }
     return true;
 }

@@ -1,11 +1,10 @@
 #pragma once
 
-#include "collision_type.hpp"
-#include "powerup_type.hpp"
-
 #include <glm/glm.hpp>
 
-class Ball; // fwd
+#include "ball.hpp"
+#include "collision_type.hpp"
+#include "powerup_type.hpp"
 
 struct BallFliedOff {
     Ball &ball;

@@ -1,8 +1,5 @@
 #include "shader_observer.hpp"
 
-#include "logging.hpp"
-#include "shader_manager.hpp"
-
 #include <chrono>
 #include <filesystem>
 #include <format>
@@ -10,6 +7,9 @@
 #include <string>
 #include <thread>
 #include <vector>
+
+#include "logging.hpp"
+#include "shader_manager.hpp"
 
 namespace fs = std::filesystem;
 
@@ -66,10 +66,9 @@ void ShaderObserver::registerShader(unsigned int &programID, std::vector<std::st
 
 void ShaderObserver::update() {
     std::vector<ReloadTask> reloadTasks;
-    { // blocking only copying part (light part)
+    {  // blocking only copying part (light part)
         std::lock_guard<std::mutex> l(m_mutex);
-        if (m_reloadTasks.empty())
-            return;
+        if (m_reloadTasks.empty()) return;
         reloadTasks = std::move(m_reloadTasks);
         m_reloadTasks.clear();
     }
@@ -79,8 +78,7 @@ void ShaderObserver::update() {
 }
 
 void ShaderObserver::startObserving() {
-    if (m_running)
-        return;
+    if (m_running) return;
     m_running = true;
     m_workingThread = std::thread([this]() {
         while (m_running) {
@@ -88,7 +86,7 @@ void ShaderObserver::startObserving() {
 
             std::unique_lock<std::mutex> ulk(m_mutex);
             m_cv.wait_for(ulk, std::chrono::milliseconds(m_updateTimeMS),
-                          [this] { return !m_running; }); // sleep while time is up or m_running is not false
+                          [this] { return !m_running; });  // sleep while time is up or m_running is not false
         }
     });
 }

@@ -1,15 +1,14 @@
 #include "sprite_renderer.hpp"
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
 #include "glad/glad.h"
 #include "shader.hpp"
 #include "texture_2d.hpp"
 
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-
 void SpriteRenderer::_initRenderData() {
-    static float vertexData[16] = {0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
-                                   1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f};
+    static float vertexData[16] = {0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f};
     static int indices[6] = {0, 1, 2, 2, 3, 0};
 
     unsigned int VBO, EBO;
@@ -30,8 +29,8 @@ SpriteRenderer::SpriteRenderer() {
     _initRenderData();
 }
 
-void SpriteRenderer::drawSprite(Shader &shader, const Texture2D &texture, glm::vec2 position, glm::vec2 size,
-                                float rotate, glm::vec4 color) {
+void SpriteRenderer::drawSprite(Shader &shader, const Texture2D &texture, glm::vec2 position, glm::vec2 size, float rotate,
+                                glm::vec4 color) {
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, glm::vec3(position, 0.0f));
 

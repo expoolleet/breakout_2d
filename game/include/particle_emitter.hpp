@@ -1,21 +1,19 @@
 #pragma once
 
-#include "particle.hpp"
-
 #include <unordered_map>
 #include <vector>
+
+#include "game_object.hpp"
+#include "particle.hpp"
+#include "shader.hpp"
+#include "texture_2d.hpp"
 
 #define MAX_PARTICLES 7500
 
 #define GRAVITATIONAL_ACCELERATION 9.807f
 
-// fwd;
-class Texture2D;
-class Shader;
-class GameObject;
-
 class ParticleEmitter {
-  private:
+   private:
     std::vector<Particle> m_particlePool = {};
     const Texture2D *m_texture = nullptr;
     bool m_initialized = false;
@@ -25,7 +23,6 @@ class ParticleEmitter {
     int m_particleCount = 0;
     unsigned int m_VAO = 0;
     unsigned int m_particle_VBO = 0;
-    float m_particleAttenuationSpeed = 1.00f;
     float m_particleLifeTime = 0.0f;
     float m_particleDelay = 0.9f;
     float m_particleScale = 10.0f;
@@ -38,7 +35,7 @@ class ParticleEmitter {
     int _findFirstUnusedParticle();
     void _fillPool();
 
-  public:
+   public:
     ParticleEmitter(const Texture2D &texture, int count);
     ~ParticleEmitter() = default;
     void init();
@@ -46,11 +43,9 @@ class ParticleEmitter {
     void prepareAtPosition(glm::vec2 position, int newParticles);
     void update(float dt);
     void render(Shader &shader);
-    void respawnParticleAtObject(Particle &particle, GameObject &gameObject, glm::vec2 offset = glm::vec2(0.0f), bool overrideColor = false);
+    void respawnParticleAtObject(Particle &particle, GameObject &gameObject, glm::vec2 offset = glm::vec2(0.0f),
+                                 bool overrideColor = false);
     void respawnParticle(Particle &particle, glm::vec2 position);
-
-    void setParticleAttenuationSpeed(float speed);
-    float getParticleAttenuationSpeed();
 
     void setParticleLifeTime(float time);
     float getParticleLifeTime();

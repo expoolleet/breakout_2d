@@ -5,6 +5,6 @@
 
 // PowerUp factory
 class PowerUpFactory {
-  public:
+   public:
     static PowerUp createPowerUp(PowerUpType type, glm::vec2 position);
 };
