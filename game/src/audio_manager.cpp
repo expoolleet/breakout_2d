@@ -8,7 +8,6 @@
 #include "custom_attributes.hpp"
 #include "logging.hpp"
 #include "path_manager.hpp"
-#include "window.hpp"
 
 #define ERRCHECK(result)                                                      \
     if (result != FMOD_OK) {                                                  \
@@ -33,7 +32,7 @@ AudioManager &AudioManager::Get() {
 
 void AudioManager::init() {
     ERRCHECK(FMOD::Studio::System::create(&m_system));
-    ERRCHECK(m_system->initialize(512, FMOD_STUDIO_INIT_NORMAL, FMOD_INIT_NORMAL, nullptr));
+    ERRCHECK(m_system->initialize(1024, FMOD_STUDIO_INIT_NORMAL, FMOD_INIT_NORMAL, nullptr));
 
     FMOD_3D_ATTRIBUTES listenerAttr;
     listenerAttr.position = {0.0f, 0.0f, 0.0f};
@@ -68,14 +67,14 @@ void AudioManager::playOnce(const std::string &eventPath) {
     ERRCHECK(instance->release());
 }
 
-void AudioManager::playOnce(const std::string &eventPath, glm::vec2 position) {
+void AudioManager::playOnce(const std::string &eventPath, glm::vec2 position, glm::vec2 velocity) {
     _saveEvent(eventPath);
     FMOD::Studio::EventInstance *instance = nullptr;
     ERRCHECK(m_loadedEventDesc[eventPath]->createInstance(&instance));
 
     FMOD_3D_ATTRIBUTES attr;
     attr.position = {position.x, position.y, 0.0f};
-    attr.velocity = {0.0f, 0.0f, 0.0f};
+    attr.velocity = {velocity.x, velocity.y, 0.0f};
     attr.forward = {0.0f, 0.0f, 1.0f};
     attr.up = {0.0f, 1.0f, 0.0f};
     ERRCHECK(instance->set3DAttributes(&attr));

@@ -20,6 +20,6 @@ class AudioManager {
     void update();
     void loadBank(const std::string &name);
     void playOnce(const std::string &eventPath);
-    void playOnce(const std::string &eventPath, glm::vec2 position);
+    void playOnce(const std::string &eventPath, glm::vec2 position, glm::vec2 velocity = glm::vec2(0.0f));
     void changeGlobalParameter(const std::string &name, float value);
 };

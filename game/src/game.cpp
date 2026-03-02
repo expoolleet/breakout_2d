@@ -532,7 +532,7 @@ void Game::onPowerUpFinished(const PowerUpFinished &e) {
 }
 
 void Game::onBallHit(const BallHit &e) {
-    float panValue = (e.position.x / static_cast<float>(Window::getWidth())) * 2.0f - 1.0f;
+    float panValue = (e.position.x / core::getWorldAABB().z);
     AudioManager::Get().changeGlobalParameter("Pan", panValue);
     if (e.collisionType == CollisionType::CollisionType_Player && m_player->isSticky()) {
         AudioManager::Get().changeGlobalParameter("Speed", 0.0f);
@@ -541,13 +541,13 @@ void Game::onBallHit(const BallHit &e) {
     }
     switch (e.collisionType) {
         case CollisionType::CollisionType_Brick:
-            AudioManager::Get().playOnce(AE_BALL_HIT_BRICK, e.position);
+            AudioManager::Get().playOnce(AE_BALL_HIT_BRICK, e.position, e.ball.getVelocity() * e.ball.getSpeed());
             break;
         case CollisionType::CollisionType_Obstacle:
-            AudioManager::Get().playOnce(AE_BALL_HIT_OBSTACLE, e.position);
+            AudioManager::Get().playOnce(AE_BALL_HIT_OBSTACLE, e.position, e.ball.getVelocity() * e.ball.getSpeed());
             break;
         case CollisionType::CollisionType_Player:
-            AudioManager::Get().playOnce(AE_BALL_HIT_PLAYER, e.position);
+            AudioManager::Get().playOnce(AE_BALL_HIT_PLAYER, e.position, e.ball.getVelocity() * e.ball.getSpeed());
             break;
         default:
             break;
