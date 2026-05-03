@@ -16,7 +16,6 @@
 #include "texture_manager.hpp"
 
 GameLevel::GameLevel(std::string levelPath) {
-    m_bricks.clear();
     try {
         std::string line;
         std::ifstream fileStream(levelPath);
@@ -33,7 +32,7 @@ GameLevel::GameLevel(std::string levelPath) {
                 while (stringStream >> tileCode) {
                     row.push_back(tileCode);
                 }
-                m_tileCodes.push_back(row);
+                m_tiles.push_back(row);
             }
         }
     } catch (std::ifstream::failure e) {
@@ -41,16 +40,17 @@ GameLevel::GameLevel(std::string levelPath) {
     }
 }
 
-GameLevel::~GameLevel() {
+GameLevel::GameLevel(LevelTiles tiles) : m_tiles(tiles) {}
+
+GameLevel::~GameLevel() noexcept {
     m_bricks.clear();
 }
 
 void GameLevel::load() {
     if (m_isLoaded) return;
     m_isLoaded = true;
-
-    size_t rows = m_tileCodes.size();
-    size_t columns = m_tileCodes[0].size();
+    size_t rows = m_tiles.size();
+    size_t columns = m_tiles[0].size();
     size_t brickCount = rows * columns;
     float offset = 0.1f;
     float xStart = -(static_cast<float>(columns) * BRICK_SIZE.x / 2.0f) - offset;
@@ -58,7 +58,7 @@ void GameLevel::load() {
     for (size_t i = 0; i < brickCount; ++i) {
         size_t row = i / columns;
         size_t col = i % columns;
-        int code = m_tileCodes[row][col];
+        int code = m_tiles[row][col];
         if (code == 0) continue;  // air
         float xPos = xStart + BRICK_SIZE.x * static_cast<float>(col) + offset / 2.0F;
         float yPos = yStart - BRICK_SIZE.y * static_cast<float>(row) - offset;
@@ -66,19 +66,19 @@ void GameLevel::load() {
         glm::vec2 size = BRICK_SIZE - offset;
         switch (code) {
             case -1:
-                m_bricks.push_back(Brick(TextureManager::getTexture(UNDESTROYABLE_BRICK), position, size, BrickType::Undestroyable));
+                m_bricks.emplace_back(TextureManager::getTexture(UNDESTROYABLE_BRICK), position, size, BrickType::Undestroyable);
                 break;
             case 1:
-                m_bricks.push_back(Brick(TextureManager::getTexture(STANDARD_BRICK), position, size, BrickType::Standard));
+                m_bricks.emplace_back(TextureManager::getTexture(STANDARD_BRICK), position, size, BrickType::Standard);
                 break;
             case 2:
-                m_bricks.push_back(Brick(TextureManager::getTexture(STANDARD_BRICK), position, size, BrickType::Hard));
+                m_bricks.emplace_back(TextureManager::getTexture(STANDARD_BRICK), position, size, BrickType::Hard);
                 break;
             case 3:
-                m_bricks.push_back(Brick(TextureManager::getTexture(STANDARD_BRICK), position, size, BrickType::ExtremelyTough));
+                m_bricks.emplace_back(TextureManager::getTexture(STANDARD_BRICK), position, size, BrickType::ExtremelyTough);
                 break;
             default:
-                logging::Warn("Could not load a brick with code: {}", code);
+                logging::Warn("Could not load a brick with the tile code: {}", code);
                 break;
         }
     }
@@ -92,11 +92,15 @@ void GameLevel::restart() {
     }
 }
 
-std::vector<Brick> &GameLevel::getBricks() {
+const std::vector<Brick> &GameLevel::getBricks() const & noexcept {
     return m_bricks;
 }
 
-bool GameLevel::isFinished() {
+std::vector<Brick> &GameLevel::getBricks() & noexcept {
+    return m_bricks;
+}
+
+bool GameLevel::isFinished() const noexcept {
     for (auto &brick : m_bricks) {
         if (!brick.isDestroyable()) continue;
         if (brick.getCurrentHardnessPoints() > 0) return false;
@@ -104,14 +108,19 @@ bool GameLevel::isFinished() {
     return true;
 }
 
-bool GameLevel::isLoaded() {
+bool GameLevel::isLoaded() const noexcept {
     return m_isLoaded;
 }
 
-int GameLevel::getWidth() const {
+int GameLevel::getWidth() const noexcept {
     return m_width;
 }
 
-int GameLevel::getHeight() const {
+int GameLevel::getHeight() const noexcept {
     return m_height;
+}
+
+void GameLevel::setBrickPowerUp(size_t idx, PowerUpType type) {
+    assert(idx >= 0 && idx < m_bricks.size());
+    m_bricks[idx].setPowerUpType(type);
 }

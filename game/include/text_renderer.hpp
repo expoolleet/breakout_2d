@@ -79,7 +79,6 @@ struct OutlineData {
 class TextRenderer {
    private:
     fs::path m_pathToFonts;
-    FT_Library m_ft = nullptr;
     std::unordered_map<char, Character> m_characters;
     std::unordered_map<unsigned char, GlyphData> m_glyphs;
     FontMetrics m_fontMetrics;
@@ -87,19 +86,24 @@ class TextRenderer {
     unsigned int m_maxBufferVertices = 500;
     unsigned int m_VAO = 0;
     unsigned int m_VBO = 0;
-    bool is_initialized = false;
+    bool m_isInitialized = false;
+    FT_Library m_ft = nullptr;
+    glm::mat4 m_projectionMat;
 
-    void m_renderText(std::vector<TextVertex> &vertices);
+    void _renderText(const std::vector<TextVertex> &vertices);
+    glm::mat4 &_getProjectionMat() noexcept;
 
    public:
     TextRenderer(const char *pathToFonts);
     ~TextRenderer();
 
+    bool updateProjectionMat = true;
+
     void initRenderer();
     void initFont(std::string_view font, unsigned int fontSize);
     void initFontMSDF(std::string_view atlasPath, std::string_view jsonPath);
-    void render(Shader &shader, std::string_view text, int x, int y, float scale = 1.0f, glm::vec3 color = glm::vec3(1.0f));
-    void renderMSDF(Shader &shader, std::string_view text, int x, int y, float scale = 1.0f, glm::vec3 color = glm::vec3(1.0f),
+    void render(Shader &shader, std::string_view text, glm::vec2 pos, float scale = 1.0f, glm::vec3 color = glm::vec3(1.0f));
+    void renderMSDF(Shader &shader, std::string_view text, glm::vec2 pos, float scale = 1.0f, glm::vec3 color = glm::vec3(1.0f),
                     bool bold = false, OutlineData outlineData = {});
     void setCharLimit(unsigned int limit);
 };

@@ -29,50 +29,11 @@ set(Sources
     src/powerup.cpp
     src/powerup_factory.cpp
     src/audio_manager.cpp
-)
-
-set(Headers
-    include/game.hpp
-    include/game_level.hpp
-    include/game_object.hpp
-    include/ball.hpp
-    include/brick.hpp
-    include/brick_data.hpp
-    include/brick_type.hpp
-    include/collision_detection.hpp
-    include/collision_type.hpp
-    include/event_dispatcher.hpp
-    include/event_type.hpp
-    include/fast_random.hpp
-    include/logging.hpp
-    include/particle.hpp
-    include/particle_emitter.hpp
-    include/path_manager.hpp
-    include/player.hpp
-    include/render_config.hpp
-    include/shader.hpp
-    include/shader_manager.hpp
-    include/shader_observer.hpp
-    include/shader_parser.hpp
-    include/sprite_renderer.hpp
-    include/string_operators.hpp
-    include/text_renderer.hpp
-    include/texture_2d.hpp
-    include/texture_manager.hpp
-    include/window.hpp
-    include/canvas.hpp
-    include/powerup.hpp
-    include/powerup_type.hpp
-    include/powerup_factory.hpp
-    include/audio_manager.hpp
-    include/custom_attributes.hpp
-    include/audio_events.hpp
-    include/game_core.hpp
+    src/game_level_generator.cpp
 )
 
 add_executable(${Project}
     ${Sources}
-    ${Headers}
 )
 
 target_include_directories(${Project} PRIVATE

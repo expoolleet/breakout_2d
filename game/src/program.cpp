@@ -22,7 +22,7 @@ NO_DESTROY_ATTR static BufferObject resolveBuffer;
 NO_DESTROY_ATTR static BufferObject msaaBuffer;
 NO_DESTROY_ATTR static Game game(3);
 
-void key_callback(GLFWwindow *window, int key, int scanCode, int action, int mods) {
+void keyCallback(GLFWwindow *window, int key, int scanCode, int action, int mods) {
     if (action == GLFW_PRESS) {
         game.Keys[key] = true;
     } else if (action == GLFW_RELEASE) {
@@ -43,7 +43,7 @@ void key_callback(GLFWwindow *window, int key, int scanCode, int action, int mod
     }
 }
 
-void framebuffer_resize_callback(GLFWwindow *window, int width, int height) {
+void framebufferResizeCallback(GLFWwindow *window, int width, int height) {
     if (width < 1 || height < 1) return;
     Window::setWidth(width);
     Window::setHeight(height);
@@ -59,8 +59,8 @@ int main() {
     glfwWindowHint(GLFW_VERSION_MINOR, 5);
     GLFWwindow *window = Window::createWindow("Breakout2D", 1280, 720);
     glfwMakeContextCurrent(window);
-    glfwSetFramebufferSizeCallback(window, framebuffer_resize_callback);
-    glfwSetKeyCallback(window, key_callback);
+    glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
+    glfwSetKeyCallback(window, keyCallback);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         return -1;
@@ -83,7 +83,6 @@ int main() {
     canvasShader.setVec2("inverseScreenSize",
                          glm::vec2(1.0f / static_cast<float>(Window::getWidth()), 1.0f / static_cast<float>(Window::getHeight())));
 
-    fastrand::initRandomEngine();
     PathManager::init();
     ShaderObserver::Get().startObserving();
     game.init();

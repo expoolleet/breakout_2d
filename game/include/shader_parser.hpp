@@ -8,11 +8,12 @@
 #include <string>
 #include <unordered_set>
 
+#include "custom_attributes.hpp"
 #include "glad/glad.h"
 #include "logging.hpp"
 
 namespace ShaderParser {
-inline static std::unordered_set<std::string> includeFormats = {".glsl"};
+NO_DESTROY_ATTR inline static std::unordered_set<std::string> includeFormats = {".glsl"};
 
 inline void parseIncludesCPU(std::string &includes, std::string &sourceCode) {
     std::string extLine = "#extension GL_ARB_shading_language_include : require";

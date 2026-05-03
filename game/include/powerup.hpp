@@ -8,7 +8,7 @@
 
 class PowerUp : public GameObject {
    private:
-    PowerUpType m_powerUpType = PowerUp_None;
+    PowerUpType m_powerUpType = PowerUpType::None;
     bool m_activated = false;
     float m_duration = 0.0f;
 

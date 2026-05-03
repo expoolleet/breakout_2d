@@ -17,10 +17,12 @@ class EventDispatcher {
     EventDispatcher(const EventDispatcher &) = delete;
     EventDispatcher operator=(const EventDispatcher &) = delete;
 
-    static EventDispatcher &Get();
+    static EventDispatcher &Get() noexcept;
 
     template <typename T>
     void subscribe(std::function<void(const T &)> callback);
+    template <typename T>
+    void subscribe2(T &&);
 
     template <typename T>
     void emit(const T &event);

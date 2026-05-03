@@ -23,7 +23,6 @@ inline void Log(std::format_string<Args...> message, Args &&...args) {
 template <typename... Args>
 inline void LogSilent(std::format_string<Args...> message, Args &&...args) {
     auto formatedMessage = std::format(message, std::forward<Args>(args)...);
-    m_lastInfoMessage = formatedMessage;
     std::cout << formatedMessage << "\n";
 }
 

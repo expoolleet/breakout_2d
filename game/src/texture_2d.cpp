@@ -11,19 +11,19 @@ void Texture2D::bind() const {
     glBindTexture(GL_TEXTURE_2D, m_ID);
 }
 
-unsigned int Texture2D::getImageFormat() const {
+unsigned int Texture2D::getImageFormat() const noexcept {
     return m_imageFormat;
 }
 
-unsigned int Texture2D::getWidth() const {
+unsigned int Texture2D::getWidth() const noexcept {
     return m_width;
 }
 
-unsigned int Texture2D::getHeight() const {
+unsigned int Texture2D::getHeight() const noexcept {
     return m_height;
 }
 
-void Texture2D::generate(int width, int height, bool alpha, unsigned char *data) {
+void Texture2D::generate(unsigned int width, unsigned int height, bool alpha, unsigned char *data) {
     if (alpha) {
         m_internalFormat = GL_RGBA8;
         m_imageFormat = GL_RGBA;

@@ -4,8 +4,6 @@
 #include <string>
 #include <string_view>
 
-#define RESOURCES_DIR "resources"
-
 namespace fs = std::filesystem;
 
 class PathManager {

@@ -18,6 +18,7 @@
 #include "fast_random.hpp"
 #include "game_core.hpp"
 #include "game_level.hpp"
+#include "game_level_generator.hpp"
 #include "game_object.hpp"
 #include "logging.hpp"
 #include "particle_emitter.hpp"
@@ -39,10 +40,10 @@ glm::vec2 Game::_lerpPos(GameObject &gameObject, float alpha) {
 void Game::_calcBallNewPositionAndVelocity(Ball &ball, CollisionDirection dir, glm::vec2 diffVector) {
     glm::vec2 ballVelocity = ball.getVelocity();
     glm::vec2 ballPosition = ball.getPosition();
-    if (dir == CollisionDirection_Left || dir == CollisionDirection_Right) {
+    if (dir == CollisionDirection::Left || dir == CollisionDirection::Right) {
         ballVelocity.x = -ballVelocity.x;
         float shift = ball.getRadius() - std::abs(diffVector.x);
-        if (dir == CollisionDirection_Left) {
+        if (dir == CollisionDirection::Left) {
             ballPosition.x += shift;
 
         } else {
@@ -51,7 +52,7 @@ void Game::_calcBallNewPositionAndVelocity(Ball &ball, CollisionDirection dir, g
     } else {
         ballVelocity.y = -ballVelocity.y;
         float shift = ball.getRadius() - std::abs(diffVector.y);
-        if (dir == CollisionDirection_Up) {
+        if (dir == CollisionDirection::Up) {
             ballPosition.y -= shift;
         } else {
             ballPosition.y += shift;
@@ -104,13 +105,13 @@ void Game::init() {
     m_levels.push_back(GameLevel(levelsPath + "/3.lvl"));
     m_levels.push_back(GameLevel(levelsPath + "/4.lvl"));
     m_currentLevelNumber = 1;
-    m_currentLevel = m_levels[m_currentLevelNumber - 1];
+    m_currentLevel = GameLevelGenerator::generate(10, 10);
     m_currentLevel.load();
 
-    m_currentLevel.getBricks()[0].setPowerUpType(PowerUpType::PowerUp_StickyPlayer);
-    m_currentLevel.getBricks()[1].setPowerUpType(PowerUpType::PowerUp_WidePlayer);
-    m_currentLevel.getBricks()[2].setPowerUpType(PowerUpType::PowerUp_PassTrough);
-    m_currentLevel.getBricks()[3].setPowerUpType(PowerUpType::PowerUp_FastBalls);
+    m_currentLevel.setBrickPowerUp(0, PowerUpType::StickyPlayer);
+    m_currentLevel.setBrickPowerUp(1, PowerUpType::WidePlayer);
+    m_currentLevel.setBrickPowerUp(2, PowerUpType::PassTrough);
+    m_currentLevel.setBrickPowerUp(3, PowerUpType::FastBalls);
 
     m_player = std::make_unique<Player>(TextureManager::getTexture("player"), PLAYER_START_POSITION, PLAYER_DEFAULT_SIZE);
     m_player->setSpeed(30.0f);
@@ -269,24 +270,25 @@ void Game::render(float alpha) {
 void Game::renderText(float dt) {
     m_textShader->use();
     if (CurrentState == GAME_WIN) {
-        m_textRenderer->renderMSDF(*m_textShader, "YOU WON! :)", Window::getWidth() / 2 - 350, Window::getHeight() / 2, 3.0f,
-                                   glm::vec3(0.0f, 0.9f, 0.6f), false, {glm::vec3(0.0f), 5.0f});
+        glm::vec2 textPos = core::getScreenPosition(0.3f, 0.5f);
+        m_textRenderer->renderMSDF(*m_textShader, "YOU WON! :)", textPos, 2.0f, glm::vec3(0.0f, 0.9f, 0.6f), false,
+                                   {glm::vec3(0.0f), 5.0f});
     } else {
-        m_textRenderer->renderMSDF(*m_textShader, GAME_NAME, Window::getWidth() / 2 - 150, Window::getHeight() / 2, 1.0f, glm::vec3(1.0f),
-                                   true, {glm::vec3(0.0f), 2.0f});
+        glm::vec2 namePos = core::getScreenPosition(0.3f, 0.5f);
+        m_textRenderer->renderMSDF(*m_textShader, GAME_NAME, namePos, 2.0f, glm::vec3(1.0f), true, {glm::vec3(0.0f), 2.0f});
     }
-    m_textRenderer->renderMSDF(*m_textShader, std::to_string(m_attempts - m_currentAttempt), 15, Window::getHeight() - 50);
+    m_textRenderer->renderMSDF(*m_textShader, std::to_string(m_attempts - m_currentAttempt), core::getScreenPosition(0.01f, 0.9f), 1.0f);
 
-    m_textRenderer->renderMSDF(*m_textShader, std::format("Ball count: {}", m_balls.size()), 30, 55, 0.5f, glm::vec3(1.0f), false,
-                               {glm::vec3(0.0f), 1.0f});
-    m_textRenderer->renderMSDF(*m_textShader, std::format("Hero ball speed: {:.2f}", m_heroBall->getSpeed()), 30, 85, 0.5f, glm::vec3(1.0f),
-                               false, {glm::vec3(0.0f), 1.0f});
+    m_textRenderer->renderMSDF(*m_textShader, std::format("Ball count: {}", m_balls.size()), core::getScreenPosition(0.85f, 0.01f), 0.7f,
+                               glm::vec3(1.0f), false, {glm::vec3(0.0f), 1.0f});
+    m_textRenderer->renderMSDF(*m_textShader, std::format("Hero ball speed: {:.2f}", m_heroBall->getSpeed()),
+                               core::getScreenPosition(0.01f, 0.09f), 0.7f, glm::vec3(1.0f), false, {glm::vec3(0.0f), 1.0f});
     m_textRenderer->renderMSDF(
-        *m_textShader, std::format("Hero ball vel.x: {:.2f}; vel.y: {:.2f}", m_heroBall->getVelocity().x, m_heroBall->getVelocity().y), 30,
-        5, 0.5f, glm::vec3(1.0f), false, {glm::vec3(0.0f), 1.0f});
+        *m_textShader, std::format("Hero ball vel.x: {:.2f}; vel.y: {:.2f}", m_heroBall->getVelocity().x, m_heroBall->getVelocity().y),
+        core::getScreenPosition(0.01f, 0.05f), 0.7f, glm::vec3(1.0f), false, {glm::vec3(0.0f), 1.0f});
     m_textRenderer->renderMSDF(
-        *m_textShader, std::format("Hero ball pos.x: {:.2f}; pos.y: {:.2f}", m_heroBall->getPosition().x, m_heroBall->getPosition().y), 30,
-        30, 0.5f, glm::vec3(1.0f), false, {glm::vec3(0.0f), 1.0f});
+        *m_textShader, std::format("Hero ball pos.x: {:.2f}; pos.y: {:.2f}", m_heroBall->getPosition().x, m_heroBall->getPosition().y),
+        core::getScreenPosition(0.01f, 0.01f), 0.7f, glm::vec3(1.0f), false, {glm::vec3(0.0f), 1.0f});
 }
 
 void Game::nextLevel() {
@@ -354,6 +356,7 @@ void Game::setProjectionMatrix() {
     projectionMat = glm::scale(projectionMat, glm::vec3(xScale, yScale, 1.0f));
     m_spriteShader->setMat4("projection", projectionMat);
     m_particleShader->setMat4("projection", projectionMat);
+    m_textRenderer->updateProjectionMat = true;
 }
 
 void Game::repositionStuckBallsOnPlayer() {
@@ -478,23 +481,24 @@ void Game::onBallFliedOff(const BallFliedOff &e) {
 
 void Game::onPowerUpActivated(const PowerUpActivated &e) {
     switch (e.type) {
-        case PowerUp_FastBalls:
+        case PowerUpType::FastBalls:
             for (auto &ball : m_balls) {
                 ball->setSpeed(BALL_DEFAULT_SPEED * fastrand::randomFloatInRange(1.5f, 2.0f));
             }
             break;
-        case PowerUp_WidePlayer:
+        case PowerUpType::WidePlayer:
             m_player->setSize(glm::vec2(PLAYER_DEFAULT_SIZE.x * 1.5f, PLAYER_DEFAULT_SIZE.y));
             repositionStuckBallsOnPlayer();
             break;
-        case PowerUp_StickyPlayer:
+        case PowerUpType::StickyPlayer:
             m_player->setStickness(true);
             break;
-        case PowerUp_PassTrough:
+        case PowerUpType::PassTrough:
             for (auto &ball : m_balls) {
                 ball->setColliding(false);
             }
             break;
+        case PowerUpType::None:
         default:
             break;
     }
@@ -509,23 +513,24 @@ void Game::onPowerUpFinished(const PowerUpFinished &e) {
     }
 
     switch (e.type) {
-        case PowerUp_FastBalls:
+        case PowerUpType::FastBalls:
             for (auto &ball : m_balls) {
                 ball->setSpeed(BALL_DEFAULT_SPEED);
             }
             break;
-        case PowerUp_WidePlayer:
+        case PowerUpType::WidePlayer:
             m_player->setSize(PLAYER_DEFAULT_SIZE);
             repositionStuckBallsOnPlayer();
             break;
-        case PowerUp_StickyPlayer:
+        case PowerUpType::StickyPlayer:
             m_player->setStickness(false);
             break;
-        case PowerUp_PassTrough:
+        case PowerUpType::PassTrough:
             for (auto &ball : m_balls) {
                 ball->setColliding(true);
             }
             break;
+        case PowerUpType::None:
         default:
             break;
     }
@@ -534,21 +539,22 @@ void Game::onPowerUpFinished(const PowerUpFinished &e) {
 void Game::onBallHit(const BallHit &e) {
     float panValue = (e.position.x / core::getWorldAABB().z);
     AudioManager::Get().changeGlobalParameter("Pan", panValue);
-    if (e.collisionType == CollisionType::CollisionType_Player && m_player->isSticky()) {
+    if (e.collisionType == CollisionType::Player && m_player->isSticky()) {
         AudioManager::Get().changeGlobalParameter("Speed", 0.0f);
     } else {
         AudioManager::Get().changeGlobalParameter("Speed", e.ball.getSpeed());
     }
     switch (e.collisionType) {
-        case CollisionType::CollisionType_Brick:
+        case CollisionType::Brick:
             AudioManager::Get().playOnce(AE_BALL_HIT_BRICK, e.position, e.ball.getVelocity() * e.ball.getSpeed());
             break;
-        case CollisionType::CollisionType_Obstacle:
+        case CollisionType::Obstacle:
             AudioManager::Get().playOnce(AE_BALL_HIT_OBSTACLE, e.position, e.ball.getVelocity() * e.ball.getSpeed());
             break;
-        case CollisionType::CollisionType_Player:
+        case CollisionType::Player:
             AudioManager::Get().playOnce(AE_BALL_HIT_PLAYER, e.position, e.ball.getVelocity() * e.ball.getSpeed());
             break;
+        case CollisionType::None:
         default:
             break;
     }
@@ -567,8 +573,9 @@ void Game::doCollisions() {
     }
     for (auto &ball : m_balls) {
         Collision collision = ball->checkCollision(*m_player);
-        if (std::get<0>(collision)) {
-            EventDispatcher::Get().emit(BallHit(std::get<3>(collision), *ball, CollisionType::CollisionType_Player));
+        if (std::get<static_cast<int>(CollisionDataType::IsCollided)>(collision)) {
+            EventDispatcher::Get().emit(
+                BallHit{std::get<static_cast<int>(CollisionDataType::CollisionPoint)>(collision), *ball, CollisionType::Player});
             if (m_player->isSticky()) {
                 stickBallToPlayer(*ball);
             }
@@ -579,15 +586,15 @@ void Game::doCollisions() {
         for (auto &ball : m_balls) {
             if (!ball->isColliding()) continue;
             Collision collision = brick.checkCollision(*ball);
-            if (std::get<0>(collision)) {
-                CollisionDirection dir = std::get<1>(collision);
-                glm::vec2 diffVector = std::get<2>(collision);
-                glm::vec2 collisionPoint = std::get<3>(collision);
+            if (std::get<static_cast<int>(CollisionDataType::IsCollided)>(collision)) {
+                CollisionDirection dir = std::get<static_cast<int>(CollisionDataType::CollisionDirection)>(collision);
+                glm::vec2 diffVector = std::get<static_cast<int>(CollisionDataType::DifferenceVector)>(collision);
+                glm::vec2 collisionPoint = std::get<static_cast<int>(CollisionDataType::CollisionPoint)>(collision);
                 m_collisionPointHistory.push_back(collisionPoint);
-                EventDispatcher::Get().emit(BallHit(collisionPoint, *ball, CollisionType::CollisionType_Brick));
+                EventDispatcher::Get().emit(BallHit(collisionPoint, *ball, CollisionType::Brick));
                 _calcBallNewPositionAndVelocity(*ball, dir, diffVector);
 
-                if (brick.getPowerUpType() != PowerUp_None) {
+                if (brick.getPowerUpType() != PowerUpType::None) {
                     spawnPowerUp(brick.getPowerUpType(), brick.getPosition());
                 }
 

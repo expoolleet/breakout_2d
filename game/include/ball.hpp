@@ -33,16 +33,16 @@ class Ball : public GameObject {
 
     void reset() override;
 
-    bool isStuck();
+    bool isStuck() const noexcept;
     void setStuck(bool state);
 
+    float getRadius() const noexcept;
     void setRadius(float radius);
-    float getRadius();
 
+    unsigned int getDamage() const noexcept;
     void setDamage(unsigned int damage);
-    unsigned int getDamage();
 
-    glm::vec2 getBounceVelocity();
+    glm::vec2 getBounceVelocity() const noexcept;
     void setBounceVelocity(glm::vec2 velocity);
 
     void setStuckLocalPosition(glm::vec2 stuckPosition);

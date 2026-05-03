@@ -16,9 +16,9 @@ class Player : public GameObject {
     void update(float dt) override;
     void fixedUpdate(float dt) override;
 
+    float getStrength() const noexcept;
     void setStrength(float strength);
-    float getStrength();
 
-    bool isSticky();
-    void setStickness(bool state);
+    bool isSticky() const noexcept;
+    void setStickness(bool state) noexcept;
 };

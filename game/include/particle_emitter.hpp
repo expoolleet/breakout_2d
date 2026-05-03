@@ -47,17 +47,17 @@ class ParticleEmitter {
                                  bool overrideColor = false);
     void respawnParticle(Particle &particle, glm::vec2 position);
 
+    float getParticleLifeTime() const noexcept;
     void setParticleLifeTime(float time);
-    float getParticleLifeTime();
 
+    float getParticleDelay() const noexcept;
     void setParticleDelay(float delay);
-    float getParticleDelay();
 
+    float getParticleScale() const noexcept;
     void setParticleScale(float scale);
-    float getParticleScale();
 
+    int getParticleCount() const noexcept;
     void setNewParticleCount(int count);
-    int getParticleCount();
 
     void setVelocityRandomOffsetRange(float a, float b);
     void setPositionRandomOffsetRange(float a, float b);

@@ -7,7 +7,7 @@
 #include "event_type.hpp"
 #include "logging.hpp"
 
-EventDispatcher &EventDispatcher::Get() {
+EventDispatcher &EventDispatcher::Get() noexcept {
     static EventDispatcher dispatcher;
     return dispatcher;
 }
@@ -15,8 +15,7 @@ EventDispatcher &EventDispatcher::Get() {
 template <typename T>
 void EventDispatcher::subscribe(std::function<void(const T &)> callback) {
     // type erasure
-    auto wrapper = [callback](const void *eventData) { callback(*static_cast<const T *>(eventData)); };
-    m_events[std::type_index(typeid(T))].push_back(wrapper);
+    m_events[std::type_index(typeid(T))].emplace_back([=](const void *eventData) { callback(*static_cast<const T *>(eventData)); });
 }
 
 template <typename T>

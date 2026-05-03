@@ -10,10 +10,11 @@
 
 // Collision Detection namespace
 namespace cd {
-inline Collision NoneCollision = std::tuple(false, CollisionDirection_None, glm::vec2(0.0f), glm::vec2(0.0f));
+inline Collision NoneCollision = std::tuple(false, CollisionDirection::None, glm::vec2(0.0f), glm::vec2(0.0f));
 
 inline CollisionDirection _getCollisionDirection(glm::vec2 target) {
-    static glm::vec2 directions[4] = {
+    constexpr size_t directionCount = 4;
+    static glm::vec2 directions[directionCount] = {
         glm::vec2(0.0f, 1.0f),
         glm::vec2(1.0f, 0.0f),
         glm::vec2(0.0f, -1.0f),
@@ -22,14 +23,14 @@ inline CollisionDirection _getCollisionDirection(glm::vec2 target) {
 
     float maxContribution = 0.0f;
     unsigned int bestMatch = 0;
-    for (unsigned int i = 0; i < 4; ++i) {
+    for (unsigned int i = 0; i < directionCount; ++i) {
         float cosAngle = glm::dot(directions[i], glm::normalize(target));
         if (cosAngle > maxContribution) {
             maxContribution = cosAngle;
             bestMatch = i;
         }
     }
-    return (CollisionDirection)bestMatch;
+    return static_cast<CollisionDirection>(bestMatch);
 }
 
 // AABB

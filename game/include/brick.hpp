@@ -15,7 +15,7 @@ class Brick : public GameObject {
     BrickType m_brickType = BrickType::None;
     int m_hardnessPoints = 0;
     int m_maxHardnessPoints = 0;
-    PowerUpType m_powerUp = PowerUp_None;
+    PowerUpType m_powerUp = PowerUpType::None;
 
    public:
     Brick(const Texture2D &texture, glm::vec2 position, glm::vec2 size, BrickType type);
@@ -23,11 +23,11 @@ class Brick : public GameObject {
     void fixedUpdate(float dt) override;
     Collision checkCollision(GameObject &gameObject) override;
 
-    BrickType getBrickType() const;
-    PowerUpType getPowerUpType() const;
+    BrickType getBrickType() const noexcept;
+    PowerUpType getPowerUpType() const noexcept;
     void setPowerUpType(PowerUpType type);
-    int getCurrentHardnessPoints() const;
-    int getMaxHardnessPoints() const;
+    int getCurrentHardnessPoints() const noexcept;
+    int getMaxHardnessPoints() const noexcept;
     void doDamage(unsigned int damage);
     void doHeal(unsigned int heal);
     void reset() override;

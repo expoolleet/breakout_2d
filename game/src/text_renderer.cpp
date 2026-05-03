@@ -11,6 +11,7 @@
 #include <string_view>
 #include <vector>
 
+#include "game_core.hpp"
 #include "glad/glad.h"
 #include "logging.hpp"
 #include "shader.hpp"
@@ -18,7 +19,7 @@
 
 TextRenderer::TextRenderer(const char *pathToFonts) : m_pathToFonts(pathToFonts) {}
 
-void TextRenderer::m_renderText(std::vector<TextVertex> &vertices) {
+void TextRenderer::_renderText(const std::vector<TextVertex> &vertices) {
     if (vertices.empty()) return;
 
     glBindTextureUnit(0, m_atlasData.textureID);
@@ -30,12 +31,23 @@ void TextRenderer::m_renderText(std::vector<TextVertex> &vertices) {
     glDrawArrays(GL_TRIANGLES, 0, int(vertices.size()));
 }
 
+glm::mat4 &TextRenderer::_getProjectionMat() noexcept {
+    if (updateProjectionMat) {
+        updateProjectionMat = false;
+        // float halfWidth = core::getWorldWidth() / 2.0f;
+        // float halfHeight = core::getWorldHeight() / 2.0f;
+        // m_projectionMat = glm::ortho(-halfWidth, halfWidth, -halfHeight, halfHeight, -1.0f, 1.0f);
+        m_projectionMat = glm::ortho(0.0f, static_cast<float>(Window::getWidth()), 0.0f, static_cast<float>(Window::getHeight()));
+    }
+    return m_projectionMat;
+}
+
 TextRenderer::~TextRenderer() {
     FT_Done_FreeType(m_ft);
 }
 
 void TextRenderer::initRenderer() {
-    if (is_initialized) return;
+    if (m_isInitialized) return;
     if (FT_Init_FreeType(&m_ft)) logging::Error("Could not init FreeType Library");
 
     glGenVertexArrays(1, &m_VAO);
@@ -50,7 +62,7 @@ void TextRenderer::initRenderer() {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
-    is_initialized = true;
+    m_isInitialized = true;
 }
 
 void TextRenderer::initFont(std::string_view font, unsigned int fontSize) {
@@ -167,7 +179,7 @@ void TextRenderer::initFontMSDF(std::string_view atlasPath, std::string_view jso
     glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 }
 
-void TextRenderer::render(Shader &shader, std::string_view text, int x, int y, float scale, glm::vec3 color) {
+void TextRenderer::render(Shader &shader, std::string_view text, glm::vec2 pos, float scale, glm::vec3 color) {
     std::vector<TextVertex> vertices;
     vertices.reserve(text.size() * 6);
 
@@ -175,13 +187,13 @@ void TextRenderer::render(Shader &shader, std::string_view text, int x, int y, f
     for (const char &c : text) {
         Character character = m_characters[c];
 
-        float xPos = float(x) + advance + character.bearing.x * scale;
-        float yPos = float(y) - (character.size.y - character.bearing.y) * scale;
+        float xPos = pos.x + advance + character.bearing.x * scale;
+        float yPos = pos.y - (character.size.y - character.bearing.y) * scale;
 
-        float uStart = float(character.position.x) / m_atlasData.width;
-        float vStart = float(character.position.y) / m_atlasData.height;
-        float uEnd = float(character.position.x + character.size.x) / m_atlasData.width;
-        float vEnd = float(character.position.y + character.size.y) / m_atlasData.height;
+        float uStart = static_cast<float>(character.position.x) / m_atlasData.width;
+        float vStart = static_cast<float>(character.position.y) / m_atlasData.height;
+        float uEnd = static_cast<float>(character.position.x + character.size.x) / m_atlasData.width;
+        float vEnd = static_cast<float>(character.position.y + character.size.y) / m_atlasData.height;
 
         advance += (character.advance >> 6) * scale;
 
@@ -197,12 +209,11 @@ void TextRenderer::render(Shader &shader, std::string_view text, int x, int y, f
     }
     shader.use();
     shader.setVec3("textColor", color);
-    shader.setMat4("projection", glm::ortho(0.0f, float(Window::getWidth()), 0.0f,
-                                            float(Window::getHeight())));  // move this to better place
-    m_renderText(vertices);
+    shader.setMat4("projection", _getProjectionMat());  // move this to better place
+    _renderText(vertices);
 }
 
-void TextRenderer::renderMSDF(Shader &shader, std::string_view text, int x, int y, float scale, glm::vec3 color, bool bold,
+void TextRenderer::renderMSDF(Shader &shader, std::string_view text, glm::vec2 pos, float scale, glm::vec3 color, bool bold,
                               OutlineData outlineData) {
     std::vector<TextVertex> vertices;
     vertices.reserve(text.size() * 6);
@@ -213,22 +224,20 @@ void TextRenderer::renderMSDF(Shader &shader, std::string_view text, int x, int 
 
     float currentFontSize = m_atlasData.fontSize * scale;
 
-    float xCursor = x;
-    float yCursor = y;
     for (const char &c : text) {
-        if (!m_glyphs.contains((int)c)) continue;
-        GlyphData &glyph = m_glyphs[(int)c];
+        if (!m_glyphs.contains(static_cast<int>(c))) continue;
+        GlyphData &glyph = m_glyphs[static_cast<int>(c)];
 
         if (glyph.hasBounds) {
-            float xPos0 = xCursor + glyph.planeBounds.left * currentFontSize;
-            float yPos0 = yCursor + glyph.planeBounds.bottom * currentFontSize;
-            float xPos1 = xCursor + glyph.planeBounds.right * currentFontSize;
-            float yPos1 = yCursor + glyph.planeBounds.top * currentFontSize;
+            float xPos0 = pos.x + glyph.planeBounds.left * currentFontSize;
+            float yPos0 = pos.y + glyph.planeBounds.bottom * currentFontSize;
+            float xPos1 = pos.x + glyph.planeBounds.right * currentFontSize;
+            float yPos1 = pos.y + glyph.planeBounds.top * currentFontSize;
 
-            float u0 = glyph.atlasBounds.left / (float)atlasW;
-            float v0 = glyph.atlasBounds.bottom / (float)atlasH;
-            float u1 = glyph.atlasBounds.right / (float)atlasW;
-            float v1 = glyph.atlasBounds.top / (float)atlasH;
+            float u0 = glyph.atlasBounds.left / static_cast<float>(atlasW);
+            float v0 = glyph.atlasBounds.bottom / static_cast<float>(atlasH);
+            float u1 = glyph.atlasBounds.right / static_cast<float>(atlasW);
+            float v1 = glyph.atlasBounds.top / static_cast<float>(atlasH);
 
             vertices.push_back({xPos0, yPos1, u0, v1});
             vertices.push_back({xPos0, yPos0, u0, v0});
@@ -238,16 +247,15 @@ void TextRenderer::renderMSDF(Shader &shader, std::string_view text, int x, int 
             vertices.push_back({xPos1, yPos0, u1, v0});
             vertices.push_back({xPos1, yPos1, u1, v1});
         }
-
-        xCursor += glyph.advance * currentFontSize;
+        pos.x += glyph.advance * currentFontSize;
     }
     shader.setVec3("textColor", color);
-    shader.setMat4("projection", glm::ortho(0.0f, float(Window::getWidth()), 0.0f, float(Window::getHeight())));
+    shader.setMat4("projection", _getProjectionMat());
     shader.setFloat("distanceRange", m_atlasData.distanceRange);
     shader.setFloat("outlineWidth", outlineData.width);
     shader.setVec3("outlineColor", outlineData.color);
     shader.setBool("isBold", bold);
-    m_renderText(vertices);
+    _renderText(vertices);
 }
 
 void TextRenderer::setCharLimit(unsigned int limit) {

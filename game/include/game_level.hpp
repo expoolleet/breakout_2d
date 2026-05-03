@@ -5,10 +5,12 @@
 
 #include "brick.hpp"
 
+using LevelTiles = std::vector<std::vector<int>>;
+
 class GameLevel {
    private:
     std::vector<Brick> m_bricks = {};
-    std::vector<std::vector<int>> m_tileCodes = {};
+    LevelTiles m_tiles = {};
     int m_width = 0;
     int m_height = 0;
     bool m_isLoaded = false;
@@ -18,13 +20,18 @@ class GameLevel {
 
     GameLevel() = default;
     GameLevel(std::string levelPath);
-    ~GameLevel();
+    GameLevel(LevelTiles tiles);
+    ~GameLevel() noexcept;
+    GameLevel &operator=(const GameLevel &) noexcept = default;
+    GameLevel(const GameLevel &) noexcept = default;
 
     void load();
     void restart();
-    std::vector<Brick> &getBricks();
-    bool isFinished();
-    bool isLoaded();
-    int getWidth() const;
-    int getHeight() const;
+    bool isFinished() const noexcept;
+    bool isLoaded() const noexcept;
+    int getWidth() const noexcept;
+    int getHeight() const noexcept;
+    void setBrickPowerUp(size_t idx, PowerUpType type);
+    const std::vector<Brick> &getBricks() const & noexcept;
+    std::vector<Brick> &getBricks() & noexcept;
 };

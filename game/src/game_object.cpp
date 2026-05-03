@@ -19,19 +19,19 @@ Collision GameObject::checkCollision(GameObject &gameObject) {
     return cd::NoneCollision;
 }
 
-GameObjectType GameObject::getObjectType() const {
+GameObjectType GameObject::getObjectType() const noexcept {
     return m_type;
 }
 
-bool GameObject::isDestroyable() const {
+bool GameObject::isDestroyable() const noexcept {
     return m_isDestroyable;
 }
 
-bool GameObject::isDead() const {
+bool GameObject::isDead() const noexcept {
     return m_isDead;
 }
 
-void GameObject::setDestructibility(bool flag) {
+void GameObject::setDestructibility(bool flag) noexcept {
     m_isDestroyable = flag;
 }
 
@@ -45,11 +45,11 @@ void GameObject::reset() {
     m_isHidden = false;
 }
 
-bool GameObject::isHidden() const {
+bool GameObject::isHidden() const noexcept {
     return m_isHidden;
 }
 
-void GameObject::hide(bool state) {
+void GameObject::hide(bool state) noexcept {
     m_isHidden = state;
 }
 
@@ -61,7 +61,7 @@ glm::vec2 GameObject::getPreviousPosition() {
     return m_previousPosition;
 }
 
-glm::vec2 GameObject::getSize() const {
+glm::vec2 GameObject::getSize() const noexcept {
     return m_size;
 }
 
@@ -79,7 +79,7 @@ void GameObject::setSize(glm::vec2 size) {
     m_size = size;
 }
 
-glm::vec2 GameObject::getVelocity() const {
+glm::vec2 GameObject::getVelocity() const noexcept {
     return m_velocity;
 }
 
@@ -87,7 +87,7 @@ void GameObject::setVelocity(glm::vec2 velocity) {
     m_velocity = velocity;
 }
 
-float GameObject::getSpeed() const {
+float GameObject::getSpeed() const noexcept {
     return m_speed;
 }
 
@@ -99,7 +99,7 @@ void GameObject::setColor(glm::vec4 color) {
     m_color = color;
 }
 
-glm::vec4 GameObject::getColor() const {
+glm::vec4 GameObject::getColor() const noexcept {
     return m_color;
 }
 
@@ -107,6 +107,6 @@ void GameObject::setColliding(bool flag) {
     m_isColliding = flag;
 }
 
-bool GameObject::isColliding() {
+bool GameObject::isColliding() const noexcept {
     return m_isColliding;
 }

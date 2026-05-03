@@ -11,7 +11,7 @@
 
 PowerUp::PowerUp(PowerUpType type, glm::vec4 color, float duration, const Texture2D &texture, glm::vec2 position, glm::vec2 size)
     : GameObject(texture, position, size), m_powerUpType(type), m_duration(duration) {
-    m_type = GameObjectType::GameObject_PowerUp;
+    m_type = GameObjectType::PowerUp;
     setVelocity(glm::vec2(0.0, -1.0f));
     setSpeed(fastrand::randomFloatInRange(5.0f, 8.0f));
     setColor(color);
@@ -59,7 +59,7 @@ PowerUpType PowerUp::getType() const {
 
 Collision PowerUp::checkCollision(GameObject &gameObject) {
     Collision collision = cd::checkCollision(*this, gameObject);
-    if (std::get<0>(collision) && !isActivated() && gameObject.getObjectType() == GameObjectType::GameObject_Player) {
+    if (std::get<0>(collision) && !isActivated() && gameObject.getObjectType() == GameObjectType::Player) {
         hide(true);
         EventDispatcher::Get().emit(PowerUpActivated{m_powerUpType});
         logging::Log("PowerUp: {} is activated", toString(m_powerUpType));

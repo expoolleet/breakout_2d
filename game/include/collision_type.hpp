@@ -4,20 +4,27 @@
 #include <tuple>
 
 // Order is important
-enum CollisionDirection {
-    CollisionDirection_Up,
-    CollisionDirection_Right,
-    CollisionDirection_Down,
-    CollisionDirection_Left,
-    CollisionDirection_None
+enum class CollisionDirection {
+    Up = 0,
+    Right = 1,
+    Down = 2,
+    Left = 3,
+    None
 };
 
-enum CollisionType {
-    CollisionType_Obstacle,
-    CollisionType_Brick,
-    CollisionType_Player,
-    CollisionType_None
+enum class CollisionType {
+    Obstacle,
+    Brick,
+    Player,
+    None
+};
+
+enum class CollisionDataType {
+    IsCollided = 0,
+    CollisionDirection = 1,
+    DifferenceVector = 2,
+    CollisionPoint = 3
 };
 
 // isCollided, CollisionDirection, diffVector, collisionPoint
-typedef std::tuple<bool, CollisionDirection, glm::vec2, glm::vec2> Collision;
+using Collision = std::tuple<bool, CollisionDirection, glm::vec2, glm::vec2>;

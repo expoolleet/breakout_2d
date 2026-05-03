@@ -17,7 +17,7 @@ Brick::Brick(const Texture2D &texture, glm::vec2 position, glm::vec2 size, Brick
     setColor(data.color);
     m_hardnessPoints = data.maxHardnessPoints;
     m_maxHardnessPoints = m_hardnessPoints;
-    m_type = GameObjectType::GameObject_Brick;
+    m_type = GameObjectType::Brick;
 }
 
 void Brick::update(float dt) {}
@@ -37,11 +37,11 @@ Collision Brick::checkCollision(GameObject &gameObject) {
     return cd::NoneCollision;
 }
 
-int Brick::getCurrentHardnessPoints() const {
+int Brick::getCurrentHardnessPoints() const noexcept {
     return m_hardnessPoints;
 }
 
-int Brick::getMaxHardnessPoints() const {
+int Brick::getMaxHardnessPoints() const noexcept {
     return m_maxHardnessPoints;
 }
 
@@ -61,11 +61,11 @@ void Brick::reset() {
     m_hardnessPoints = m_maxHardnessPoints;
 }
 
-BrickType Brick::getBrickType() const {
+BrickType Brick::getBrickType() const noexcept {
     return m_brickType;
 }
 
-PowerUpType Brick::getPowerUpType() const {
+PowerUpType Brick::getPowerUpType() const noexcept {
     return m_powerUp;
 }
 

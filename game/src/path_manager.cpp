@@ -6,6 +6,8 @@
 
 namespace fs = std::filesystem;
 
+static const char *RESOURCES_DIR = "resources";
+
 void PathManager::init() {
     fs::path currentPath = fs::current_path();
     int maxLevel = 5;

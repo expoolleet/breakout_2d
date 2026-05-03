@@ -164,7 +164,7 @@ void ParticleEmitter::setParticleLifeTime(float time) {
     m_particleLifeTime = time;
 }
 
-float ParticleEmitter::getParticleLifeTime() {
+float ParticleEmitter::getParticleLifeTime() const noexcept {
     return m_particleLifeTime;
 }
 
@@ -172,7 +172,7 @@ void ParticleEmitter::setParticleDelay(float delay) {
     m_particleDelay = delay;
 }
 
-float ParticleEmitter::getParticleDelay() {
+float ParticleEmitter::getParticleDelay() const noexcept {
     return m_particleDelay;
 }
 
@@ -180,7 +180,7 @@ void ParticleEmitter::setParticleScale(float scale) {
     m_particleScale = scale;
 }
 
-float ParticleEmitter::getParticleScale() {
+float ParticleEmitter::getParticleScale() const noexcept {
     return m_particleScale;
 }
 
@@ -189,7 +189,7 @@ void ParticleEmitter::setNewParticleCount(int count) {
     _fillPool();
 }
 
-int ParticleEmitter::getParticleCount() {
+int ParticleEmitter::getParticleCount() const noexcept {
     return m_particleCount;
 }
 

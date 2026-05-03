@@ -14,19 +14,19 @@ class Window {
     Window &operator=(const Window &) = delete;
 
    public:
-    inline static int getWidth() {
+    inline static int getWidth() noexcept {
         return m_width;
     }
 
-    inline static int getHeight() {
+    inline static int getHeight() noexcept {
         return m_height;
     }
 
-    inline static void setWidth(int width) {
+    inline static void setWidth(int width) noexcept {
         m_width = width;
     }
 
-    inline static void setHeight(int height) {
+    inline static void setHeight(int height) noexcept {
         m_height = height;
     }
 

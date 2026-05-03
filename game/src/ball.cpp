@@ -14,11 +14,11 @@
 
 Ball::Ball(const Texture2D &texture, glm::vec2 position, glm::vec2 size, const Player &player)
     : GameObject(texture, position, size), m_player(&player) {
-    m_type = GameObjectType::GameObject_Ball;
+    m_type = GameObjectType::Ball;
 }
 
 Ball::Ball(const Texture2D &texture) : GameObject(texture) {
-    m_type = GameObjectType::GameObject_Ball;
+    m_type = GameObjectType::Ball;
 }
 
 void Ball::update(float dt) {}
@@ -52,14 +52,14 @@ void Ball::fixedUpdate(float dt) {
             m_position.y = topSide - m_size.y;
             m_velocity.y = -m_velocity.y;
         }
-        EventDispatcher::Get().emit(BallHit(m_position, *this, CollisionType::CollisionType_Obstacle));
+        EventDispatcher::Get().emit(BallHit(m_position, *this, CollisionType::Obstacle));
     }
 }
 
 Collision Ball::checkCollision(GameObject &gameObject) {
     if (isStuck()) return cd::NoneCollision;
     Collision collision = cd::checkCollision(*this, gameObject);
-    if (gameObject.getObjectType() == GameObjectType::GameObject_Player && std::get<0>(collision)) {
+    if (gameObject.getObjectType() == GameObjectType::Player && std::get<0>(collision)) {
         Player *player = static_cast<Player *>(&gameObject);
         float centerBoard = m_player->getPosition().x + m_player->getSize().x / 2;
         float distance = (getPosition().x + getRadius()) - centerBoard;
@@ -79,7 +79,7 @@ void Ball::reset() {
     GameObject::reset();
 }
 
-bool Ball::isStuck() {
+bool Ball::isStuck() const noexcept {
     return m_stuck;
 }
 
@@ -91,7 +91,7 @@ void Ball::setRadius(float radius) {
     m_radius = radius;
 }
 
-float Ball::getRadius() {
+float Ball::getRadius() const noexcept {
     return m_radius;
 }
 
@@ -99,11 +99,11 @@ void Ball::setDamage(unsigned int damage) {
     m_damage = damage;
 }
 
-unsigned int Ball::getDamage() {
+unsigned int Ball::getDamage() const noexcept {
     return m_damage;
 }
 
-glm::vec2 Ball::getBounceVelocity() {
+glm::vec2 Ball::getBounceVelocity() const noexcept {
     return m_bounceVelocity;
 }
 

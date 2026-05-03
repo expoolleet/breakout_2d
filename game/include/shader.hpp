@@ -35,7 +35,7 @@ class Shader {
 
     void use() const;
     void clear();
-    unsigned int getID() const;
+    unsigned int getID() const noexcept;
     void setModelViewProjection(glm::mat4 &model, glm::mat4 &view, glm::mat4 &projection);
     void setViewProjection(glm::mat4 &view, glm::mat4 &projection);
     void bindTextureUnit(unsigned int unit, unsigned int textureId);

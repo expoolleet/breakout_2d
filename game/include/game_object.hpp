@@ -5,12 +5,12 @@
 #include "collision_type.hpp"
 #include "texture_2d.hpp"
 
-enum GameObjectType {
-    GameObject_None,
-    GameObject_Player,
-    GameObject_Ball,
-    GameObject_Brick,
-    GameObject_PowerUp
+enum class GameObjectType {
+    None,
+    Player,
+    Ball,
+    Brick,
+    PowerUp
 };
 
 class GameObject {
@@ -27,7 +27,7 @@ class GameObject {
     glm::vec4 m_color = glm::vec4(1.0f);
     float m_accelerationAttenuation = 0.1f;
     float m_speed = 0.0f;
-    GameObjectType m_type = GameObjectType::GameObject_None;
+    GameObjectType m_type = GameObjectType::None;
 
    public:
     const Texture2D *Texture = nullptr;
@@ -36,18 +36,20 @@ class GameObject {
     GameObject(const Texture2D &texture);
 
     virtual ~GameObject() = default;
+    GameObject &operator=(const GameObject &) noexcept = default;
+    GameObject(const GameObject &) noexcept = default;
 
     virtual void update(float dt) = 0;
     virtual void fixedUpdate(float dt) = 0;
     virtual Collision checkCollision(GameObject &gameObject);
-    virtual GameObjectType getObjectType() const;
+    virtual GameObjectType getObjectType() const noexcept;
 
-    virtual bool isDestroyable() const;
-    virtual bool isDead() const;
-    virtual bool isHidden() const;
-    virtual void setDestructibility(bool flag);
+    virtual bool isDestroyable() const noexcept;
+    virtual bool isDead() const noexcept;
+    virtual bool isHidden() const noexcept;
+    virtual void setDestructibility(bool flag) noexcept;
     virtual void destroy();
-    virtual void hide(bool state);
+    virtual void hide(bool state) noexcept;
     virtual void reset();
 
     virtual glm::vec2 getPosition() const;
@@ -55,18 +57,18 @@ class GameObject {
     virtual void setPosition(glm::vec2 position);
     virtual void resetPosition(glm::vec2 position);
 
-    virtual glm::vec2 getSize() const;
+    virtual glm::vec2 getSize() const noexcept;
     virtual void setSize(glm::vec2 size);
 
-    virtual glm::vec2 getVelocity() const;
+    virtual glm::vec2 getVelocity() const noexcept;
     virtual void setVelocity(glm::vec2 velocity);
 
-    virtual float getSpeed() const;
+    virtual float getSpeed() const noexcept;
     virtual void setSpeed(float speed);
 
+    virtual glm::vec4 getColor() const noexcept;
     virtual void setColor(glm::vec4 color);
-    virtual glm::vec4 getColor() const;
 
     virtual void setColliding(bool flag);
-    virtual bool isColliding();
+    virtual bool isColliding() const noexcept;
 };

@@ -56,7 +56,7 @@ void Shader::clear() {
     m_ID = 0;
 }
 
-unsigned int Shader::getID() const {
+unsigned int Shader::getID() const noexcept {
     return m_ID;
 }
 

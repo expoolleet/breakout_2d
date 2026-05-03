@@ -1,25 +1,25 @@
 #pragma once
 
-enum BrickType {
-    None,
+enum class BrickType {
     Standard,
     Hard,
     ExtremelyTough,
     Undestroyable,
+    None,
 };
 
 inline const char *toString(BrickType type) {
     switch (type) {
-        case Standard:
-            return "Brick_Standard";
-        case Hard:
-            return "Brick_Hard";
-        case ExtremelyTough:
-            return "Brick_ExtremelyTough";
-        case Undestroyable:
-            return "Brick_Undestroyable";
-        case None:
-            return "Brick_None";
+        case BrickType::Standard:
+            return "Standard";
+        case BrickType::Hard:
+            return "Hard";
+        case BrickType::ExtremelyTough:
+            return "ExtremelyTough";
+        case BrickType::Undestroyable:
+            return "Undestroyable";
+        case BrickType::None:
+            return "None";
         default:
             return "";
     }
