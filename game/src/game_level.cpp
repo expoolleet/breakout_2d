@@ -15,10 +15,10 @@
 #include "logging.hpp"
 #include "texture_manager.hpp"
 
-GameLevel::GameLevel(std::string levelPath) {
+GameLevel::GameLevel(const std::string &levelPath) {
     try {
         std::string line;
-        std::ifstream fileStream(levelPath);
+        std::ifstream fileStream{levelPath};
 
         if (!fileStream.is_open()) {
             logging::Error("Could not load the level file: {}", levelPath);
@@ -90,6 +90,10 @@ void GameLevel::restart() {
         if (!brick.isDestroyable()) continue;
         brick.reset();
     }
+}
+
+void GameLevel::setBricks(std::vector<Brick> bricks) {
+    m_bricks = std::move(bricks);
 }
 
 const std::vector<Brick> &GameLevel::getBricks() const & noexcept {

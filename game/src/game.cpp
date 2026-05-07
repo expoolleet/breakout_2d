@@ -270,25 +270,25 @@ void Game::render(float alpha) {
 void Game::renderText(float dt) {
     m_textShader->use();
     if (CurrentState == GAME_WIN) {
-        glm::vec2 textPos = core::getScreenPosition(0.3f, 0.5f);
-        m_textRenderer->renderMSDF(*m_textShader, "YOU WON! :)", textPos, 2.0f, glm::vec3(0.0f, 0.9f, 0.6f), false,
+        glm::vec2 textPos = core::getWorldPosition(0.25f, 0.5f);
+        m_textRenderer->renderMSDF(*m_textShader, "YOU WON! :)", textPos, 0.07f, glm::vec3(0.0f, 0.9f, 0.6f), false,
                                    {glm::vec3(0.0f), 5.0f});
     } else {
-        glm::vec2 namePos = core::getScreenPosition(0.3f, 0.5f);
-        m_textRenderer->renderMSDF(*m_textShader, GAME_NAME, namePos, 2.0f, glm::vec3(1.0f), true, {glm::vec3(0.0f), 2.0f});
+        glm::vec2 namePos = core::getWorldPosition(0.25f, 0.5f);
+        m_textRenderer->renderMSDF(*m_textShader, GAME_NAME, namePos, 0.07f, glm::vec3(1.0f), true, {glm::vec3(0.0f), 2.0f});
     }
-    m_textRenderer->renderMSDF(*m_textShader, std::to_string(m_attempts - m_currentAttempt), core::getScreenPosition(0.01f, 0.9f), 1.0f);
-
-    m_textRenderer->renderMSDF(*m_textShader, std::format("Ball count: {}", m_balls.size()), core::getScreenPosition(0.85f, 0.01f), 0.7f,
+    m_textRenderer->renderMSDF(*m_textShader, std::format("Attempts: {}", std::to_string(m_attempts - m_currentAttempt)),
+                               core::getWorldPosition(0.01f, 0.9f), 0.03f);
+    m_textRenderer->renderMSDF(*m_textShader, std::format("Ball count: {}", m_balls.size()), core::getWorldPosition(0.85f, 0.01f), 0.02f,
                                glm::vec3(1.0f), false, {glm::vec3(0.0f), 1.0f});
     m_textRenderer->renderMSDF(*m_textShader, std::format("Hero ball speed: {:.2f}", m_heroBall->getSpeed()),
-                               core::getScreenPosition(0.01f, 0.09f), 0.7f, glm::vec3(1.0f), false, {glm::vec3(0.0f), 1.0f});
+                               core::getWorldPosition(0.01f, 0.09f), 0.02f, glm::vec3(1.0f), false, {glm::vec3(0.0f), 1.0f});
     m_textRenderer->renderMSDF(
         *m_textShader, std::format("Hero ball vel.x: {:.2f}; vel.y: {:.2f}", m_heroBall->getVelocity().x, m_heroBall->getVelocity().y),
-        core::getScreenPosition(0.01f, 0.05f), 0.7f, glm::vec3(1.0f), false, {glm::vec3(0.0f), 1.0f});
+        core::getWorldPosition(0.01f, 0.05f), 0.02f, glm::vec3(1.0f), false, {glm::vec3(0.0f), 1.0f});
     m_textRenderer->renderMSDF(
         *m_textShader, std::format("Hero ball pos.x: {:.2f}; pos.y: {:.2f}", m_heroBall->getPosition().x, m_heroBall->getPosition().y),
-        core::getScreenPosition(0.01f, 0.01f), 0.7f, glm::vec3(1.0f), false, {glm::vec3(0.0f), 1.0f});
+        core::getWorldPosition(0.01f, 0.01f), 0.02f, glm::vec3(1.0f), false, {glm::vec3(0.0f), 1.0f});
 }
 
 void Game::nextLevel() {
@@ -340,20 +340,7 @@ void Game::resetPlayer() {
 }
 
 void Game::setProjectionMatrix() {
-    float halfWidth = core::getWorldWidth() / 2.0f;
-    float halfHeight = core::getWorldHeight() / 2.0f;
-    glm::mat4 projectionMat = glm::ortho(-halfWidth, halfWidth, -halfHeight, halfHeight, -1.0f, 1.0f);
-
-    float xScale = 1.0f;
-    float yScale = 1.0f;
-    float targetAspect = core::getWorldAspectRatio();
-    float windowAspect = Window::getAspectRatio();
-    if (windowAspect > targetAspect) {
-        xScale = targetAspect / windowAspect;
-    } else {
-        yScale = windowAspect / targetAspect;
-    }
-    projectionMat = glm::scale(projectionMat, glm::vec3(xScale, yScale, 1.0f));
+    glm::mat4 projectionMat = core::getScaledProjectionMatrix();
     m_spriteShader->setMat4("projection", projectionMat);
     m_particleShader->setMat4("projection", projectionMat);
     m_textRenderer->updateProjectionMat = true;

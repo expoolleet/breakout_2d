@@ -8,6 +8,7 @@
 #include <thread>
 #include <vector>
 
+#include "custom_attributes.hpp"
 #include "logging.hpp"
 #include "shader_manager.hpp"
 
@@ -39,14 +40,14 @@ void ShaderObserver::_checkFiles() {
     }
 }
 
-ShaderObserver::~ShaderObserver() {
+ShaderObserver::~ShaderObserver() noexcept {
     m_running = false;
     m_cv.notify_all();
     m_workingThread.join();
 }
 
 ShaderObserver &ShaderObserver::Get() {
-    static ShaderObserver observer;
+    NO_DESTROY_ATTR static ShaderObserver observer;
     return observer;
 }
 
@@ -66,11 +67,10 @@ void ShaderObserver::registerShader(unsigned int &programID, std::vector<std::st
 
 void ShaderObserver::update() {
     std::vector<ReloadTask> reloadTasks;
-    {  // blocking only copying part (light part)
-        std::lock_guard<std::mutex> l(m_mutex);
+    {  // blocking only moving part
+        std::lock_guard<std::mutex> lock{m_mutex};
         if (m_reloadTasks.empty()) return;
         reloadTasks = std::move(m_reloadTasks);
-        m_reloadTasks.clear();
     }
     for (auto &task : reloadTasks) {
         ShaderManager::reloadShader(*task.programID, task.paths);
@@ -84,8 +84,8 @@ void ShaderObserver::startObserving() {
         while (m_running) {
             _checkFiles();
 
-            std::unique_lock<std::mutex> ulk(m_mutex);
-            m_cv.wait_for(ulk, std::chrono::milliseconds(m_updateTimeMS),
+            std::unique_lock<std::mutex> lock{m_mutex};
+            m_cv.wait_for(lock, std::chrono::milliseconds(m_updateTimeMS),
                           [this] { return !m_running; });  // sleep while time is up or m_running is not false
         }
     });

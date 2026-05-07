@@ -34,10 +34,8 @@ void TextRenderer::_renderText(const std::vector<TextVertex> &vertices) {
 glm::mat4 &TextRenderer::_getProjectionMat() noexcept {
     if (updateProjectionMat) {
         updateProjectionMat = false;
-        // float halfWidth = core::getWorldWidth() / 2.0f;
-        // float halfHeight = core::getWorldHeight() / 2.0f;
-        // m_projectionMat = glm::ortho(-halfWidth, halfWidth, -halfHeight, halfHeight, -1.0f, 1.0f);
-        m_projectionMat = glm::ortho(0.0f, static_cast<float>(Window::getWidth()), 0.0f, static_cast<float>(Window::getHeight()));
+        m_projectionMat = core::getScaledProjectionMatrix();
+        // m_projectionMat = glm::ortho(0.0f, static_cast<float>(Window::getWidth()), 0.0f, static_cast<float>(Window::getHeight()));
     }
     return m_projectionMat;
 }

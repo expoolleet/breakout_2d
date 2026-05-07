@@ -19,7 +19,7 @@ class GameLevel {
     static GameLevel DefaultLevel;
 
     GameLevel() = default;
-    GameLevel(std::string levelPath);
+    GameLevel(const std::string &levelPath);
     GameLevel(LevelTiles tiles);
     ~GameLevel() noexcept;
     GameLevel &operator=(const GameLevel &) noexcept = default;
@@ -32,6 +32,7 @@ class GameLevel {
     int getWidth() const noexcept;
     int getHeight() const noexcept;
     void setBrickPowerUp(size_t idx, PowerUpType type);
+    void setBricks(std::vector<Brick> bricks);
     const std::vector<Brick> &getBricks() const & noexcept;
     std::vector<Brick> &getBricks() & noexcept;
 };

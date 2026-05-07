@@ -156,9 +156,12 @@ void ShaderManager::reloadShader(unsigned int &programID, std::vector<std::strin
         case 3:
             compileProgram(reloadedProgramID, shaderPaths[0], shaderPaths[1], shaderPaths[2]);
             break;
-    };
+        default:
+            logging::Warn("Unknown shader count: {}", shaderPaths.size());
+            break;
+    }
     if (reloadedProgramID == 0) {
-        logging::Log("An error occurred while reloading the shader with ID: {}", programID);
+        logging::Error("An error occurred while reloading the shader with ID: {}", programID);
         return;
     }
     glDeleteProgram(programID);

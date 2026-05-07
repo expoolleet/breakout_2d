@@ -1,14 +1,11 @@
-#include <GLFW/glfw3.h>  // 2
-
 #include "audio_manager.hpp"
 #include "canvas.hpp"
 #include "custom_attributes.hpp"
-#include "fast_random.hpp"
 #include "game.hpp"
 #include "game_core.hpp"
-#include "glad/glad.h"  // 1
 #include "path_manager.hpp"
-#include "render_config.hpp"
+#include "render.hpp"
+#include "render_type.hpp"
 #include "shader_observer.hpp"
 #include "window.hpp"
 
@@ -54,21 +51,16 @@ void framebufferResizeCallback(GLFWwindow *window, int width, int height) {
 }
 
 int main() {
-    glfwInit();
-    glfwWindowHint(GLFW_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_VERSION_MINOR, 5);
-    GLFWwindow *window = Window::createWindow("Breakout2D", 1280, 720);
-    glfwMakeContextCurrent(window);
-    glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
-    glfwSetKeyCallback(window, keyCallback);
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-        return -1;
-    }
-    glViewport(0, 0, Window::getWidth(), Window::getHeight());
-    glClearColor(0.0, 0.0, 0.0, 1.0);
+    render::renderType = RenderType::OpenGL;
 
-    glfwSwapInterval(1);  // v-sync
+    render::initWindow();
+    render::initAPI();
+    render::setFrameBufferSizeCallback(framebufferResizeCallback);
+    render::setKeyCallback(keyCallback);
+
+    render::configureViewport();
+
+    render::enableVSync(true);
 
     render::setupDefaultAlphaBlending();
     render::setupMultisampling();
@@ -93,13 +85,13 @@ int main() {
     double frameTime = 0.0;
     double lastTime = 0.0;
     double accumulation = 0.0;
-    while (!glfwWindowShouldClose(window)) {
+    while (!render::windowShouldClose()) {
         double currentTime = glfwGetTime();
         frameTime = currentTime - lastTime;
         lastTime = currentTime;
         if (frameTime > MAX_FRAMETIME) frameTime = MAX_FRAMETIME;
         accumulation += frameTime;
-        glfwPollEvents();
+        render::PollWindowEvents();
         game.processInput(static_cast<float>(frameTime));
         while (accumulation >= FIXED_FRAMETIME) {
             game.fixedUpdate(static_cast<float>(FIXED_FRAMETIME));
@@ -121,7 +113,7 @@ int main() {
         canvasShader.use();
         canvas.render(canvasShader, resolveBuffer.attachments);
         game.renderText(alpha);
-        glfwSwapBuffers(window);
+        render::swapBuffers();
         ShaderObserver::Get().update();
     }
     ShaderObserver::Get().stopObserving();

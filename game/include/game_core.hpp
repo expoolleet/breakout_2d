@@ -52,4 +52,23 @@ inline glm::vec2 getScreenPosition(glm::vec2 worldPosition) {
     return glm::vec2((worldPosition.x / getWorldWidth() + 0.5f) * w, (0.5f - worldPosition.y / getWorldHeight()) * h);
 }
 
+inline glm::mat4 getProjectionMatrix() {
+    float halfWidth = core::getWorldWidth() / 2.0f;
+    float halfHeight = core::getWorldHeight() / 2.0f;
+    return glm::ortho(-halfWidth, halfWidth, -halfHeight, halfHeight, -1.0f, 1.0f);
+}
+
+inline glm::mat4 getScaledProjectionMatrix() {
+    float xScale = 1.0f;
+    float yScale = 1.0f;
+    float targetAspect = core::getWorldAspectRatio();
+    float windowAspect = Window::getAspectRatio();
+    if (windowAspect > targetAspect) {
+        xScale = targetAspect / windowAspect;
+    } else {
+        yScale = windowAspect / targetAspect;
+    }
+    return glm::scale(getProjectionMatrix(), glm::vec3(xScale, yScale, 1.0f));
+}
+
 };  // namespace core
