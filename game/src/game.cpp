@@ -401,11 +401,11 @@ void Game::spawnBall(glm::vec2 position) {
     auto ball = std::make_unique<Ball>(m_context.textureManager->getTexture("ball"), glm::vec2(0.0f), BALL_DEFAULT_SIZE, *m_player);
     ball->setPosition(position);
     glm::vec2 randomVelocity = glm::normalize(
-        glm::vec2(fastrand::randomFloatInRange(-1.0f, 1.0f), INITIAL_BALL_VELOCITY.y + fastrand::randomFloatInRange(-0.5f, 0.5f)));
+        glm::vec2(fastrand::frandomFloatInRange(-1.0f, 1.0f), INITIAL_BALL_VELOCITY.y + fastrand::frandomFloatInRange(-0.5f, 0.5f)));
     ball->setVelocity(randomVelocity);
     ball->setRadius(ball->getSize().x / 2);
     float speedOffset = 10.0f;
-    ball->setSpeed(fastrand::randomFloatInRange(BALL_DEFAULT_SPEED - speedOffset, BALL_DEFAULT_SPEED + speedOffset));
+    ball->setSpeed(fastrand::frandomFloatInRange(BALL_DEFAULT_SPEED - speedOffset, BALL_DEFAULT_SPEED + speedOffset));
     unsigned int damage = fastrand::randomUIntInRange(MIN_BALL_DAMAGE, MAX_BALL_DAMAGE);
     switch (damage) {
         case 1:

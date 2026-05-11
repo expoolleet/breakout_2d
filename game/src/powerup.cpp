@@ -13,7 +13,7 @@ PowerUp::PowerUp(PowerUpType type, glm::vec4 color, float duration, const Textur
     : GameObject(texture, position, size), m_powerUpType(type), m_duration(duration) {
     m_type = GameObjectType::PowerUp;
     setVelocity(glm::vec2(0.0, -1.0f));
-    setSpeed(fastrand::randomFloatInRange(5.0f, 8.0f));
+    setSpeed(fastrand::frandomFloatInRange(5.0f, 8.0f));
     setColor(color);
 }
 

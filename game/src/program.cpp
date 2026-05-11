@@ -2,6 +2,7 @@
 #include "canvas.hpp"
 #include "custom_attributes.hpp"
 #include "engine_context.hpp"
+#include "fast_random.hpp"
 #include "game.hpp"
 #include "game_core.hpp"
 #include "render.hpp"
@@ -42,6 +43,8 @@ int main() {
     Context &context = Context::get();
 
     render::renderType = RenderType::OpenGL;
+
+    fastrand::getXorShiftState().a = time(NULL);
 
     render::initWindow();
     render::initAPI();

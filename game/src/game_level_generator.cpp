@@ -8,7 +8,7 @@ GameLevel GameLevelGenerator::generate(int levelWidth, int levelHeight) {
     for (int i = 0; i < levelHeight; ++i) {
         std::vector<int> row;
         for (int j = 0; j < levelWidth; ++j) {
-            float randValue = fastrand::random();
+            float randValue = fastrand::frandom();
 
             if (randValue < 0.7f) {
                 row.push_back(1);

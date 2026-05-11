@@ -133,13 +133,13 @@ void ParticleEmitter::render(Shader &shader) {
 
 void ParticleEmitter::respawnParticleAtObject(Particle &particle, GameObject &gameObject, glm::vec2 offset, bool overrideColor) {
     particle.lifeTime = m_particleLifeTime;
-    float randomPosX = fastrand::randomFloatInRange(m_positionOffsetRange.first, m_positionOffsetRange.second);
-    float randomPosY = fastrand::randomFloatInRange(m_positionOffsetRange.first, m_positionOffsetRange.second);
+    float randomPosX = fastrand::frandomFloatInRange(m_positionOffsetRange.first, m_positionOffsetRange.second);
+    float randomPosY = fastrand::frandomFloatInRange(m_positionOffsetRange.first, m_positionOffsetRange.second);
     particle.position = gameObject.getPosition() + offset + glm::vec2(randomPosX, randomPosY);
-    float randomVelX = fastrand::randomFloatInRange(m_velocityOffsetRange.first, m_velocityOffsetRange.second);
-    float randomVelY = fastrand::randomFloatInRange(m_velocityOffsetRange.first, m_velocityOffsetRange.second);
+    float randomVelX = fastrand::frandomFloatInRange(m_velocityOffsetRange.first, m_velocityOffsetRange.second);
+    float randomVelY = fastrand::frandomFloatInRange(m_velocityOffsetRange.first, m_velocityOffsetRange.second);
     particle.velocity = gameObject.getVelocity() * (1.0f - m_particleDelay) + glm::vec2(randomVelX, randomVelY);
-    float randomBrightness = fastrand::randomFloatInRange(0.3f, 1.0f);
+    float randomBrightness = fastrand::frandomFloatInRange(0.3f, 1.0f);
     particle.color =
         (overrideColor ? gameObject.getColor() : m_particleColor) * glm::vec4(randomBrightness, randomBrightness, randomBrightness, 1.0f);
     particle.scale = m_particleScale;
@@ -147,13 +147,13 @@ void ParticleEmitter::respawnParticleAtObject(Particle &particle, GameObject &ga
 
 void ParticleEmitter::respawnParticle(Particle &particle, glm::vec2 position) {
     particle.lifeTime = m_particleLifeTime;
-    float randomPosX = fastrand::randomFloatInRange(m_positionOffsetRange.first, m_positionOffsetRange.second);
-    float randomPosY = fastrand::randomFloatInRange(m_positionOffsetRange.first, m_positionOffsetRange.second);
+    float randomPosX = fastrand::frandomFloatInRange(m_positionOffsetRange.first, m_positionOffsetRange.second);
+    float randomPosY = fastrand::frandomFloatInRange(m_positionOffsetRange.first, m_positionOffsetRange.second);
     particle.position = position + glm::vec2(randomPosX, randomPosY);
-    float randomVelX = fastrand::randomFloatInRange(m_velocityOffsetRange.first, m_velocityOffsetRange.second);
-    float randomVelY = fastrand::randomFloatInRange(m_velocityOffsetRange.first, m_velocityOffsetRange.second);
+    float randomVelX = fastrand::frandomFloatInRange(m_velocityOffsetRange.first, m_velocityOffsetRange.second);
+    float randomVelY = fastrand::frandomFloatInRange(m_velocityOffsetRange.first, m_velocityOffsetRange.second);
     particle.velocity = glm::vec2(randomVelX, randomVelY);
-    float randomBrightness = fastrand::randomFloatInRange(0.5f, 1.0f);
+    float randomBrightness = fastrand::frandomFloatInRange(0.5f, 1.0f);
     particle.color = m_particleColor * glm::vec4(randomBrightness, randomBrightness, randomBrightness, 1.0f);
     particle.scale = m_particleScale;
 }
