@@ -19,8 +19,8 @@ struct BallStuck {
 };
 
 struct BallHit {
-    glm::vec2 position;
     Ball &ball;
+    glm::vec2 position;
     CollisionType collisionType;
 };
 

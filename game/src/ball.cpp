@@ -4,11 +4,10 @@
 
 #include "collision_detection.hpp"
 #include "collision_type.hpp"
-#include "event_dispatcher.hpp"
+#include "engine_context.hpp"
 #include "event_type.hpp"
 #include "game_core.hpp"
 #include "game_object.hpp"
-#include "logging.hpp"
 #include "player.hpp"
 #include "texture_2d.hpp"
 
@@ -36,7 +35,7 @@ void Ball::fixedUpdate(float dt) {
     float rightSide = worldAABB.z;
     float topSide = worldAABB.w;
     if (m_position.y <= bottomSide) {
-        EventDispatcher::Get().emit(BallFliedOff{*this});
+        Context::get().eventDispatcher->emit(BallFliedOff{*this});
         return;
     }
     if (m_position.x > leftSide && m_position.x + m_size.x < rightSide && m_position.y + m_size.y < topSide)
@@ -52,7 +51,7 @@ void Ball::fixedUpdate(float dt) {
             m_position.y = topSide - m_size.y;
             m_velocity.y = -m_velocity.y;
         }
-        EventDispatcher::Get().emit(BallHit(m_position, *this, CollisionType::Obstacle));
+        Context::get().eventDispatcher->emit(BallHit{*this, m_position, CollisionType::Obstacle});
     }
 }
 

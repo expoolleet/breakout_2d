@@ -17,16 +17,14 @@
 
 class TextureManager {
    private:
-    NO_DESTROY_ATTR inline static std::unordered_map<std::string, std::unique_ptr<Texture2D>, string_hash, string_view_equal> m_textures =
-        {};
-    inline static bool m_isDefaultTextureLoaded = false;
-    TextureManager operator=(const TextureManager &) = delete;
-    TextureManager(const TextureManager &) = delete;
-    TextureManager() = delete;
-    static const Texture2D &_getDefaultTexture();
+    std::unordered_map<std::string, std::unique_ptr<Texture2D>, string_hash, string_view_equal> m_textures;
+    bool m_isDefaultTextureLoaded = false;
+
+    const Texture2D &_getDefaultTexture();
 
    public:
+    TextureManager() = default;
     ~TextureManager();
-    static void loadTexture(std::string path, bool alpha, std::string name);
-    static const Texture2D &getTexture(std::string_view name);
+    void loadTexture(std::string path, bool alpha, std::string name);
+    const Texture2D &getTexture(std::string_view name);
 };

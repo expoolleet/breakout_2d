@@ -69,7 +69,7 @@ inline void swapBuffers() {
     }
 }
 
-inline void configureViewport() {
+inline void setViewport() {
     glViewport(0, 0, Window::getWidth(), Window::getHeight());
     glClearColor(0.0, 0.0, 0.0, 1.0);
 }
@@ -88,8 +88,18 @@ inline void setupMultisampling() {
     glEnable(GL_MULTISAMPLE);
 }
 
-inline void PollWindowEvents() {
+inline void pollWindowEvents() {
     glfwPollEvents();
+}
+
+inline void bindFramebuffer(unsigned int frambuffer) {
+    glBindFramebuffer(GL_FRAMEBUFFER, frambuffer);
+    glClear(GL_COLOR_BUFFER_BIT);
+}
+
+inline void blitFramebuffer(unsigned int readBuffer, unsigned int drawBuffer) {
+    glBlitNamedFramebuffer(readBuffer, drawBuffer, 0, 0, Window::getWidth(), Window::getHeight(), 0, 0, Window::getWidth(),
+                           Window::getHeight(), GL_COLOR_BUFFER_BIT, GL_NEAREST);
 }
 
 inline BufferObject getMultisamlpingFramebuffer(size_t samples) {
@@ -146,6 +156,14 @@ inline BufferObject resizeMultisamplingFrambuffer(BufferObject oldBuffer) {
         glDeleteTextures(1, &att);
     }
     return getMultisamlpingFramebuffer(oldBuffer.samples);
+}
+
+inline float getTime() {
+    return static_cast<float>(glfwGetTime());
+}
+
+inline void terminate() {
+    glfwTerminate();
 }
 
 }  // namespace render

@@ -41,14 +41,9 @@ void ShaderObserver::_checkFiles() {
 }
 
 ShaderObserver::~ShaderObserver() noexcept {
-    m_running = false;
+    if (m_running) m_running = false;
     m_cv.notify_all();
     m_workingThread.join();
-}
-
-ShaderObserver &ShaderObserver::Get() {
-    NO_DESTROY_ATTR static ShaderObserver observer;
-    return observer;
 }
 
 void ShaderObserver::registerShader(unsigned int &programID, std::vector<std::string> shaderPaths) {
@@ -70,7 +65,7 @@ void ShaderObserver::update() {
     {  // blocking only moving part
         std::lock_guard<std::mutex> lock{m_mutex};
         if (m_reloadTasks.empty()) return;
-        reloadTasks = std::move(m_reloadTasks);
+        reloadTasks = std::move(m_reloadTasks);  // m_reloadTasks is empty after "moving"
     }
     for (auto &task : reloadTasks) {
         ShaderManager::reloadShader(*task.programID, task.paths);

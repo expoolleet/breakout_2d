@@ -11,9 +11,9 @@
 
 #include "brick.hpp"
 #include "brick_type.hpp"
+#include "engine_context.hpp"
 #include "game_core.hpp"
 #include "logging.hpp"
-#include "texture_manager.hpp"
 
 GameLevel::GameLevel(const std::string &levelPath) {
     try {
@@ -66,16 +66,18 @@ void GameLevel::load() {
         glm::vec2 size = BRICK_SIZE - offset;
         switch (code) {
             case -1:
-                m_bricks.emplace_back(TextureManager::getTexture(UNDESTROYABLE_BRICK), position, size, BrickType::Undestroyable);
+                m_bricks.emplace_back(Context::get().textureManager->getTexture(UNDESTROYABLE_BRICK), position, size,
+                                      BrickType::Undestroyable);
                 break;
             case 1:
-                m_bricks.emplace_back(TextureManager::getTexture(STANDARD_BRICK), position, size, BrickType::Standard);
+                m_bricks.emplace_back(Context::get().textureManager->getTexture(STANDARD_BRICK), position, size, BrickType::Standard);
                 break;
             case 2:
-                m_bricks.emplace_back(TextureManager::getTexture(STANDARD_BRICK), position, size, BrickType::Hard);
+                m_bricks.emplace_back(Context::get().textureManager->getTexture(STANDARD_BRICK), position, size, BrickType::Hard);
                 break;
             case 3:
-                m_bricks.emplace_back(TextureManager::getTexture(STANDARD_BRICK), position, size, BrickType::ExtremelyTough);
+                m_bricks.emplace_back(Context::get().textureManager->getTexture(STANDARD_BRICK), position, size,
+                                      BrickType::ExtremelyTough);
                 break;
             default:
                 logging::Warn("Could not load a brick with the tile code: {}", code);

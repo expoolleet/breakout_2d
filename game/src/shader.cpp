@@ -9,22 +9,22 @@
 #include <unordered_set>
 #include <variant>
 
+#include "engine_context.hpp"
 #include "glad/glad.h"
 #include "logging.hpp"
 #include "shader_manager.hpp"
-#include "shader_observer.hpp"
 #include "string_operators.hpp"
 
 Shader::Shader(std::string vsPath, std::string fsPath) {
     ShaderManager::compileProgram(m_ID, vsPath, fsPath);
     ShaderManager::saveShader(m_ID, *this);
-    ShaderObserver::Get().registerShader(m_ID, {vsPath, fsPath});
+    Context::get().shaderObserver->registerShader(m_ID, {vsPath, fsPath});
 }
 
 Shader::Shader(std::string vsPath, std::string fsPath, std::string gsPath) {
     ShaderManager::compileProgram(m_ID, vsPath, gsPath, fsPath);
     ShaderManager::saveShader(m_ID, *this);
-    ShaderObserver::Get().registerShader(m_ID, {vsPath, gsPath, fsPath});
+    Context::get().shaderObserver->registerShader(m_ID, {vsPath, gsPath, fsPath});
 }
 
 int Shader::_getUniformLocation(std::string_view name) {

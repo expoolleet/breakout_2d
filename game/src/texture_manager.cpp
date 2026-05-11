@@ -1,7 +1,7 @@
 #include "texture_manager.hpp"
 
+#include "engine_context.hpp"
 #include "logging.hpp"
-#include "path_manager.hpp"
 #include "texture_2d.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -16,7 +16,7 @@
 const Texture2D &TextureManager::_getDefaultTexture() {
     if (!m_isDefaultTextureLoaded) {
         m_isDefaultTextureLoaded = true;
-        loadTexture(PathManager::getResourcePath("textures/missing_texture.jpg"), false, DEFAULT_TEXTURE_NAME);
+        loadTexture(Context::get().pathManager->getResourcePath("textures/missing_texture.jpg"), false, DEFAULT_TEXTURE_NAME);
     }
     return *(m_textures[DEFAULT_TEXTURE_NAME]);
 }

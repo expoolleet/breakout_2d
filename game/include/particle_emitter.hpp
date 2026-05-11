@@ -22,7 +22,7 @@ class ParticleEmitter {
     int m_lastUnusedParticle = 0;
     int m_particleCount = 0;
     unsigned int m_VAO = 0;
-    unsigned int m_particle_VBO = 0;
+    unsigned int m_particleVBO = 0;
     float m_particleLifeTime = 0.0f;
     float m_particleDelay = 0.9f;
     float m_particleScale = 10.0f;
@@ -62,9 +62,9 @@ class ParticleEmitter {
     void setVelocityRandomOffsetRange(float a, float b);
     void setPositionRandomOffsetRange(float a, float b);
 
-    void setEmitWhenStanding(bool flag);
+    void setEmitWhenStandingEnabled(bool enabled);
 
-    void setGravityEnabled(bool flag);
+    void setGravityEnabled(bool enabled);
 
     void setParticleColor(glm::vec4 color);
 };

@@ -31,8 +31,8 @@ bool GameObject::isDead() const noexcept {
     return m_isDead;
 }
 
-void GameObject::setDestructibility(bool flag) noexcept {
-    m_isDestroyable = flag;
+void GameObject::setDestructibility(bool destroyable) noexcept {
+    m_isDestroyable = destroyable;
 }
 
 void GameObject::destroy() {
@@ -49,8 +49,8 @@ bool GameObject::isHidden() const noexcept {
     return m_isHidden;
 }
 
-void GameObject::hide(bool state) noexcept {
-    m_isHidden = state;
+void GameObject::hide(bool hidden) noexcept {
+    m_isHidden = hidden;
 }
 
 glm::vec2 GameObject::getPosition() const {
@@ -103,8 +103,8 @@ glm::vec4 GameObject::getColor() const noexcept {
     return m_color;
 }
 
-void GameObject::setColliding(bool flag) {
-    m_isColliding = flag;
+void GameObject::setColliding(bool colliding) {
+    m_isColliding = colliding;
 }
 
 bool GameObject::isColliding() const noexcept {

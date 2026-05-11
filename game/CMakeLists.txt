@@ -30,6 +30,7 @@ set(Sources
     src/powerup_factory.cpp
     src/audio_manager.cpp
     src/game_level_generator.cpp
+    src/engine_context.cpp
 )
 
 add_executable(${Project}

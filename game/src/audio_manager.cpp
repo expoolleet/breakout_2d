@@ -6,8 +6,7 @@
 #include <string>
 
 #include "custom_attributes.hpp"
-#include "logging.hpp"
-#include "path_manager.hpp"
+#include "engine_context.hpp"
 
 #define ERRCHECK(result)                                                      \
     if (result != FMOD_OK) {                                                  \
@@ -21,13 +20,8 @@ void AudioManager::_saveEvent(const std::string &eventPath) {
     m_loadedEventDesc[eventPath] = eventDesc;
 }
 
-AudioManager::~AudioManager() {
+AudioManager::~AudioManager() noexcept {
     ERRCHECK(m_system->release());
-}
-
-AudioManager &AudioManager::Get() {
-    NO_DESTROY_ATTR static AudioManager manager;
-    return manager;
 }
 
 void AudioManager::init() {
@@ -45,7 +39,7 @@ void AudioManager::init() {
 void AudioManager::loadBank(const std::string &name) {
     FMOD::Studio::Bank *mainBank = nullptr;
     FMOD::Studio::Bank *stringsBank = nullptr;
-    std::string bankPath = PathManager::getResourcePath("fmod/" + name);
+    std::string bankPath = Context::get().pathManager->getResourcePath("fmod/" + name);
     ERRCHECK(m_system->loadBankFile((bankPath + "/" + name + ".bank").c_str(), FMOD_STUDIO_LOAD_BANK_NORMAL, &mainBank));
     ERRCHECK(m_system->loadBankFile((bankPath + "/" + name + ".strings.bank").c_str(), FMOD_STUDIO_LOAD_BANK_NORMAL, &stringsBank));
 }

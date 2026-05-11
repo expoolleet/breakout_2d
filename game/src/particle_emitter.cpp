@@ -63,8 +63,8 @@ void ParticleEmitter::init() {
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)(0));
 
-    glGenBuffers(1, &m_particle_VBO);
-    glBindBuffer(GL_ARRAY_BUFFER, m_particle_VBO);
+    glGenBuffers(1, &m_particleVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_particleVBO);
     glBufferData(GL_ARRAY_BUFFER, MAX_PARTICLES * sizeof(Particle), NULL, GL_DYNAMIC_DRAW);
 
     glEnableVertexAttribArray(1);
@@ -85,20 +85,18 @@ void ParticleEmitter::init() {
 }
 
 void ParticleEmitter::prepare(GameObject &gameObject, int newParticles, glm::vec2 offset, bool overrideColor) {
-    if (!m_emitWhenStanding && glm::length(gameObject.getPosition() - m_objectPositionMap[&gameObject]) < 0.001) {
+    if (!m_emitWhenStanding && glm::length(gameObject.getPosition() - m_objectPositionMap[&gameObject]) < 0.001f) {
         return;
     }
     m_objectPositionMap[&gameObject] = gameObject.getPosition();
     for (int i = 0; i < newParticles; ++i) {
-        int unusedParticleIndex = _findFirstUnusedParticle();
-        respawnParticleAtObject(m_particlePool[unusedParticleIndex], gameObject, offset, overrideColor);
+        respawnParticleAtObject(m_particlePool[_findFirstUnusedParticle()], gameObject, offset, overrideColor);
     }
 }
 
 void ParticleEmitter::prepareAtPosition(glm::vec2 position, int newParticles) {
     for (int i = 0; i < newParticles; ++i) {
-        int unusedParticleIndex = _findFirstUnusedParticle();
-        respawnParticle(m_particlePool[unusedParticleIndex], position);
+        respawnParticle(m_particlePool[_findFirstUnusedParticle()], position);
     }
 }
 
@@ -122,7 +120,7 @@ void ParticleEmitter::render(Shader &shader) {
     m_texture->bind();
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
-    glBindBuffer(GL_ARRAY_BUFFER, m_particle_VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_particleVBO);
     glBufferData(GL_ARRAY_BUFFER, MAX_PARTICLES * sizeof(Particle), NULL, GL_DYNAMIC_DRAW);  // buffer orphaning
     glBufferSubData(GL_ARRAY_BUFFER, 0, activeParticleCount * sizeof(Particle), &(*partitionedParticles));
 
@@ -207,12 +205,12 @@ void ParticleEmitter::setPositionRandomOffsetRange(float a, float b) {
     m_positionOffsetRange = {a, b};
 }
 
-void ParticleEmitter::setEmitWhenStanding(bool flag) {
-    m_emitWhenStanding = flag;
+void ParticleEmitter::setEmitWhenStandingEnabled(bool enabled) {
+    m_emitWhenStanding = enabled;
 }
 
-void ParticleEmitter::setGravityEnabled(bool flag) {
-    m_gravityEnabled = flag;
+void ParticleEmitter::setGravityEnabled(bool enabled) {
+    m_gravityEnabled = enabled;
 }
 
 void ParticleEmitter::setParticleColor(glm::vec4 color) {

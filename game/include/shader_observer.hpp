@@ -1,7 +1,6 @@
 #pragma once
 
 #include <atomic>
-#include <chrono>
 #include <condition_variable>
 #include <filesystem>
 #include <mutex>
@@ -32,17 +31,11 @@ class ShaderObserver {
     std::thread m_workingThread;
     std::mutex m_mutex;
 
-    ShaderObserver() = default;
-    ~ShaderObserver() noexcept;
-
     void _checkFiles();
 
    public:
-    ShaderObserver(ShaderObserver &) = delete;             // copy ctor
-    ShaderObserver operator=(ShaderObserver &) = delete;   // copy assigment
-    ShaderObserver(ShaderObserver &&) = delete;            // move ctor
-    ShaderObserver operator=(ShaderObserver &&) = delete;  // move assigment
-    static ShaderObserver &Get();
+    ShaderObserver() = default;
+    ~ShaderObserver() noexcept;
 
     void registerShader(unsigned int &programID, std::vector<std::string> shaderPaths);
     void update();

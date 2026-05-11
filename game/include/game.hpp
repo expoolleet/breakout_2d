@@ -8,6 +8,7 @@
 
 #include "ball.hpp"
 #include "collision_type.hpp"
+#include "engine_context.hpp"
 #include "event_type.hpp"
 #include "game_level.hpp"
 #include "game_object.hpp"
@@ -56,6 +57,7 @@ class Game {
     size_t m_maxCountBallsStuckToPlayer = 0;
     std::atomic<bool> m_running = false;
     std::thread m_consoleInputThread;
+    Context &m_context;
 
     std::vector<glm::vec2> m_collisionPointHistory;
 
@@ -63,8 +65,8 @@ class Game {
     void _calcBallNewPositionAndVelocity(Ball &ball, CollisionDirection dir, glm::vec2 diffVector);
 
    public:
-    GameState CurrentState = GAME_NONE;
-    bool Keys[1024] = {false};
+    GameState currentState = GAME_NONE;
+    bool keys[1024] = {false};
 
     Game(unsigned int attempts);
     ~Game();

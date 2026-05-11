@@ -7,11 +7,6 @@
 #include "event_type.hpp"
 #include "logging.hpp"
 
-EventDispatcher &EventDispatcher::Get() noexcept {
-    static EventDispatcher dispatcher;
-    return dispatcher;
-}
-
 template <typename T>
 void EventDispatcher::subscribe(std::function<void(const T &)> callback) {
     // type erasure

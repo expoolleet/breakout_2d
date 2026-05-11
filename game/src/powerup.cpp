@@ -2,7 +2,7 @@
 
 #include "collision_detection.hpp"
 #include "collision_type.hpp"
-#include "event_dispatcher.hpp"
+#include "engine_context.hpp"
 #include "event_type.hpp"
 #include "fast_random.hpp"
 #include "game_core.hpp"
@@ -24,7 +24,7 @@ void PowerUp::fixedUpdate(float dt) {
         m_duration -= dt;
 
         if (isFinished()) {
-            EventDispatcher::Get().emit(PowerUpFinished{m_powerUpType});
+            Context::get().eventDispatcher->emit(PowerUpFinished{m_powerUpType});
             logging::Log("PowerUp: {} is finished", toString(m_powerUpType));
         }
         return;
@@ -61,7 +61,7 @@ Collision PowerUp::checkCollision(GameObject &gameObject) {
     Collision collision = cd::checkCollision(*this, gameObject);
     if (std::get<0>(collision) && !isActivated() && gameObject.getObjectType() == GameObjectType::Player) {
         hide(true);
-        EventDispatcher::Get().emit(PowerUpActivated{m_powerUpType});
+        Context::get().eventDispatcher->emit(PowerUpActivated{m_powerUpType});
         logging::Log("PowerUp: {} is activated", toString(m_powerUpType));
         activate();
     }
