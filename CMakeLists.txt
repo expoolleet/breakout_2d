@@ -12,8 +12,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # path to includes and libs on your system
 if(WIN32)
     set(SYSTEM_EXTERNAL_PATH "C:/Program Files/OpenGL")
-else()
-    set(SYSTEM_EXTERNAL_PATH "")
+endif()
+
+if(UNIX)
+  set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+  set(CMAKE_INSTALL_RPATH "\$ORIGIN/libs")
 endif()
 
 set(GladLib glad)

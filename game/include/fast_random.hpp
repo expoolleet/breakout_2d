@@ -16,7 +16,7 @@ inline std::mt19937 &getEngine_mt19937() {
     return engine;
 }
 
-inline XorShiftState &getXorShiftState() {
+inline XorShiftState &getXorShiftState() {  
     static XorShiftState state;
     return state;
 }

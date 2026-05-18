@@ -20,13 +20,15 @@ NO_DESTROY_ATTR static Game game{3};
 
 void keyCallback(GLFWwindow *window, int key, int scanCode, int action, int mods) {
     if (action == GLFW_PRESS) {
-        game.keys[key] = true;
+        game.pressKey(key);
     } else if (action == GLFW_RELEASE) {
-        game.keys[key] = false;
+        game.unpressKey(key);
     }
+#ifdef _DEBUG
     if (key == GLFW_KEY_T && action == GLFW_PRESS) {
         game.spawnBall(glm::vec2(0.0f));
     }
+#endif
 }
 
 void framebufferResizeCallback(GLFWwindow *window, int width, int height) {

@@ -75,8 +75,6 @@ void Game::init() {
     m_maxCountBallsStuckToPlayer = 3;
 
     glm::mat4 view = glm::mat4(1.0f);
-    // view = glm::translate(view, glm::vec3(100.0f, 100.0f, 0.0f));
-    // view = glm::rotate(view, glm::radians(-10.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 
     std::string shadersPath = m_context.pathManager->getResourcePath("shaders");
     m_spriteShader = std::make_shared<Shader>(shadersPath + "/vs/sprite.glsl", shadersPath + "/fs/sprite.glsl");
@@ -178,25 +176,49 @@ void Game::init() {
 
 void Game::processInput(float dt) {
     if (currentState == GAME_WIN) {
-        if (keys[GLFW_KEY_ENTER]) {
+        if (m_keys[GLFW_KEY_ENTER]) {
             nextLevel();
         }
     }
 
     glm::vec2 velocity = m_player->getVelocity();
-    if (keys[GLFW_KEY_A]) {
+    if (m_keys[GLFW_KEY_A]) {
         velocity.x = -1.0f;
-    } else if (keys[GLFW_KEY_D]) {
+    } else if (m_keys[GLFW_KEY_D]) {
         velocity.x = 1.0f;
     } else {
         velocity.x = 0.0f;
     }
     m_player->setVelocity(velocity);
 
-    if (keys[GLFW_KEY_SPACE] && m_stuckBalls.size() > 0) {
+    if (m_keys[GLFW_KEY_SPACE] && m_stuckBalls.size() > 0) {
         unstickBallFromPlayer(*m_stuckBalls.back());
-        keys[GLFW_KEY_SPACE] = false;
+        m_keys[GLFW_KEY_SPACE] = false;
     }
+}
+
+void Game::pressKey(int key) {
+    if (key > MAX_KEY_CODE) {
+        logging::Error("Could not handled key with code: {}", key);
+        return;
+    }
+    m_keys[key] = true;
+}
+
+void Game::unpressKey(int key) {
+    if (key > MAX_KEY_CODE) {
+        logging::Error("Could not handled key with code: {}", key);
+        return;
+    }
+    m_keys[key] = false;
+}
+
+bool Game::isKeyPressed(int key) {
+    if (key > MAX_KEY_CODE) {
+        logging::Error("Could not handled key with code: {}", key);
+        return false;
+    }
+    return m_keys[key];
 }
 
 void Game::update(float dt) {}
@@ -277,6 +299,8 @@ void Game::renderText(float dt) {
     }
     m_textRenderer->renderMSDF(*m_textShader, std::format("Attempts: {}", std::to_string(m_attempts - m_currentAttempt)),
                                core::getWorldPosition(0.01f, 0.9f), 0.03f);
+
+#ifdef _DEBUG
     m_textRenderer->renderMSDF(*m_textShader, std::format("Ball count: {}", m_balls.size()), core::getWorldPosition(0.85f, 0.01f), 0.02f,
                                glm::vec3(1.0f), false, {glm::vec3(0.0f), 1.0f});
     m_textRenderer->renderMSDF(*m_textShader, std::format("Hero ball speed: {:.2f}", m_heroBall->getSpeed()),
@@ -287,6 +311,7 @@ void Game::renderText(float dt) {
     m_textRenderer->renderMSDF(
         *m_textShader, std::format("Hero ball pos.x: {:.2f}; pos.y: {:.2f}", m_heroBall->getPosition().x, m_heroBall->getPosition().y),
         core::getWorldPosition(0.01f, 0.01f), 0.02f, glm::vec3(1.0f), false, {glm::vec3(0.0f), 1.0f});
+#endif
 }
 
 void Game::nextLevel() {
@@ -367,7 +392,7 @@ void Game::stickBallToPlayer(Ball &ball) {
     ball.setStuck(true);
     m_stuckBalls.push_back(&ball);
     repositionStuckBallsOnPlayer();
-    m_context.eventDispatcher->emit(BallStuck(ball));
+    m_context.eventDispatcher->emit(BallStuck{ball});
 }
 
 void Game::unstickBallFromPlayer(Ball &ball) {
@@ -378,11 +403,11 @@ void Game::unstickBallFromPlayer(Ball &ball) {
     ball.setPosition(ball.getPosition() + ball.getVelocity() * 0.1f);
     m_stuckBalls.erase(it);
     repositionStuckBallsOnPlayer();
-    m_context.eventDispatcher->emit(BallUnstuck(ball));
+    m_context.eventDispatcher->emit(BallUnstuck{ball});
 }
 
 void Game::cleanDestroyedBalls() {
-    std::erase_if(m_balls, [this](const std::unique_ptr<Ball> &ball) { return ball->isDead(); });
+    std::erase_if(m_balls, [](const std::unique_ptr<Ball> &ball) { return ball->isDead(); });
 }
 
 void Game::destroyBallsExceptHeroBall() {
@@ -410,13 +435,13 @@ void Game::spawnBall(glm::vec2 position) {
     switch (damage) {
         case 1:
             ball->setColor(glm::vec4(0.5f, 0.5f, 0.5f, 1.0f));
-            break;  // default
+            break;
         case 2:
             ball->setColor(glm::vec4(0.9f, 0.6f, 0.2f, 1.0f));
-            break;  // orange
+            break;
         case 3:
             ball->setColor(glm::vec4(0.9f, 0.1f, 0.2f, 1.0f));
-            break;  // red
+            break;
         default:
             logging::Warn("Could not apply color to the ball with given damage: {}", damage);
             break;

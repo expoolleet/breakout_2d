@@ -14,28 +14,33 @@
 #include "game_core.hpp"
 #include "glad/glad.h"
 #include "logging.hpp"
+#include "render.hpp"
+#include "render_type.hpp"
 #include "shader.hpp"
-#include "window.hpp"
 
 TextRenderer::TextRenderer(const char *pathToFonts) : m_pathToFonts(pathToFonts) {}
 
 void TextRenderer::_renderText(const std::vector<TextVertex> &vertices) {
-    if (vertices.empty()) return;
+    if (vertices.empty()) {
+        logging::Warn("Text Renderer: vertices array is empty");
+        return;
+    }
 
-    glBindTextureUnit(0, m_atlasData.textureID);
+    if (render::renderType == RenderType::OpenGL) {
+        glBindTextureUnit(0, m_atlasData.textureID);
 
-    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(TextVertex), vertices.data());
+        glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(TextVertex), vertices.data());
 
-    glBindVertexArray(m_VAO);
-    glDrawArrays(GL_TRIANGLES, 0, int(vertices.size()));
+        glBindVertexArray(m_VAO);
+        glDrawArrays(GL_TRIANGLES, 0, int(vertices.size()));
+    }
 }
 
 glm::mat4 &TextRenderer::_getProjectionMat() noexcept {
     if (updateProjectionMat) {
         updateProjectionMat = false;
         m_projectionMat = core::getScaledProjectionMatrix();
-        // m_projectionMat = glm::ortho(0.0f, static_cast<float>(Window::getWidth()), 0.0f, static_cast<float>(Window::getHeight()));
     }
     return m_projectionMat;
 }
@@ -46,39 +51,47 @@ TextRenderer::~TextRenderer() {
 
 void TextRenderer::initRenderer() {
     if (m_isInitialized) return;
-    if (FT_Init_FreeType(&m_ft)) logging::Error("Could not init FreeType Library");
-
-    glGenVertexArrays(1, &m_VAO);
-    glGenBuffers(1, &m_VBO);
-
-    glBindVertexArray(m_VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    glBufferData(GL_ARRAY_BUFFER, m_maxBufferVertices * TEXT_VERTIX_COUNT_PER_CHAR * TEXT_VERTIX_DATA_PER_CHAR * sizeof(float), NULL,
-                 GL_DYNAMIC_DRAW);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-
     m_isInitialized = true;
+    if (FT_Init_FreeType(&m_ft)) {
+        logging::Error("Could not init FreeType Library");
+        return;
+    }
+
+    if (render::renderType == RenderType::OpenGL) {
+        glGenVertexArrays(1, &m_VAO);
+        glGenBuffers(1, &m_VBO);
+
+        glBindVertexArray(m_VAO);
+        glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+        glBufferData(GL_ARRAY_BUFFER, m_maxBufferVertices * TEXT_VERTIX_COUNT_PER_CHAR * TEXT_VERTIX_DATA_PER_CHAR * sizeof(float), NULL,
+                     GL_DYNAMIC_DRAW);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
+    }
 }
 
 void TextRenderer::initFont(std::string_view font, unsigned int fontSize) {
-    FT_Face face;
-    if (FT_New_Face(m_ft, (m_pathToFonts / font).string().c_str(), 0, &face)) logging::Error("Failed to load font");
+    logging::Log("Initializing font: {}", font);
 
+    FT_Face face;
+    if (FT_New_Face(m_ft, (m_pathToFonts / font).string().c_str(), 0, &face)) {
+        logging::Error("Failed to load font");
+        return;
+    }
     FT_Set_Pixel_Sizes(face, 0, fontSize);
     m_atlasData.fontSize = fontSize;
 
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    logging::Log("Initializing font: {}", font);
-
-    glCreateTextures(GL_TEXTURE_2D, 1, &m_atlasData.textureID);
-    glTextureStorage2D(m_atlasData.textureID, 1, GL_R8, m_atlasData.width, m_atlasData.height);
-    glTextureParameteri(m_atlasData.textureID, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTextureParameteri(m_atlasData.textureID, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTextureParameteri(m_atlasData.textureID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTextureParameteri(m_atlasData.textureID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    if (render::renderType == RenderType::OpenGL) {
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        glCreateTextures(GL_TEXTURE_2D, 1, &m_atlasData.textureID);
+        glTextureStorage2D(m_atlasData.textureID, 1, GL_R8, m_atlasData.width, m_atlasData.height);
+        glTextureParameteri(m_atlasData.textureID, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTextureParameteri(m_atlasData.textureID, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTextureParameteri(m_atlasData.textureID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTextureParameteri(m_atlasData.textureID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    }
 
     unsigned int xCurrent = 0;
     unsigned int yCurrent = 0;
@@ -98,7 +111,10 @@ void TextRenderer::initFont(std::string_view font, unsigned int fontSize) {
             maxRowHeight = 0;
         }
         if (w > 0 && h > 0) {
-            glTextureSubImage2D(m_atlasData.textureID, 0, xCurrent, yCurrent, w, h, GL_RED, GL_UNSIGNED_BYTE, face->glyph->bitmap.buffer);
+            if (render::renderType == RenderType::OpenGL) {
+                glTextureSubImage2D(m_atlasData.textureID, 0, xCurrent, yCurrent, w, h, GL_RED, GL_UNSIGNED_BYTE,
+                                    face->glyph->bitmap.buffer);
+            }
         }
 
         Character character{glm::ivec2(xCurrent, yCurrent), glm::ivec2(w, h), glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
@@ -108,7 +124,9 @@ void TextRenderer::initFont(std::string_view font, unsigned int fontSize) {
         xCurrent += w + padding;
         maxRowHeight = std::max(maxRowHeight, h);
     }
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+    if (render::renderType == RenderType::OpenGL) {
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+    }
     logging::Log("Initializing of font is done");
     FT_Done_Face(face);
 }
@@ -119,17 +137,17 @@ void TextRenderer::initFontMSDF(std::string_view atlasPath, std::string_view jso
         logging::Error("Could not open the JSON file: {}", jsonPath);
         return;
     }
-    json j = json::parse(f);
+    json fontData = json::parse(f);
 
     try {
-        m_atlasData.fontSize = j["atlas"]["size"];
-        m_atlasData.distanceRange = j["atlas"]["distanceRange"];
+        m_atlasData.fontSize = fontData["atlas"]["size"];
+        m_atlasData.distanceRange = fontData["atlas"]["distanceRange"];
 
-        m_fontMetrics.ascender = j["metrics"]["ascender"];
-        m_fontMetrics.descender = j["metrics"]["descender"];
-        m_fontMetrics.lineHeight = j["metrics"]["lineHeight"];
+        m_fontMetrics.ascender = fontData["metrics"]["ascender"];
+        m_fontMetrics.descender = fontData["metrics"]["descender"];
+        m_fontMetrics.lineHeight = fontData["metrics"]["lineHeight"];
 
-        for (auto &item : j["glyphs"]) {
+        for (auto &item : fontData["glyphs"]) {
             GlyphData glyphData;
             glyphData.advance = item["advance"];
             glyphData.unicode = item["unicode"];
@@ -157,24 +175,28 @@ void TextRenderer::initFontMSDF(std::string_view atlasPath, std::string_view jso
     int width, height, components;
     stbi_set_flip_vertically_on_load(true);
     unsigned char *data = stbi_load(atlasPath.data(), &width, &height, &components, 0);
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glCreateTextures(GL_TEXTURE_2D, 1, &m_atlasData.textureID);
-    if (components == 1) {
-        glTextureStorage2D(m_atlasData.textureID, 1, GL_R8, width, height);
-        glTextureSubImage2D(m_atlasData.textureID, 0, 0, 0, width, height, GL_RED, GL_UNSIGNED_BYTE, data);
-    } else if (components == 3) {
-        glTextureStorage2D(m_atlasData.textureID, 1, GL_RGB8, width, height);
-        glTextureSubImage2D(m_atlasData.textureID, 0, 0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, data);
-    } else if (components == 4) {
-        glTextureStorage2D(m_atlasData.textureID, 1, GL_RGBA8, width, height);
-        glTextureSubImage2D(m_atlasData.textureID, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data);
-    }
-    glTextureParameteri(m_atlasData.textureID, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTextureParameteri(m_atlasData.textureID, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTextureParameteri(m_atlasData.textureID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTextureParameteri(m_atlasData.textureID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    if (render::renderType == RenderType::OpenGL) {
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        glCreateTextures(GL_TEXTURE_2D, 1, &m_atlasData.textureID);
+        if (components == 1) {
+            glTextureStorage2D(m_atlasData.textureID, 1, GL_R8, width, height);
+            glTextureSubImage2D(m_atlasData.textureID, 0, 0, 0, width, height, GL_RED, GL_UNSIGNED_BYTE, data);
+        } else if (components == 3) {
+            glTextureStorage2D(m_atlasData.textureID, 1, GL_RGB8, width, height);
+            glTextureSubImage2D(m_atlasData.textureID, 0, 0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, data);
+        } else if (components == 4) {
+            glTextureStorage2D(m_atlasData.textureID, 1, GL_RGBA8, width, height);
+            glTextureSubImage2D(m_atlasData.textureID, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        }
+        glTextureParameteri(m_atlasData.textureID, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTextureParameteri(m_atlasData.textureID, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTextureParameteri(m_atlasData.textureID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTextureParameteri(m_atlasData.textureID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+    }
+
+    free(data);
 }
 
 void TextRenderer::render(Shader &shader, std::string_view text, glm::vec2 pos, float scale, glm::vec3 color) {
@@ -185,18 +207,18 @@ void TextRenderer::render(Shader &shader, std::string_view text, glm::vec2 pos, 
     for (const char &c : text) {
         Character character = m_characters[c];
 
-        float xPos = pos.x + advance + character.bearing.x * scale;
-        float yPos = pos.y - (character.size.y - character.bearing.y) * scale;
+        float xPos = pos.x + advance + static_cast<float>(character.bearing.x) * scale;
+        float yPos = pos.y - (static_cast<float>(character.size.y) - static_cast<float>(character.bearing.y)) * scale;
 
-        float uStart = static_cast<float>(character.position.x) / m_atlasData.width;
-        float vStart = static_cast<float>(character.position.y) / m_atlasData.height;
-        float uEnd = static_cast<float>(character.position.x + character.size.x) / m_atlasData.width;
-        float vEnd = static_cast<float>(character.position.y + character.size.y) / m_atlasData.height;
+        float uStart = static_cast<float>(character.position.x) / static_cast<float>(m_atlasData.width);
+        float vStart = static_cast<float>(character.position.y) / static_cast<float>(m_atlasData.height);
+        float uEnd = static_cast<float>(character.position.x + character.size.x) / static_cast<float>(m_atlasData.width);
+        float vEnd = static_cast<float>(character.position.y + character.size.y) / static_cast<float>(m_atlasData.height);
 
-        advance += (character.advance >> 6) * scale;
+        advance += static_cast<float>(character.advance >> 6) * scale;
 
-        float w = character.size.x * scale;
-        float h = character.size.y * scale;
+        float w = static_cast<float>(character.size.x) * scale;
+        float h = static_cast<float>(character.size.y) * scale;
 
         vertices.push_back({xPos, yPos + h, uStart, vStart});
         vertices.push_back({xPos, yPos, uStart, vEnd});
@@ -216,11 +238,18 @@ void TextRenderer::renderMSDF(Shader &shader, std::string_view text, glm::vec2 p
     std::vector<TextVertex> vertices;
     vertices.reserve(text.size() * 6);
 
-    int atlasW, atlasH;
-    glGetTextureLevelParameteriv(m_atlasData.textureID, 0, GL_TEXTURE_WIDTH, &atlasW);
-    glGetTextureLevelParameteriv(m_atlasData.textureID, 0, GL_TEXTURE_HEIGHT, &atlasH);
+    int atlasW = 0, atlasH = 0;
+    if (render::renderType == RenderType::OpenGL) {
+        glGetTextureLevelParameteriv(m_atlasData.textureID, 0, GL_TEXTURE_WIDTH, &atlasW);
+        glGetTextureLevelParameteriv(m_atlasData.textureID, 0, GL_TEXTURE_HEIGHT, &atlasH);
+    }
 
-    float currentFontSize = m_atlasData.fontSize * scale;
+    if (atlasW == 0 || atlasH == 0) {
+        logging::Error("Atlas size is wrong: w:{}; h:{}", atlasW, atlasH);
+        return;
+    }
+
+    float currentFontSize = static_cast<float>(m_atlasData.fontSize) * scale;
 
     for (const char &c : text) {
         if (!m_glyphs.contains(static_cast<int>(c))) continue;
@@ -249,7 +278,7 @@ void TextRenderer::renderMSDF(Shader &shader, std::string_view text, glm::vec2 p
     }
     shader.setVec3("textColor", color);
     shader.setMat4("projection", _getProjectionMat());
-    shader.setFloat("distanceRange", m_atlasData.distanceRange);
+    shader.setFloat("distanceRange", static_cast<float>(m_atlasData.distanceRange));
     shader.setFloat("outlineWidth", outlineData.width);
     shader.setVec3("outlineColor", outlineData.color);
     shader.setBool("isBold", bold);

@@ -31,6 +31,7 @@ set(Sources
     src/audio_manager.cpp
     src/game_level_generator.cpp
     src/engine_context.cpp
+    src/game_core.cpp
 )
 
 add_executable(${Project}
@@ -55,26 +56,41 @@ target_link_libraries(${Project} PRIVATE
     $<$<CONFIG:Release>:${FMOD_STUDIO_LIB_PATH}/fmodstudio_vc.lib>
 )
 else()
-message(STATUS "Linking static import libraries (.a)...")
+message(STATUS "Linking libraries (.so)...")
 target_link_libraries(${Project} PRIVATE
-    $<$<CONFIG:Debug>:${FMOD_CORE_LIB_PATH}/libfmodL.a>
-    $<$<CONFIG:Release>:${FMOD_CORE_LIB_PATH}/libfmod.a>
-    $<$<CONFIG:Debug>:${FMOD_STUDIO_LIB_PATH}/libfmodstudioL.a>
-    $<$<CONFIG:Release>:${FMOD_STUDIO_LIB_PATH}/libfmodstudio.a>
+    $<$<CONFIG:Debug>:${FMOD_CORE_LIB_PATH}/libfmodL.so.14.13>
+    $<$<CONFIG:Release>:${FMOD_CORE_LIB_PATH}/libfmod.so.14.13>
+    $<$<CONFIG:Debug>:${FMOD_STUDIO_LIB_PATH}/libfmodstudioL.so.14.13>
+    $<$<CONFIG:Release>:${FMOD_STUDIO_LIB_PATH}/libfmodstudio.so.14.13>
 )
 endif()
 
-add_custom_command(TARGET ${Project} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    "$<IF:$<CONFIG:Debug>,${FMOD_CORE_LIB_PATH}/fmodL.dll,${FMOD_CORE_LIB_PATH}/fmod.dll>"
-    $<TARGET_FILE_DIR:${Project}>
-)
-
-add_custom_command(TARGET ${Project} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    "$<IF:$<CONFIG:Debug>,${FMOD_STUDIO_LIB_PATH}/fmodstudioL.dll,${FMOD_STUDIO_LIB_PATH}/fmodstudio.dll>"
-    $<TARGET_FILE_DIR:${Project}>
-)
+if (WIN32)
+  add_custom_command(TARGET ${Project} POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          $<$<CONFIG:Debug>:${FMOD_CORE_LIB_PATH}/fmodL.dll>
+          $<$<CONFIG:Release>:${FMOD_CORE_LIB_PATH}/fmod.dll>
+          $<$<CONFIG:Debug>:${FMOD_STUDIO_LIB_PATH}/fmodstudioL.dll>
+          $<$<CONFIG:Release>:${FMOD_STUDIO_LIB_PATH}/fmodstudio.dll>
+          $<TARGET_FILE_DIR:${Project}>
+      COMMENT "Copying FMOD dynamic libraries to build directory..."
+  )
+else()
+  add_custom_command(TARGET ${Project} POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:${Project}>/libs
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          $<$<CONFIG:Debug>:${FMOD_CORE_LIB_PATH}/libfmodL.so.14.13>
+          $<$<CONFIG:Release>:${FMOD_CORE_LIB_PATH}/libfmod.so.14.13>
+          $<$<CONFIG:Debug>:${FMOD_STUDIO_LIB_PATH}/libfmodstudioL.so.14.13>
+          $<$<CONFIG:Release>:${FMOD_STUDIO_LIB_PATH}/libfmodstudio.so.14.13>
+          $<TARGET_FILE_DIR:${Project}>/libs
+      COMMAND ln -sf libfmodstudioL.so.14.13 $<TARGET_FILE_DIR:${Project}>/libs/libfmodstudioL.so.14
+      COMMAND ln -sf libfmodstudio.so.14.13 $<TARGET_FILE_DIR:${Project}>/libs/libfmodstudio.so.14
+      COMMAND ln -sf libfmodL.so.14.13 $<TARGET_FILE_DIR:${Project}>/libs/libfmodL.so.14
+      COMMAND ln -sf libfmod.so.14.13 $<TARGET_FILE_DIR:${Project}>/libs/libfmod.so.14
+      COMMENT "Copying FMOD shared libraries to build/libs directory..."
+  )
+endif()
 
 
 include(FetchContent)
