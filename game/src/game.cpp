@@ -26,6 +26,7 @@
 #include "powerup.hpp"
 #include "powerup_factory.hpp"
 #include "powerup_type.hpp"
+#include "render.hpp"
 #include "shader.hpp"
 #include "sprite_renderer.hpp"
 #include "text_renderer.hpp"
@@ -221,7 +222,10 @@ bool Game::isKeyPressed(int key) {
     return m_keys[key];
 }
 
-void Game::update(float dt) {}
+void Game::update(float dt) {
+    Task task = animateName(dt);
+    if (!task.handle.done()) task.handle.resume();
+}
 
 void Game::fixedUpdate(float dt) {
     m_player->fixedUpdate(dt);
@@ -233,10 +237,9 @@ void Game::fixedUpdate(float dt) {
         m_queueBalls.clear();
     }
 
-    int particlesPerFrame = 2;
     for (auto &ball : m_balls) {
         ball->fixedUpdate(dt);
-        m_ballParticles->prepare(*ball, particlesPerFrame, glm::vec2(ball->getRadius() / 2), true);
+        m_ballParticles->prepare(*ball, m_particlesPerFrame, glm::vec2(ball->getRadius() / 2), true);
     }
     m_ballParticles->update(dt);
 
@@ -295,7 +298,7 @@ void Game::renderText(float dt) {
                                    {glm::vec3(0.0f), 5.0f});
     } else {
         glm::vec2 namePos = core::getWorldPosition(0.25f, 0.5f);
-        m_textRenderer->renderMSDF(*m_textShader, GAME_NAME, namePos, 0.07f, glm::vec3(1.0f), true, {glm::vec3(0.0f), 2.0f});
+        m_textRenderer->renderMSDF(*m_textShader, GAME_NAME, namePos, m_nameSize, glm::vec3(1.0f), true, {glm::vec3(0.0f), 2.0f});
     }
     m_textRenderer->renderMSDF(*m_textShader, std::format("Attempts: {}", std::to_string(m_attempts - m_currentAttempt)),
                                core::getWorldPosition(0.01f, 0.9f), 0.03f);
@@ -613,5 +616,16 @@ void Game::doCollisions() {
                 }
             }
         }
+    }
+}
+
+Task Game::animateName(float dt) {
+    while (std::sin(render::getTime()) > 0.0f) {
+        m_nameSize += dt * 0.01;
+        co_await std::suspend_always{};
+    }
+    while (std::sin(render::getTime()) < 0.0f) {
+        m_nameSize -= dt * 0.01;
+        co_await std::suspend_always{};
     }
 }

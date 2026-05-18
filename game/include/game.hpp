@@ -19,6 +19,7 @@
 #include "powerup_type.hpp"
 #include "shader.hpp"
 #include "sprite_renderer.hpp"
+#include "task.hpp"
 #include "text_renderer.hpp"
 
 constexpr std::string GAME_NAME = "BRAKEOUT 2D";
@@ -54,12 +55,14 @@ class Game {
     std::unique_ptr<Player> m_player;
     GameLevel m_currentLevel;
     Ball *m_heroBall = nullptr;  // observer pointer
-    unsigned int m_currentLevelNumber = 0;
-    unsigned int m_attempts = 0;
-    unsigned int m_currentAttempt = 0;
+    int m_currentLevelNumber = 0;
+    int m_attempts = 0;
+    int m_currentAttempt = 0;
     size_t m_maxCountBallsStuckToPlayer = 0;
+    int m_particlesPerFrame = 2;
     std::atomic<bool> m_running = false;
     std::thread m_consoleInputThread;
+    float m_nameSize = 0.07f;
     Context &m_context;
 
     std::vector<glm::vec2> m_collisionPointHistory;
@@ -110,4 +113,7 @@ class Game {
     void onBallHit(const BallHit &e);
     void onBallUnstuck(const BallUnstuck &e);
     void onBallStuck(const BallStuck &e);
+
+    // coroutines
+    Task animateName(float dt);
 };
