@@ -266,6 +266,7 @@ void Game::render(float alpha) {
     m_spriteRenderer->drawSprite(*m_spriteShader, m_context.textureManager->getTexture("background"),
                                  glm::vec2(core::getWorldAABB().x, core::getWorldAABB().y),
                                  glm::vec2(core::getWorldWidth(), core::getWorldHeight()));
+
     for (const auto &brick : m_currentLevel.getBricks()) {
         if (!brick.isHidden()) {
             m_spriteRenderer->drawSprite(*m_spriteShader, *brick.Texture, brick.getPosition(), brick.getSize(), 0.0f, brick.getColor());

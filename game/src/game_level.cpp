@@ -76,8 +76,7 @@ void GameLevel::load() {
                 m_bricks.emplace_back(Context::get().textureManager->getTexture(STANDARD_BRICK), position, size, BrickType::Hard);
                 break;
             case 3:
-                m_bricks.emplace_back(Context::get().textureManager->getTexture(STANDARD_BRICK), position, size,
-                                      BrickType::ExtremelyTough);
+                m_bricks.emplace_back(Context::get().textureManager->getTexture(STANDARD_BRICK), position, size, BrickType::ExtremelyTough);
                 break;
             default:
                 logging::Warn("Could not load a brick with the tile code: {}", code);

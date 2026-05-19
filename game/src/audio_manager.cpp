@@ -8,10 +8,14 @@
 #include "custom_attributes.hpp"
 #include "engine_context.hpp"
 
-#define ERRCHECK(result)                                                      \
-    if (result != FMOD_OK) {                                                  \
-        std::cerr << "FMOD Error: " << FMOD_ErrorString(result) << std::endl; \
-    }
+#ifdef _DEBUG
+#define ERRCHECK(result)
+if (result != FMOD_OK) {
+    std::cerr << "FMOD Error: " << FMOD_ErrorString(result) << std::endl;
+}
+#else
+#define ERRCHECK(result) (result)
+#endif
 
 void AudioManager::_saveEvent(const std::string &eventPath) {
     if (m_loadedEventDesc.contains(eventPath)) return;
@@ -27,13 +31,6 @@ AudioManager::~AudioManager() noexcept {
 void AudioManager::init() {
     ERRCHECK(FMOD::Studio::System::create(&m_system));
     ERRCHECK(m_system->initialize(1024, FMOD_STUDIO_INIT_NORMAL, FMOD_INIT_NORMAL, nullptr));
-
-    FMOD_3D_ATTRIBUTES listenerAttr;
-    listenerAttr.position = {0.0f, 0.0f, 0.0f};
-    listenerAttr.velocity = {0.0f, 0.0f, 0.0f};
-    listenerAttr.forward = {0.0f, 0.0f, 1.0f};
-    listenerAttr.up = {0.0f, 1.0f, 0.0f};
-    ERRCHECK(m_system->setListenerAttributes(0, &listenerAttr));
 }
 
 void AudioManager::loadBank(const std::string &name) {
@@ -42,15 +39,6 @@ void AudioManager::loadBank(const std::string &name) {
     std::string bankPath = Context::get().pathManager->getResourcePath("fmod/" + name);
     ERRCHECK(m_system->loadBankFile((bankPath + "/" + name + ".bank").c_str(), FMOD_STUDIO_LOAD_BANK_NORMAL, &mainBank));
     ERRCHECK(m_system->loadBankFile((bankPath + "/" + name + ".strings.bank").c_str(), FMOD_STUDIO_LOAD_BANK_NORMAL, &stringsBank));
-}
-
-FMOD_RESULT myCallback(FMOD_STUDIO_EVENT_CALLBACK_TYPE type, FMOD_STUDIO_EVENTINSTANCE *instance, void *parameters) {
-    if (type == FMOD_STUDIO_EVENT_CALLBACK_TIMELINE_MARKER) {
-        auto *props = (FMOD_STUDIO_TIMELINE_MARKER_PROPERTIES *)parameters;
-        std::cout << props->name << std::endl;
-        std::cout << props->position << std::endl;
-    }
-    return FMOD_OK;
 }
 
 void AudioManager::playOnce(const std::string &eventPath) {

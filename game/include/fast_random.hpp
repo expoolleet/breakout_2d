@@ -8,7 +8,7 @@
 namespace fastrand {
 
 struct XorShiftState {
-    uint32_t offset = 0u;
+    uint32_t offset = 1u;
 };
 
 inline std::mt19937 &getEngine_mt19937() {

@@ -11,6 +11,9 @@ set(Sources
     src/game.cpp
     src/game_level.cpp
     src/game_object.cpp
+    src/game_renderer.cpp
+    src/game_core.cpp
+    src/game_level_generator.cpp
     src/ball.cpp
     src/brick.cpp
     src/event_dispatcher.cpp
@@ -21,6 +24,7 @@ set(Sources
     src/shader_manager.cpp
     src/shader_observer.cpp
     src/sprite_renderer.cpp
+    src/render_queue.cpp
     src/text_renderer.cpp
     src/texture_2d.cpp
     src/texture_manager.cpp
@@ -29,9 +33,7 @@ set(Sources
     src/powerup.cpp
     src/powerup_factory.cpp
     src/audio_manager.cpp
-    src/game_level_generator.cpp
     src/engine_context.cpp
-    src/game_core.cpp
     src/task.cpp
     src/fps_counter.cpp
 )

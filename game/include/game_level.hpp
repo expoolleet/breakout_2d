@@ -9,8 +9,9 @@ using LevelTiles = std::vector<std::vector<int>>;
 
 class GameLevel {
    private:
-    std::vector<Brick> m_bricks = {};
-    LevelTiles m_tiles = {};
+    std::vector<Brick> m_bricks;
+    glm::vec2 m_position;
+    LevelTiles m_tiles;
     int m_width = 0;
     int m_height = 0;
     bool m_isLoaded = false;
