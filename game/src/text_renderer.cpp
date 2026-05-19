@@ -14,7 +14,6 @@
 #include "game_core.hpp"
 #include "glad/glad.h"
 #include "logging.hpp"
-#include "render.hpp"
 #include "render_type.hpp"
 #include "shader.hpp"
 
@@ -26,7 +25,7 @@ void TextRenderer::_renderText(const std::vector<TextVertex> &vertices) {
         return;
     }
 
-    if (render::renderType == RenderType::OpenGL) {
+    if (render::type == RenderType::OpenGL) {
         glBindTextureUnit(0, m_atlasData.textureID);
 
         glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
@@ -57,7 +56,7 @@ void TextRenderer::initRenderer() {
         return;
     }
 
-    if (render::renderType == RenderType::OpenGL) {
+    if (render::type == RenderType::OpenGL) {
         glGenVertexArrays(1, &m_VAO);
         glGenBuffers(1, &m_VBO);
 
@@ -83,7 +82,7 @@ void TextRenderer::initFont(std::string_view font, unsigned int fontSize) {
     FT_Set_Pixel_Sizes(face, 0, fontSize);
     m_atlasData.fontSize = fontSize;
 
-    if (render::renderType == RenderType::OpenGL) {
+    if (render::type == RenderType::OpenGL) {
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
         glCreateTextures(GL_TEXTURE_2D, 1, &m_atlasData.textureID);
         glTextureStorage2D(m_atlasData.textureID, 1, GL_R8, m_atlasData.width, m_atlasData.height);
@@ -111,7 +110,7 @@ void TextRenderer::initFont(std::string_view font, unsigned int fontSize) {
             maxRowHeight = 0;
         }
         if (w > 0 && h > 0) {
-            if (render::renderType == RenderType::OpenGL) {
+            if (render::type == RenderType::OpenGL) {
                 glTextureSubImage2D(m_atlasData.textureID, 0, xCurrent, yCurrent, w, h, GL_RED, GL_UNSIGNED_BYTE,
                                     face->glyph->bitmap.buffer);
             }
@@ -124,7 +123,7 @@ void TextRenderer::initFont(std::string_view font, unsigned int fontSize) {
         xCurrent += w + padding;
         maxRowHeight = std::max(maxRowHeight, h);
     }
-    if (render::renderType == RenderType::OpenGL) {
+    if (render::type == RenderType::OpenGL) {
         glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
     }
     logging::Log("Initializing of font is done");
@@ -175,7 +174,7 @@ void TextRenderer::initFontMSDF(std::string_view atlasPath, std::string_view jso
     int width, height, components;
     stbi_set_flip_vertically_on_load(true);
     unsigned char *data = stbi_load(atlasPath.data(), &width, &height, &components, 0);
-    if (render::renderType == RenderType::OpenGL) {
+    if (render::type == RenderType::OpenGL) {
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
         glCreateTextures(GL_TEXTURE_2D, 1, &m_atlasData.textureID);
         if (components == 1) {
@@ -239,7 +238,7 @@ void TextRenderer::renderMSDF(Shader &shader, std::string_view text, glm::vec2 p
     vertices.reserve(text.size() * 6);
 
     int atlasW = 0, atlasH = 0;
-    if (render::renderType == RenderType::OpenGL) {
+    if (render::type == RenderType::OpenGL) {
         glGetTextureLevelParameteriv(m_atlasData.textureID, 0, GL_TEXTURE_WIDTH, &atlasW);
         glGetTextureLevelParameteriv(m_atlasData.textureID, 0, GL_TEXTURE_HEIGHT, &atlasH);
     }

@@ -8,6 +8,7 @@
 #include "glad/glad.h"
 #include "logging.hpp"
 #include "particle.hpp"
+#include "render_type.hpp"
 #include "shader.hpp"
 #include "texture_2d.hpp"
 
@@ -50,38 +51,40 @@ void ParticleEmitter::init() {
 
     int indices[6] = {0, 1, 2, 2, 3, 0};
 
-    glGenVertexArrays(1, &m_VAO);
-    glBindVertexArray(m_VAO);
-    unsigned int VBO, EBO;
-    glGenBuffers(1, &VBO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), &vertices[0], GL_STATIC_DRAW);
-    glGenBuffers(1, &EBO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), &indices[0], GL_STATIC_DRAW);
+    if (render::type == RenderType::OpenGL) {
+        glGenVertexArrays(1, &m_VAO);
+        glBindVertexArray(m_VAO);
+        unsigned int VBO, EBO;
+        glGenBuffers(1, &VBO);
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), &vertices[0], GL_STATIC_DRAW);
+        glGenBuffers(1, &EBO);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), &indices[0], GL_STATIC_DRAW);
 
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)(0));
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)(0));
 
-    glGenBuffers(1, &m_particleVBO);
-    glBindBuffer(GL_ARRAY_BUFFER, m_particleVBO);
-    glBufferData(GL_ARRAY_BUFFER, MAX_PARTICLES * sizeof(Particle), NULL, GL_DYNAMIC_DRAW);
+        glGenBuffers(1, &m_particleVBO);
+        glBindBuffer(GL_ARRAY_BUFFER, m_particleVBO);
+        glBufferData(GL_ARRAY_BUFFER, MAX_PARTICLES * sizeof(Particle), NULL, GL_DYNAMIC_DRAW);
 
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Particle), (void *)offsetof(Particle, position));
-    glVertexAttribDivisor(1, 1);
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Particle), (void *)offsetof(Particle, position));
+        glVertexAttribDivisor(1, 1);
 
-    glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(Particle), (void *)offsetof(Particle, color));
-    glVertexAttribDivisor(2, 1);
+        glEnableVertexAttribArray(2);
+        glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(Particle), (void *)offsetof(Particle, color));
+        glVertexAttribDivisor(2, 1);
 
-    glEnableVertexAttribArray(3);
-    glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(Particle), (void *)offsetof(Particle, scale));
-    glVertexAttribDivisor(3, 1);
+        glEnableVertexAttribArray(3);
+        glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(Particle), (void *)offsetof(Particle, scale));
+        glVertexAttribDivisor(3, 1);
 
-    glBindVertexArray(0);
+        glBindVertexArray(0);
 
-    _fillPool();
+        _fillPool();
+    }
 }
 
 void ParticleEmitter::prepare(GameObject &gameObject, int newParticles, glm::vec2 offset, bool overrideColor) {
@@ -118,17 +121,19 @@ void ParticleEmitter::render(Shader &shader) {
     size_t activeParticleCount = std::distance(partitionedParticles, m_particlePool.end());
     if (activeParticleCount == 0) return;
     m_texture->bind();
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+    if (render::type == RenderType::OpenGL) {
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
-    glBindBuffer(GL_ARRAY_BUFFER, m_particleVBO);
-    glBufferData(GL_ARRAY_BUFFER, MAX_PARTICLES * sizeof(Particle), NULL, GL_DYNAMIC_DRAW);  // buffer orphaning
-    glBufferSubData(GL_ARRAY_BUFFER, 0, activeParticleCount * sizeof(Particle), &(*partitionedParticles));
+        glBindBuffer(GL_ARRAY_BUFFER, m_particleVBO);
+        glBufferData(GL_ARRAY_BUFFER, MAX_PARTICLES * sizeof(Particle), NULL, GL_DYNAMIC_DRAW);  // buffer orphaning
+        glBufferSubData(GL_ARRAY_BUFFER, 0, activeParticleCount * sizeof(Particle), &(*partitionedParticles));
 
-    glBindVertexArray(m_VAO);
-    glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL, activeParticleCount);
-    glBindVertexArray(0);
+        glBindVertexArray(m_VAO);
+        glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL, activeParticleCount);
+        glBindVertexArray(0);
 
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    }
 }
 
 void ParticleEmitter::respawnParticleAtObject(Particle &particle, GameObject &gameObject, glm::vec2 offset, bool overrideColor) {

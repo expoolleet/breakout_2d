@@ -32,7 +32,7 @@ Task::Task(Task &&other) noexcept : handle(other.handle) {
 
 Task &Task::operator=(Task &&other) noexcept {
     if (this != &other) {
-        if (handle) handle.destroy();
+        if (handle != nullptr) handle.destroy();
         handle = other.handle;
         other.handle = nullptr;
     }

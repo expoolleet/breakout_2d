@@ -30,11 +30,11 @@ constexpr int MAX_BALL_DAMAGE = 3;
 constexpr int MIN_BALL_DAMAGE = 1;
 constexpr int MAX_KEY_CODE = 512;
 
-enum GameState {
-    GAME_NONE,
-    GAME_ACTIVE,
-    GAME_MENU,
-    GAME_WIN
+enum class GameState {
+    None,
+    Active,
+    Menu,
+    Win
 };
 
 class Game {
@@ -71,7 +71,7 @@ class Game {
     void _calcBallNewPositionAndVelocity(Ball &ball, CollisionDirection dir, glm::vec2 diffVector);
 
    public:
-    GameState currentState = GAME_NONE;
+    GameState currentState = GameState::None;
 
     Game(unsigned int attempts);
     ~Game();

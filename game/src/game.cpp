@@ -69,7 +69,7 @@ Game::Game(unsigned int attempts) : m_attempts(attempts), m_context(Context::get
     m_textRenderer = nullptr;
     m_player = nullptr;
     m_ballParticles = nullptr;
-    currentState = GAME_ACTIVE;
+    currentState = GameState::Active;
 }
 
 void Game::init() {
@@ -176,7 +176,7 @@ void Game::init() {
 }
 
 void Game::processInput(float dt) {
-    if (currentState == GAME_WIN) {
+    if (currentState == GameState::Win) {
         if (m_keys[GLFW_KEY_ENTER]) {
             nextLevel();
         }
@@ -259,7 +259,7 @@ void Game::fixedUpdate(float dt) {
 }
 
 void Game::render(float alpha) {
-    if (currentState == GAME_MENU) return;
+    if (currentState == GameState::Menu) return;
 
     // objects
     m_spriteShader->use();
@@ -292,7 +292,7 @@ void Game::render(float alpha) {
 
 void Game::renderText(float dt) {
     m_textShader->use();
-    if (currentState == GAME_WIN) {
+    if (currentState == GameState::Win) {
         glm::vec2 textPos = core::getWorldPosition(0.25f, 0.5f);
         m_textRenderer->renderMSDF(*m_textShader, "YOU WON! :)", textPos, 0.07f, glm::vec3(0.0f, 0.9f, 0.6f), false,
                                    {glm::vec3(0.0f), 5.0f});
@@ -327,7 +327,7 @@ void Game::nextLevel() {
     m_currentLevel = getLevel(++m_currentLevelNumber);
     m_powerups.clear();
     m_currentLevel.load();
-    currentState = GAME_ACTIVE;
+    currentState = GameState::Active;
 }
 
 GameLevel Game::getLevel(unsigned int number) {
@@ -481,7 +481,7 @@ Game::~Game() {
 
 void Game::onBallFliedOff(const BallFliedOff &e) {
     if (&e.ball == m_heroBall) {
-        if (currentState == GAME_ACTIVE && ++m_currentAttempt >= m_attempts) {
+        if (currentState == GameState::Active && ++m_currentAttempt >= m_attempts) {
             restartCurrentLevel();
         } else {
             resetHeroBall();
@@ -612,7 +612,7 @@ void Game::doCollisions() {
                 }
 
                 if (m_currentLevel.isFinished()) {
-                    currentState = GAME_WIN;
+                    currentState = GameState::Win;
                 }
             }
         }

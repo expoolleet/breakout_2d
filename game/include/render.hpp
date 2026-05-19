@@ -1,6 +1,8 @@
 #pragma once
 #include <GLFW/glfw3.h>
 
+#include <string_view>
+
 #include "glad/glad.h"
 #include "logging.hpp"
 #include "render_type.hpp"
@@ -19,17 +21,17 @@ struct BufferObject {
 // Render
 namespace render {
 
-inline RenderType renderType = RenderType::Unknown;
+inline RenderType type = RenderType::Unknown;
 
 inline GLFWwindow *window = nullptr;
 
 inline void initWindow() {
-    if (render::renderType == RenderType::Unknown) {
+    if (type == RenderType::Unknown) {
         logging::Error("Renderer type was not initialized!");
         return;
     }
 
-    if (renderType == RenderType::OpenGL) {
+    if (type == RenderType::OpenGL) {
         glfwInit();
         glfwWindowHint(GLFW_VERSION_MAJOR, 4);
         glfwWindowHint(GLFW_VERSION_MINOR, 5);
@@ -40,12 +42,12 @@ inline void initWindow() {
 }
 
 inline void initAPI() {
-    if (render::renderType == RenderType::Unknown) {
+    if (type == RenderType::Unknown) {
         logging::Error("Renderer type was not initialized!");
         return;
     }
 
-    if (renderType == RenderType::OpenGL && !gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+    if (type == RenderType::OpenGL && !gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         logging::Error("Could not load glad!");
         return;
     }
@@ -64,7 +66,7 @@ inline bool windowShouldClose() {
 }
 
 inline void swapBuffers() {
-    if (renderType == RenderType::OpenGL) {
+    if (type == RenderType::OpenGL) {
         glfwSwapBuffers(window);
     }
 }
@@ -160,6 +162,10 @@ inline BufferObject resizeMultisamplingFrambuffer(BufferObject oldBuffer) {
 
 inline float getTime() {
     return static_cast<float>(glfwGetTime());
+}
+
+inline void setWindowTitle(const std::string &title) {
+    glfwSetWindowTitle(window, title.data());
 }
 
 inline void terminate() {

@@ -3,10 +3,9 @@
 #include "custom_attributes.hpp"
 #include "engine_context.hpp"
 #include "fast_random.hpp"
+#include "fps_counter.hpp"
 #include "game.hpp"
-#include "game_core.hpp"
 #include "render.hpp"
-#include "render_type.hpp"
 #include "shader_observer.hpp"
 #include "window.hpp"
 
@@ -44,9 +43,9 @@ void framebufferResizeCallback(GLFWwindow *window, int width, int height) {
 int main() {
     Context &context = Context::get();
 
-    render::renderType = RenderType::OpenGL;
+    render::type = RenderType::OpenGL;
 
-    fastrand::getXorShiftState().a = time(NULL);
+    fastrand::getXorShiftState().offset = static_cast<uint32_t>(time(NULL));
 
     render::initWindow();
     render::initAPI();
@@ -72,6 +71,8 @@ int main() {
     game.init();
 
     context.audioManager->loadBank("master");
+
+    FPSCounter fpsCounter;
 
     float frameTime = 0.0;
     float lastTime = 0.0;
@@ -101,6 +102,10 @@ int main() {
 
         render::pollWindowEvents();
         game.processInput(frameTime);
+
+        fpsCounter.update();
+
+        render::setWindowTitle(std::format("{} ({} fps)", GAME_NAME, fpsCounter.getFPS()));
 
         render::swapBuffers();
         context.shaderObserver->update();

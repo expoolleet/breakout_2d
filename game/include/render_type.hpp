@@ -5,3 +5,7 @@ enum class RenderType {
     OpenGL,
     Vulkan,
 };
+
+namespace render {
+extern RenderType type;
+}
