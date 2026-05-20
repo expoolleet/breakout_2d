@@ -8,7 +8,7 @@
 #include "powerup_type.hpp"
 #include "texture_2d.hpp"
 
-#define BRICK_SIZE (glm::vec2(2.0f, 1.0f))
+constexpr glm::vec2 BRICK_SIZE = glm::vec2(2.0f, 1.0f);
 
 class Brick : public GameObject {
    private:

@@ -4,7 +4,7 @@
 #include "powerup_type.hpp"
 #include "texture_2d.hpp"
 
-#define DEFAULT_POWERUP_SIZE glm::vec2(2.0f, 0.5f)
+constexpr glm::vec2 DEFAULT_POWERUP_SIZE = glm::vec2(2.0f, 0.5f);
 
 class PowerUp : public GameObject {
    private:

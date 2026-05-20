@@ -68,3 +68,5 @@ class ParticleEmitter {
 
     void setParticleColor(glm::vec4 color);
 };
+
+using ParticleEmitterPtr = std::shared_ptr<ParticleEmitter>;

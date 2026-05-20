@@ -1,9 +1,11 @@
 #pragma once
 
+#include "shader.hpp"
 #include "texture_2d.hpp"
 
 class Object2D {
    protected:
+    ShaderView m_shader = nullptr;
     Texture2DView m_texture = nullptr;
     glm::vec2 m_position = glm::vec3(0.0f);
     glm::vec2 m_size = glm::vec3(0.0f);
@@ -17,6 +19,11 @@ class Object2D {
     virtual ~Object2D() = default;
     Object2D(const Object2D &) noexcept = default;
     Object2D &operator=(const Object2D &) noexcept = default;
+    Object2D(Object2D &&) noexcept = default;
+    Object2D &operator=(Object2D &&) noexcept = default;
+
+    virtual ShaderRef getShader() const noexcept;
+    virtual void setShader(ShaderRef shader);
 
     virtual Texture2DRef getTexture() const noexcept;
     virtual void setTexture(Texture2DRef texture);

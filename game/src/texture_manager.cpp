@@ -13,12 +13,14 @@
 #include <string_view>
 #include <utility>
 
+#include "texture_literals.hpp"
+
 const Texture2D &TextureManager::_getDefaultTexture() {
     if (!m_isDefaultTextureLoaded) {
         m_isDefaultTextureLoaded = true;
-        loadTexture(Context::get().pathManager->getResourcePath("textures/missing_texture.jpg"), false, DEFAULT_TEXTURE_NAME);
+        loadTexture(Context::get().pathManager->getResourcePath("textures/missing_texture.jpg"), false, DEFAULT_TEXTURE);
     }
-    return *(m_textures[DEFAULT_TEXTURE_NAME]);
+    return *(m_textures[DEFAULT_TEXTURE]);
 }
 
 TextureManager::~TextureManager() {

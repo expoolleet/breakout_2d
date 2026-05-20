@@ -8,16 +8,6 @@
 
 #include "string_operators.hpp"
 
-// max texture units (slots) is 32
-#define SKY_BOX_SLOT 10
-#define SHADOW_MAP_SLOT 11
-#define SHADOW_CUBE_SLOT 12
-#define IRRADIANCE_MAP_SLOT 13
-#define PREFILTER_MAP_SLOT 14
-#define BRDF_LUT_SLOT 15
-
-#define G_BUFFER_DEPTH_SLOT 20
-
 using UniformValue = std::variant<int, bool, float, glm::vec2, glm::vec3, glm::vec4, glm::mat3, glm::mat4>;
 
 class Shader {
@@ -26,12 +16,14 @@ class Shader {
     std::unordered_map<std::string, UniformValue, string_hash, string_view_equal> m_uniformValues;
     int _getUniformLocation(std::string_view name);
 
-    Shader(const Shader &) = delete;  // delete copy constructor
    public:
     Shader() = default;
-    ~Shader();
+    ~Shader() noexcept;
     Shader(std::string vsPath, std::string fsPath);
     Shader(std::string vsPath, std::string fsPath, std::string gsPath);
+
+    Shader(const Shader &) = delete;
+    Shader &operator=(const Shader &) = delete;
 
     void use() const;
     void clear();
@@ -52,8 +44,8 @@ class Shader {
     void setVec3(std::string_view name, const glm::vec3 *vec, int count);
     void setVec3(std::string_view name, float x, float y, float z);
     void setVec2(std::string_view name, const glm::vec2 &vec);
-    void setFloat(std::string_view name, float value);
     void setBool(std::string_view name, bool value);
+    void setFloat(std::string_view name, float value);
     void setInt(std::string_view name, int value);
     void resetUniforms();
 
@@ -61,6 +53,6 @@ class Shader {
     void saveValue(std::string_view name, T value);
 };
 
-using ShaderSPtr = std::shared_ptr<Shader>;
-using ShaderUPtr = std::unique_ptr<Shader>;
+using ShaderPtr = std::shared_ptr<Shader>;
 using ShaderView = Shader *;
+using ShaderRef = Shader &;

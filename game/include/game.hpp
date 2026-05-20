@@ -6,6 +6,7 @@
 #include <thread>
 #include <vector>
 
+#include "background.hpp"
 #include "ball.hpp"
 #include "collision_type.hpp"
 #include "engine_context.hpp"
@@ -57,6 +58,7 @@ class Game {
     std::shared_ptr<Shader> m_particleShader;
 
     std::unique_ptr<Player> m_player;
+    std::unique_ptr<Background> m_background;
     std::unique_ptr<GameRenderer> m_renderer;
     std::unique_ptr<TextRenderer> m_textRenderer;
     std::shared_ptr<ParticleEmitter> m_ballParticles;
@@ -69,7 +71,8 @@ class Game {
     int m_currentLevelNumber = 0;
     int m_attempts = 0;
     int m_currentAttempt = 0;
-    int m_particlesPerFrame = 2;
+    int m_ballTrailParticlesPerFrame = 2;
+    int m_collisionParticlesPerFrame = 30;
 
     size_t m_maxCountBallsStuckToPlayer = 0;
 

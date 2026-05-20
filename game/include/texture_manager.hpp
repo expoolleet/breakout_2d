@@ -9,12 +9,6 @@
 #include "string_operators.hpp"
 #include "texture_2d.hpp"
 
-#define DEFAULT_TEXTURE_NAME "default"
-#define STANDARD_BRICK "standard_brick"
-#define HARD_BRICK "hard_brick"
-#define EXTREMELY_TOUGH_BRICK "extremely_tough_brick"
-#define UNDESTROYABLE_BRICK "undestroyable_brick"
-
 class TextureManager {
    private:
     std::unordered_map<std::string, std::unique_ptr<Texture2D>, string_hash, string_view_equal> m_textures;

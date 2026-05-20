@@ -39,7 +39,7 @@ int Shader::_getUniformLocation(std::string_view name) {
     return location;
 }
 
-Shader::~Shader() {
+Shader::~Shader() noexcept {
     clear();
 }
 

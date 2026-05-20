@@ -8,14 +8,11 @@
 #include "sprite_renderer.hpp"
 
 class GameRenderer {
-    using ParticleEmitterPtr = std::shared_ptr<ParticleEmitter>;
-    using SpriteRendererPtr = std::unique_ptr<SpriteRenderer>;
-
    private:
     std::vector<ParticleEmitterPtr> m_particleEmitters;
     SpriteRendererPtr m_spriteRenderer;
-    ShaderSPtr m_spriteShader;
-    ShaderSPtr m_particleShader;
+    ShaderPtr m_spriteShader;
+    ShaderPtr m_particleShader;
     RenderQueue m_renderQueue;
     ShaderView m_activeShader = nullptr;
 
@@ -26,6 +23,6 @@ class GameRenderer {
 
     void submit(const SpriteCommand &command);
     void flush();
-    void setParticleShader(ShaderSPtr shader);
+    void setParticleShader(ShaderPtr shader);
     void addParticleEmitter(ParticleEmitterPtr emitter);
 };

@@ -11,6 +11,14 @@ Object2D::Object2D(Texture2DRef texture) : m_texture(&texture) {
     assert(Texture != nullptr && "Texture address is null");
 }
 
+ShaderRef Object2D::getShader() const noexcept {
+    return *m_shader;
+}
+
+void Object2D::setShader(ShaderRef shader) {
+    m_shader = &shader;
+}
+
 Texture2DRef Object2D::getTexture() const noexcept {
     return *m_texture;
 }

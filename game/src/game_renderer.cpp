@@ -30,7 +30,7 @@ void GameRenderer::flush() {
     m_activeShader = nullptr;
 }
 
-void GameRenderer::setParticleShader(ShaderSPtr shader) {
+void GameRenderer::setParticleShader(ShaderPtr shader) {
     m_particleShader = shader;
 }
 

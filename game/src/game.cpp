@@ -29,6 +29,7 @@
 #include "render.hpp"
 #include "shader.hpp"
 #include "text_renderer.hpp"
+#include "texture_literals.hpp"
 #include "texture_manager.hpp"
 
 glm::vec2 Game::_lerpPos(GameObject &gameObject, float alpha) {
@@ -81,11 +82,11 @@ void Game::init() {
     m_textRenderer->initFontMSDF(fontsPath + "/msdf/roboto/atlas.png", fontsPath + "/msdf/roboto/atlas.json");
 
     std::string texturesPath = m_context.pathManager->getResourcePath("textures");
-    m_context.textureManager->loadTexture(texturesPath + "/background_2.png", false, "background");
-    m_context.textureManager->loadTexture(texturesPath + "/brick_standard.png", true, STANDARD_BRICK);
-    m_context.textureManager->loadTexture(texturesPath + "/brick_undestroyable.png", true, UNDESTROYABLE_BRICK);
+    m_context.textureManager->loadTexture(texturesPath + "/background_2.png", false, BACKGROUND_TEXTURE);
+    m_context.textureManager->loadTexture(texturesPath + "/brick_standard.png", true, BRICK_TEXTURE);
+    m_context.textureManager->loadTexture(texturesPath + "/brick_undestroyable.png", true, BADROCK_TEXTURE);
     m_context.textureManager->loadTexture(texturesPath + "/ball.png", true, "ball");
-    m_context.textureManager->loadTexture(texturesPath + "/player_skin_2.png", true, "player");
+    m_context.textureManager->loadTexture(texturesPath + "/player_skin_2.png", true, PLAYER_TEXTURE);
 
     std::string levelsPath = m_context.pathManager->getResourcePath("levels");
     m_levels.push_back(GameLevel(levelsPath + "/1.lvl"));
@@ -141,6 +142,8 @@ void Game::init() {
     m_renderer->setParticleShader(m_particleShader);
     m_renderer->addParticleEmitter(m_ballParticles);
     m_renderer->addParticleEmitter(m_collisionHitParticles);
+
+    m_background = std::make_unique<Background>(m_context.textureManager->getTexture(BACKGROUND_TEXTURE));
 
     m_context.eventDispatcher->subscribe<BallFliedOff>([this](const BallFliedOff &e) { this->onBallFliedOff(e); });
 
@@ -235,7 +238,7 @@ void Game::fixedUpdate(float dt) {
 
     for (auto &ball : m_balls) {
         ball->fixedUpdate(dt);
-        m_ballParticles->prepare(*ball, m_particlesPerFrame, glm::vec2(ball->getRadius() / 2), true);
+        m_ballParticles->prepare(*ball, m_ballTrailParticlesPerFrame, glm::vec2(ball->getRadius() / 2), false);
     }
     m_ballParticles->update(dt);
 
@@ -243,7 +246,7 @@ void Game::fixedUpdate(float dt) {
 
     if (m_collisionPointHistory.size() > 0) {
         for (auto &pos : m_collisionPointHistory) {
-            m_collisionHitParticles->prepareAtPosition(pos, 30);
+            m_collisionHitParticles->prepareAtPosition(pos, m_collisionParticlesPerFrame);
         }
         m_collisionPointHistory.clear();
     }
@@ -278,9 +281,8 @@ void Game::render(float alpha) {
         }
     }
 
-    m_renderer->submit({RenderLayer::Background, spriteShader, &m_context.textureManager->getTexture("background"),
-                        glm::vec2(core::getWorldAABB().x, core::getWorldAABB().y),
-                        glm::vec2(core::getWorldWidth(), core::getWorldHeight())});
+    m_renderer->submit(
+        {RenderLayer::Background, spriteShader, &m_background->getTexture(), m_background->getPosition(), m_background->getSize()});
 
     m_renderer->flush();
 }
