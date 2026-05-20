@@ -5,8 +5,11 @@ void RenderQueue::push(const SpriteCommand &command) {
 }
 
 void RenderQueue::sort() {
-    std::sort(m_commands.begin(), m_commands.end(),
-              [](const SpriteCommand &lhs, const SpriteCommand &rhs) { return lhs.layer < rhs.layer; });
+    std::stable_sort(m_commands.begin(), m_commands.end(), [](const SpriteCommand &lhs, const SpriteCommand &rhs) {
+        if (lhs.layer != rhs.layer) return lhs.layer < rhs.layer;
+        if (lhs.shader != rhs.shader) return lhs.shader->getID() < rhs.shader->getID();
+        return lhs.texture->getID() < rhs.texture->getID();
+    });
 }
 
 const SpriteCommands &RenderQueue::getCommands() const {

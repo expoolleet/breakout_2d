@@ -4,8 +4,7 @@
 
 #include "game_core.hpp"
 #include "game_object.hpp"
-
-class Texture2D;  // fwd
+#include "texture_2d.hpp"
 
 Player::Player(const Texture2D &texture, glm::vec2 position, glm::vec2 size) : GameObject(texture, position, size) {
     m_type = GameObjectType::Player;

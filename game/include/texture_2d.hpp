@@ -14,5 +14,9 @@ class Texture2D {
     unsigned int getImageFormat() const noexcept;
     unsigned int getWidth() const noexcept;
     unsigned int getHeight() const noexcept;
+    unsigned int getID() const noexcept;
     void generate(unsigned int width, unsigned int height, bool alpha, unsigned char *data);
 };
+
+using Texture2DView = const Texture2D *;
+using Texture2DRef = const Texture2D &;

@@ -23,6 +23,10 @@ unsigned int Texture2D::getHeight() const noexcept {
     return m_height;
 }
 
+unsigned int Texture2D::getID() const noexcept {
+    return m_ID;
+}
+
 void Texture2D::generate(unsigned int width, unsigned int height, bool alpha, unsigned char *data) {
     if (alpha) {
         m_internalFormat = GL_RGBA8;

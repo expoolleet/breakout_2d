@@ -72,6 +72,6 @@ PowerUpType Brick::getPowerUpType() const noexcept {
 void Brick::setPowerUpType(PowerUpType type) {
     PowerUpData data = ::getPowerUpData(type);
     setColor(data.color);
-    Texture = &data.texture;
+    m_texture = &data.texture;
     m_powerUp = type;
 }

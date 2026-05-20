@@ -13,6 +13,7 @@
 #include "game_core.hpp"
 #include "game_level.hpp"
 #include "game_object.hpp"
+#include "game_renderer.hpp"
 #include "particle_emitter.hpp"
 #include "player.hpp"
 #include "powerup.hpp"
@@ -30,6 +31,9 @@ constexpr int MAX_BALL_DAMAGE = 3;
 constexpr int MIN_BALL_DAMAGE = 1;
 constexpr int MAX_KEY_CODE = 512;
 
+using BallPtr = std::unique_ptr<Ball>;
+using BallView = Ball *;
+
 enum class GameState {
     None,
     Active,
@@ -40,32 +44,42 @@ enum class GameState {
 class Game {
    private:
     bool m_keys[MAX_KEY_CODE] = {false};
+
     std::vector<GameLevel> m_levels;
     std::vector<PowerUp> m_powerups;
-    std::vector<std::unique_ptr<Ball>> m_balls;
-    std::vector<std::unique_ptr<Ball>> m_queueBalls;
-    std::vector<Ball *> m_stuckBalls;
+    std::vector<BallView> m_stuckBalls;
+    std::vector<BallPtr> m_balls;
+    std::vector<BallPtr> m_queueBalls;
+    std::vector<glm::vec2> m_collisionPointHistory;
+
     std::shared_ptr<Shader> m_spriteShader;
     std::shared_ptr<Shader> m_textShader;
     std::shared_ptr<Shader> m_particleShader;
-    std::unique_ptr<SpriteRenderer> m_spriteRenderer;
-    std::unique_ptr<TextRenderer> m_textRenderer;
-    std::unique_ptr<ParticleEmitter> m_ballParticles;
-    std::unique_ptr<ParticleEmitter> m_collisionHitParticles;
+
     std::unique_ptr<Player> m_player;
+    std::unique_ptr<GameRenderer> m_renderer;
+    std::unique_ptr<TextRenderer> m_textRenderer;
+    std::shared_ptr<ParticleEmitter> m_ballParticles;
+    std::shared_ptr<ParticleEmitter> m_collisionHitParticles;
+
     GameLevel m_currentLevel;
+
     Ball *m_heroBall = nullptr;  // observer pointer
+
     int m_currentLevelNumber = 0;
     int m_attempts = 0;
     int m_currentAttempt = 0;
-    size_t m_maxCountBallsStuckToPlayer = 0;
     int m_particlesPerFrame = 2;
-    std::atomic<bool> m_running = false;
-    std::thread m_consoleInputThread;
-    float m_nameSize = 0.07f;
-    Context &m_context;
 
-    std::vector<glm::vec2> m_collisionPointHistory;
+    size_t m_maxCountBallsStuckToPlayer = 0;
+
+    std::atomic<bool> m_running = false;
+
+    std::thread m_consoleInputThread;
+
+    float m_nameSize = 0.07f;
+
+    Context &m_context;
 
     glm::vec2 _lerpPos(GameObject &gameObject, float alpha);
     void _calcBallNewPositionAndVelocity(Ball &ball, CollisionDirection dir, glm::vec2 diffVector);
@@ -73,7 +87,7 @@ class Game {
    public:
     GameState currentState = GameState::None;
 
-    Game(unsigned int attempts);
+    Game(int attempts);
     ~Game();
 
     void init();
@@ -103,7 +117,7 @@ class Game {
     void unstickBallFromPlayer(Ball &ball);
     void clearStuckBallsExceptHeroBall();
 
-    GameLevel getLevel(unsigned int number);
+    GameLevel getLevel(int lvlNumber);
     std::vector<std::unique_ptr<Ball>> &getBalls();
 
     // handlers

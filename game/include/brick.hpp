@@ -18,7 +18,7 @@ class Brick : public GameObject {
     PowerUpType m_powerUp = PowerUpType::None;
 
    public:
-    Brick(const Texture2D &texture, glm::vec2 position, glm::vec2 size, BrickType type);
+    Brick(Texture2DRef texture, glm::vec2 position, glm::vec2 size, BrickType type);
     void update(float dt) override;
     void fixedUpdate(float dt) override;
     Collision checkCollision(GameObject &gameObject) override;

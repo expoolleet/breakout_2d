@@ -60,3 +60,7 @@ class Shader {
     template <typename T>
     void saveValue(std::string_view name, T value);
 };
+
+using ShaderSPtr = std::shared_ptr<Shader>;
+using ShaderUPtr = std::unique_ptr<Shader>;
+using ShaderView = Shader *;

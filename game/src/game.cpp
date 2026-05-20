@@ -28,7 +28,6 @@
 #include "powerup_type.hpp"
 #include "render.hpp"
 #include "shader.hpp"
-#include "sprite_renderer.hpp"
 #include "text_renderer.hpp"
 #include "texture_manager.hpp"
 
@@ -61,15 +60,8 @@ void Game::_calcBallNewPositionAndVelocity(Ball &ball, CollisionDirection dir, g
     ball.setPosition(ballPosition);
 }
 
-Game::Game(unsigned int attempts) : m_attempts(attempts), m_context(Context::get()) {
-    m_spriteShader = nullptr;
-    m_textShader = nullptr;
-    m_particleShader = nullptr;
-    m_spriteRenderer = nullptr;
-    m_textRenderer = nullptr;
-    m_player = nullptr;
-    m_ballParticles = nullptr;
-    currentState = GameState::Active;
+Game::Game(int attempts) : m_attempts(attempts), m_context(Context::get()), currentState(GameState::Active) {
+    assert(attempts > 0);
 }
 
 void Game::init() {
@@ -81,7 +73,6 @@ void Game::init() {
     m_spriteShader = std::make_shared<Shader>(shadersPath + "/vs/sprite.glsl", shadersPath + "/fs/sprite.glsl");
     m_spriteShader->setMat4("view", view);
     m_spriteShader->setInt("sprite", 0);
-    m_spriteRenderer = std::make_unique<SpriteRenderer>();
 
     m_textShader = std::make_shared<Shader>(shadersPath + "/vs/text.glsl", shadersPath + "/fs/textMSDF.glsl");
     std::string fontsPath = m_context.pathManager->getResourcePath("fonts");
@@ -145,6 +136,11 @@ void Game::init() {
     m_collisionHitParticles->init();
 
     setProjectionMatrix();
+
+    m_renderer = std::make_unique<GameRenderer>(std::make_unique<SpriteRenderer>());
+    m_renderer->setParticleShader(m_particleShader);
+    m_renderer->addParticleEmitter(m_ballParticles);
+    m_renderer->addParticleEmitter(m_collisionHitParticles);
 
     m_context.eventDispatcher->subscribe<BallFliedOff>([this](const BallFliedOff &e) { this->onBallFliedOff(e); });
 
@@ -261,34 +257,32 @@ void Game::fixedUpdate(float dt) {
 void Game::render(float alpha) {
     if (currentState == GameState::Menu) return;
 
-    // objects
-    m_spriteShader->use();
-    m_spriteRenderer->drawSprite(*m_spriteShader, m_context.textureManager->getTexture("background"),
-                                 glm::vec2(core::getWorldAABB().x, core::getWorldAABB().y),
-                                 glm::vec2(core::getWorldWidth(), core::getWorldHeight()));
+    Shader *spriteShader = m_spriteShader.get();
+
+    m_renderer->submit({RenderLayer::Player, spriteShader, &m_player->getTexture(), _lerpPos(*m_player, alpha), m_player->getSize()});
 
     for (const auto &brick : m_currentLevel.getBricks()) {
         if (!brick.isHidden()) {
-            m_spriteRenderer->drawSprite(*m_spriteShader, *brick.Texture, brick.getPosition(), brick.getSize(), 0.0f, brick.getColor());
+            m_renderer->submit(
+                {RenderLayer::Brick, spriteShader, &brick.getTexture(), brick.getPosition(), brick.getSize(), 0.0f, brick.getColor()});
         }
     }
-    m_spriteRenderer->drawSprite(*m_spriteShader, *m_player->Texture, _lerpPos(*m_player, alpha), m_player->getSize());
-
-    m_particleShader->use();
-    m_collisionHitParticles->render(*m_particleShader);
-    m_ballParticles->render(*m_particleShader);
-
-    m_spriteShader->use();
     for (auto &ball : m_balls) {
-        m_spriteRenderer->drawSprite(*m_spriteShader, *ball->Texture, _lerpPos(*ball, alpha), ball->getSize(), 0.0f, ball->getColor());
+        m_renderer->submit(
+            {RenderLayer::Ball, spriteShader, &ball->getTexture(), _lerpPos(*ball, alpha), ball->getSize(), 0.0f, ball->getColor()});
     }
-
     for (auto &powerup : m_powerups) {
         if (!powerup.isHidden()) {
-            m_spriteRenderer->drawSprite(*m_spriteShader, *powerup.Texture, _lerpPos(powerup, alpha), powerup.getSize(), 0.0f,
-                                         powerup.getColor());
+            m_renderer->submit({RenderLayer::PowerUp, spriteShader, &powerup.getTexture(), _lerpPos(powerup, alpha), powerup.getSize(),
+                                0.0f, powerup.getColor()});
         }
     }
+
+    m_renderer->submit({RenderLayer::Background, spriteShader, &m_context.textureManager->getTexture("background"),
+                        glm::vec2(core::getWorldAABB().x, core::getWorldAABB().y),
+                        glm::vec2(core::getWorldWidth(), core::getWorldHeight())});
+
+    m_renderer->flush();
 }
 
 void Game::renderText(float dt) {
@@ -331,12 +325,12 @@ void Game::nextLevel() {
     currentState = GameState::Active;
 }
 
-GameLevel Game::getLevel(unsigned int number) {
-    if (number > m_levels.size()) {
-        logging::Warn("Could not return level with number {} because level count is {}. Returned first level.", number, m_levels.size());
+GameLevel Game::getLevel(int lvlNumber) {
+    if (lvlNumber > m_levels.size()) {
+        logging::Warn("Could not return level with number {} because level count is {}. Returned first level.", lvlNumber, m_levels.size());
         return m_levels[0];
     }
-    return m_levels[number - 1];
+    return m_levels[lvlNumber - 1];
 }
 
 void Game::restartCurrentLevel() {

@@ -36,6 +36,7 @@ set(Sources
     src/engine_context.cpp
     src/task.cpp
     src/fps_counter.cpp
+    src/object_2d.cpp
 )
 
 add_executable(${Project}

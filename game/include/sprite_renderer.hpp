@@ -13,6 +13,6 @@ class SpriteRenderer {
 
    public:
     SpriteRenderer();
-    void drawSprite(Shader &shader, const Texture2D &texture, glm::vec2 position, glm::vec2 size = glm::vec2(1.0f), float rotate = 0.0f,
-                    glm::vec4 color = glm::vec4(1.0f));
+    ~SpriteRenderer() noexcept;
+    void drawSprite(Shader &shader, const Texture2D &texture, glm::vec2 position, glm::vec2 size, float rotate, glm::vec4 color);
 };

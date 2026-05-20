@@ -4,32 +4,31 @@
 
 #include "collision_type.hpp"
 #include "game_object.hpp"
+#include "player.hpp"
+#include "texture_2d.hpp"
 
 #define BALL_DEFAULT_SPEED 20.0f
 #define BALL_DEFAULT_SIZE glm::vec2(0.65f)
-
-class Texture2D;  // fwd
-class Player;
 
 class Ball : public GameObject {
    private:
     glm::vec2 m_bounceVelocity = glm::vec2(0.3f, 1.0f);
     glm::vec2 m_stuckPosition = glm::vec2(0.0f);
-    const Player *m_player = nullptr;
+    PlayerView m_player = nullptr;
     float m_radius = 0.0;
     unsigned int m_damage = 1;
     bool m_stuck = false;
 
    public:
-    Ball(const Texture2D &texture, glm::vec2 position, glm::vec2 size, const Player &player);
-    Ball(const Texture2D &texture);
+    Ball(Texture2DRef texture, glm::vec2 position, glm::vec2 size, PlayerRef player);
+    Ball(Texture2DRef texture);
     Ball();
 
     void update(float dt) override;
     void fixedUpdate(float dt) override;
     Collision checkCollision(GameObject &gameObject) override;
 
-    void assignPlayer(const Player &player);
+    void assignPlayer(PlayerRef player);
 
     void reset() override;
 

@@ -11,7 +11,7 @@ class Player : public GameObject {
     bool m_sticky = false;
 
    public:
-    Player(const Texture2D &texture, glm::vec2 position, glm::vec2 size);
+    Player(Texture2DRef texture, glm::vec2 position, glm::vec2 size);
 
     void update(float dt) override;
     void fixedUpdate(float dt) override;
@@ -22,3 +22,6 @@ class Player : public GameObject {
     bool isSticky() const noexcept;
     void setStickness(bool state) noexcept;
 };
+
+using PlayerView = const Player *;
+using PlayerRef = const Player &;

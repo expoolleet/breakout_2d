@@ -6,14 +6,9 @@
 #include "collision_detection.hpp"
 #include "collision_type.hpp"
 
-GameObject::GameObject(const Texture2D &texture, glm::vec2 position, glm::vec2 size)
-    : m_position(position), m_size(size), Texture(&texture) {
-    assert(Texture != nullptr && "Texture address is null");
-}
+GameObject::GameObject(const Texture2D &texture, glm::vec2 position, glm::vec2 size) : Object2D(texture, position, size) {}
 
-GameObject::GameObject(const Texture2D &texture) : Texture(&texture) {
-    assert(Texture != nullptr && "Texture address is null");
-}
+GameObject::GameObject(const Texture2D &texture) : Object2D(texture) {}
 
 Collision GameObject::checkCollision(GameObject &gameObject) {
     return cd::NoneCollision;
@@ -35,7 +30,7 @@ void GameObject::setDestructibility(bool destroyable) noexcept {
     m_isDestroyable = destroyable;
 }
 
-void GameObject::destroy() {
+void GameObject::destroy() noexcept {
     m_isDead = true;
     m_isHidden = true;
 }
@@ -45,24 +40,8 @@ void GameObject::reset() {
     m_isHidden = false;
 }
 
-bool GameObject::isHidden() const noexcept {
-    return m_isHidden;
-}
-
-void GameObject::hide(bool hidden) noexcept {
-    m_isHidden = hidden;
-}
-
-glm::vec2 GameObject::getPosition() const {
-    return m_position;
-}
-
 glm::vec2 GameObject::getPreviousPosition() {
     return m_previousPosition;
-}
-
-glm::vec2 GameObject::getSize() const noexcept {
-    return m_size;
 }
 
 void GameObject::setPosition(glm::vec2 position) {
@@ -73,10 +52,6 @@ void GameObject::setPosition(glm::vec2 position) {
 void GameObject::resetPosition(glm::vec2 position) {
     m_previousPosition = position;
     m_position = position;
-}
-
-void GameObject::setSize(glm::vec2 size) {
-    m_size = size;
 }
 
 glm::vec2 GameObject::getVelocity() const noexcept {
@@ -93,14 +68,6 @@ float GameObject::getSpeed() const noexcept {
 
 void GameObject::setSpeed(float speed) {
     m_speed = speed;
-}
-
-void GameObject::setColor(glm::vec4 color) {
-    m_color = color;
-}
-
-glm::vec4 GameObject::getColor() const noexcept {
-    return m_color;
 }
 
 void GameObject::setColliding(bool colliding) {
