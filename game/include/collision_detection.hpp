@@ -57,16 +57,15 @@ inline Collision checkCollision(GameObject &a, GameObject &b) {
 
 // AABB with circle object
 inline Collision checkCollision(Ball &ball, GameObject &gameObject) {
-    glm::vec2 aabbHalf = glm::vec2(gameObject.getSize().x / 2, gameObject.getSize().y / 2);
-    glm::vec2 aabbCenter = glm::vec2(gameObject.getPosition().x + aabbHalf.x, gameObject.getPosition().y + aabbHalf.y);
+    AABB aabb = gameObject.getAABB();
 
     glm::vec2 ballCenter = ball.getPosition() + ball.getRadius();
 
-    glm::vec2 difference = ballCenter - aabbCenter;
+    glm::vec2 difference = ballCenter - aabb.center;
 
-    glm::vec2 clamped = glm::clamp(difference, -aabbHalf, aabbHalf);
+    glm::vec2 clamped = glm::clamp(difference, -aabb.halfSize, aabb.halfSize);
 
-    glm::vec2 closestPoint = aabbCenter + clamped;
+    glm::vec2 closestPoint = aabb.center + clamped;
 
     difference = closestPoint - ballCenter;
     if (glm::length(difference) < ball.getRadius()) {

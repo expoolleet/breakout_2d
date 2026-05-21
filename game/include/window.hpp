@@ -2,8 +2,8 @@
 
 class Window {
    private:
-    inline static int m_width = 800;
-    inline static int m_height = 600;
+    inline static int m_width;
+    inline static int m_height;
     inline static GLFWwindow *m_window = nullptr;
 
     // Removing default constructor

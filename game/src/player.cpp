@@ -4,10 +4,21 @@
 
 #include "game_core.hpp"
 #include "game_object.hpp"
+#include "input.hpp"
 #include "texture_2d.hpp"
 
 Player::Player(const Texture2D &texture, glm::vec2 position, glm::vec2 size) : GameObject(texture, position, size) {
     m_type = GameObjectType::Player;
+}
+
+void Player::input(const Keys &keys) {
+    if (keys.isPressed(KEY_A)) {
+        m_velocity.x = -1.0f;
+    } else if (keys.isPressed(KEY_D)) {
+        m_velocity.x = 1.0f;
+    } else {
+        m_velocity.x = 0.0f;
+    }
 }
 
 void Player::update(float dt) {}

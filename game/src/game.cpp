@@ -1,7 +1,5 @@
 #include "game.hpp"
 
-#include <GLFW/glfw3.h>
-
 #include <format>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -20,17 +18,18 @@
 #include "game_level.hpp"
 #include "game_level_generator.hpp"
 #include "game_object.hpp"
+#include "input.hpp"
 #include "logging.hpp"
 #include "particle_emitter.hpp"
 #include "player.hpp"
 #include "powerup.hpp"
 #include "powerup_factory.hpp"
 #include "powerup_type.hpp"
-#include "render.hpp"
 #include "shader.hpp"
 #include "text_renderer.hpp"
 #include "texture_literals.hpp"
 #include "texture_manager.hpp"
+#include "timer.hpp"
 
 glm::vec2 Game::_lerpPos(GameObject &gameObject, float alpha) {
     return glm::mix(gameObject.getPreviousPosition(), gameObject.getPosition(), alpha);
@@ -104,6 +103,7 @@ void Game::init() {
 
     m_player = std::make_unique<Player>(m_context.textureManager->getTexture("player"), PLAYER_START_POSITION, PLAYER_DEFAULT_SIZE);
     m_player->setSpeed(30.0f);
+    m_player->setAABB({glm::vec2(0.0f), (PLAYER_DEFAULT_SIZE / 2.0f) + 0.05f});
 
     auto ball = std::make_unique<Ball>(m_context.textureManager->getTexture("ball"), glm::vec2(0.0f), BALL_DEFAULT_SIZE, *m_player);
     ball->setVelocity(INITIAL_BALL_VELOCITY);
@@ -138,7 +138,7 @@ void Game::init() {
 
     setProjectionMatrix();
 
-    m_renderer = std::make_unique<GameRenderer>(std::make_unique<SpriteRenderer>());
+    m_renderer = std::make_unique<GameRenderer>(std::make_unique<SpriteRenderer>(), m_spriteShader);
     m_renderer->setParticleShader(m_particleShader);
     m_renderer->addParticleEmitter(m_ballParticles);
     m_renderer->addParticleEmitter(m_collisionHitParticles);
@@ -175,50 +175,26 @@ void Game::init() {
 }
 
 void Game::processInput(float dt) {
-    if (currentState == GameState::Win) {
-        if (m_keys[GLFW_KEY_ENTER]) {
-            nextLevel();
-        }
+    if (currentState == GameState::Win && keys.isPressed(KEY_ENTER)) {
+        currentState = GameState::Active;
+        nextLevel();
     }
 
-    glm::vec2 velocity = m_player->getVelocity();
-    if (m_keys[GLFW_KEY_A]) {
-        velocity.x = -1.0f;
-    } else if (m_keys[GLFW_KEY_D]) {
-        velocity.x = 1.0f;
-    } else {
-        velocity.x = 0.0f;
+    if (currentState == GameState::Loose && keys.isPressed(KEY_ENTER)) {
+        currentState = GameState::Active;
+        restartCurrentLevel();
     }
-    m_player->setVelocity(velocity);
 
-    if (m_keys[GLFW_KEY_SPACE] && m_stuckBalls.size() > 0) {
+    if (currentState != GameState::Active) {
+        return;
+    }
+
+    m_player->input(keys);
+
+    if (keys.isPressed(KEY_SPACE) && m_stuckBalls.size() > 0) {
+        keys.unpress(KEY_SPACE);
         unstickBallFromPlayer(*m_stuckBalls.back());
-        m_keys[GLFW_KEY_SPACE] = false;
     }
-}
-
-void Game::pressKey(int key) {
-    if (key > MAX_KEY_CODE) {
-        logging::Error("Could not handled key with code: {}", key);
-        return;
-    }
-    m_keys[key] = true;
-}
-
-void Game::unpressKey(int key) {
-    if (key > MAX_KEY_CODE) {
-        logging::Error("Could not handled key with code: {}", key);
-        return;
-    }
-    m_keys[key] = false;
-}
-
-bool Game::isKeyPressed(int key) {
-    if (key > MAX_KEY_CODE) {
-        logging::Error("Could not handled key with code: {}", key);
-        return false;
-    }
-    return m_keys[key];
 }
 
 void Game::update(float dt) {
@@ -260,29 +236,28 @@ void Game::fixedUpdate(float dt) {
 void Game::render(float alpha) {
     if (currentState == GameState::Menu) return;
 
-    Shader *spriteShader = m_spriteShader.get();
-
-    m_renderer->submit({RenderLayer::Player, spriteShader, &m_player->getTexture(), _lerpPos(*m_player, alpha), m_player->getSize()});
+    m_renderer->submit(
+        {RenderLayer::Player, m_player->getShader(), &m_player->getTexture(), _lerpPos(*m_player, alpha), m_player->getSize()});
 
     for (const auto &brick : m_currentLevel.getBricks()) {
         if (!brick.isHidden()) {
             m_renderer->submit(
-                {RenderLayer::Brick, spriteShader, &brick.getTexture(), brick.getPosition(), brick.getSize(), 0.0f, brick.getColor()});
+                {RenderLayer::Brick, brick.getShader(), &brick.getTexture(), brick.getPosition(), brick.getSize(), 0.0f, brick.getColor()});
         }
     }
     for (auto &ball : m_balls) {
         m_renderer->submit(
-            {RenderLayer::Ball, spriteShader, &ball->getTexture(), _lerpPos(*ball, alpha), ball->getSize(), 0.0f, ball->getColor()});
+            {RenderLayer::Ball, ball->getShader(), &ball->getTexture(), _lerpPos(*ball, alpha), ball->getSize(), 0.0f, ball->getColor()});
     }
     for (auto &powerup : m_powerups) {
         if (!powerup.isHidden()) {
-            m_renderer->submit({RenderLayer::PowerUp, spriteShader, &powerup.getTexture(), _lerpPos(powerup, alpha), powerup.getSize(),
-                                0.0f, powerup.getColor()});
+            m_renderer->submit({RenderLayer::PowerUp, powerup.getShader(), &powerup.getTexture(), _lerpPos(powerup, alpha),
+                                powerup.getSize(), 0.0f, powerup.getColor()});
         }
     }
 
-    m_renderer->submit(
-        {RenderLayer::Background, spriteShader, &m_background->getTexture(), m_background->getPosition(), m_background->getSize()});
+    m_renderer->submit({RenderLayer::Background, m_background->getShader(), &m_background->getTexture(), m_background->getPosition(),
+                        m_background->getSize()});
 
     m_renderer->flush();
 }
@@ -324,7 +299,6 @@ void Game::nextLevel() {
     m_currentLevel = getLevel(++m_currentLevelNumber);
     m_powerups.clear();
     m_currentLevel.load();
-    currentState = GameState::Active;
 }
 
 GameLevel Game::getLevel(int lvlNumber) {
@@ -479,11 +453,10 @@ Game::~Game() {
 void Game::onBallFliedOff(const BallFliedOff &e) {
     if (&e.ball == m_heroBall) {
         if (currentState == GameState::Active && ++m_currentAttempt >= m_attempts) {
-            restartCurrentLevel();
+            currentState = GameState::Loose;
         } else {
             resetHeroBall();
         }
-        logging::LogSilent("Main ball");
     } else {
         e.ball.destroy();
     }
@@ -617,12 +590,12 @@ void Game::doCollisions() {
 }
 
 Task Game::animateName(float dt) {
-    while (std::sin(render::getTime()) > 0.0f) {
-        m_nameSize += dt * 0.01;
+    while (std::sin(timer::time()) > 0.0f) {
+        m_nameSize += dt * 0.01f;
         co_await std::suspend_always{};
     }
-    while (std::sin(render::getTime()) < 0.0f) {
-        m_nameSize -= dt * 0.01;
+    while (std::sin(timer::time()) < 0.0f) {
+        m_nameSize -= dt * 0.01f;
         co_await std::suspend_always{};
     }
 }

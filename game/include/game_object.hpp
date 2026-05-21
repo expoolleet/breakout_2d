@@ -2,6 +2,7 @@
 
 #include <glm/glm.hpp>
 
+#include "aabb.hpp"
 #include "collision_type.hpp"
 #include "object_2d.hpp"
 #include "texture_2d.hpp"
@@ -25,6 +26,7 @@ class GameObject : public Object2D {
     float m_accelerationAttenuation = 0.1f;
     float m_speed = 0.0f;
     GameObjectType m_type = GameObjectType::None;
+    AABB m_aabb;
 
    public:
     GameObject(const Texture2D &texture);
@@ -51,6 +53,9 @@ class GameObject : public Object2D {
 
     virtual void setColliding(bool flag);
     virtual bool isColliding() const noexcept;
+
+    virtual AABB getAABB() const noexcept;
+    virtual void setAABB(AABB aabb) noexcept;
 
     void setPosition(glm::vec2 position) override;
 

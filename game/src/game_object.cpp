@@ -6,7 +6,10 @@
 #include "collision_detection.hpp"
 #include "collision_type.hpp"
 
-GameObject::GameObject(const Texture2D &texture, glm::vec2 position, glm::vec2 size) : Object2D(texture, position, size) {}
+GameObject::GameObject(const Texture2D &texture, glm::vec2 position, glm::vec2 size) : Object2D(texture, position, size) {
+    m_aabb.halfSize = glm::vec2(getSize().x / 2, getSize().y / 2);
+    m_aabb.center = glm::vec2(getPosition().x + m_aabb.halfSize.x, getPosition().y + m_aabb.halfSize.y);
+}
 
 GameObject::GameObject(const Texture2D &texture) : Object2D(texture) {}
 
@@ -47,6 +50,7 @@ glm::vec2 GameObject::getPreviousPosition() {
 void GameObject::setPosition(glm::vec2 position) {
     m_previousPosition = m_position;
     m_position = position;
+    m_aabb.center = glm::vec2(m_position.x + m_aabb.halfSize.x, m_position.y + m_aabb.halfSize.y);
 }
 
 void GameObject::resetPosition(glm::vec2 position) {
@@ -76,4 +80,12 @@ void GameObject::setColliding(bool colliding) {
 
 bool GameObject::isColliding() const noexcept {
     return m_isColliding;
+}
+
+AABB GameObject::getAABB() const noexcept {
+    return m_aabb;
+}
+
+void GameObject::setAABB(AABB aabb) noexcept {
+    m_aabb = std::move(aabb);
 }

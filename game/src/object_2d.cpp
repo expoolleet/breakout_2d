@@ -3,16 +3,17 @@
 #include <cassert>
 #include <glm/glm.hpp>
 
-Object2D::Object2D(Texture2DRef texture, glm::vec2 position, glm::vec2 size) : m_position(position), m_size(size), m_texture(&texture) {
+Object2D::Object2D(Texture2DRef texture, glm::vec2 position, glm::vec2 size)
+    : m_shader(nullptr), m_texture(&texture), m_position(position), m_size(size) {
     assert(Texture != nullptr && "Texture address is null");
 }
 
-Object2D::Object2D(Texture2DRef texture) : m_texture(&texture) {
+Object2D::Object2D(Texture2DRef texture) : m_shader(nullptr), m_texture(&texture) {
     assert(Texture != nullptr && "Texture address is null");
 }
 
-ShaderRef Object2D::getShader() const noexcept {
-    return *m_shader;
+ShaderView Object2D::getShader() const noexcept {
+    return m_shader;
 }
 
 void Object2D::setShader(ShaderRef shader) {

@@ -7,6 +7,7 @@
 #include "game.hpp"
 #include "render.hpp"
 #include "shader_observer.hpp"
+#include "timer.hpp"
 #include "window.hpp"
 
 constexpr float FIXED_FRAMETIME = 1.0f / 100.0f;  // 100 Hz fixed update loop
@@ -19,9 +20,9 @@ NO_DESTROY_ATTR static Game game{3};
 
 void keyCallback(GLFWwindow *window, int key, int scanCode, int action, int mods) {
     if (action == GLFW_PRESS) {
-        game.pressKey(key);
+        game.keys.press(key);
     } else if (action == GLFW_RELEASE) {
-        game.unpressKey(key);
+        game.keys.unpress(key);
     }
 #ifdef _DEBUG
     if (key == GLFW_KEY_T && action == GLFW_PRESS) {
@@ -78,7 +79,7 @@ int main() {
     float lastTime = 0.0;
     float accumulation = 0.0;
     while (!render::windowShouldClose()) {
-        float currentTime = render::getTime();
+        float currentTime = timer::time();
         frameTime = currentTime - lastTime;
         lastTime = currentTime;
         frameTime = std::fmin(frameTime, MAX_FRAMETIME);

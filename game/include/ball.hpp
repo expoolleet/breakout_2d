@@ -7,8 +7,8 @@
 #include "player.hpp"
 #include "texture_2d.hpp"
 
-#define BALL_DEFAULT_SPEED 20.0f
-#define BALL_DEFAULT_SIZE glm::vec2(0.65f)
+constexpr float BALL_DEFAULT_SPEED = 20.0f;
+constexpr glm::vec2 BALL_DEFAULT_SIZE = glm::vec2(0.65f);
 
 class Ball : public GameObject {
    private:
@@ -46,3 +46,6 @@ class Ball : public GameObject {
 
     void setStuckLocalPosition(glm::vec2 stuckPosition);
 };
+
+using BallPtr = std::unique_ptr<Ball>;
+using BallView = Ball *;

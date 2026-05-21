@@ -22,7 +22,7 @@ class Object2D {
     Object2D(Object2D &&) noexcept = default;
     Object2D &operator=(Object2D &&) noexcept = default;
 
-    virtual ShaderRef getShader() const noexcept;
+    virtual ShaderView getShader() const noexcept;
     virtual void setShader(ShaderRef shader);
 
     virtual Texture2DRef getTexture() const noexcept;

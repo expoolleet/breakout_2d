@@ -1,8 +1,6 @@
 #pragma once
 #include <GLFW/glfw3.h>
 
-#include <string_view>
-
 #include "glad/glad.h"
 #include "logging.hpp"
 #include "render_type.hpp"
@@ -158,10 +156,6 @@ inline BufferObject resizeMultisamplingFrambuffer(BufferObject oldBuffer) {
         glDeleteTextures(1, &att);
     }
     return getMultisamlpingFramebuffer(oldBuffer.samples);
-}
-
-inline float getTime() {
-    return static_cast<float>(glfwGetTime());
 }
 
 inline void setWindowTitle(const std::string &title) {

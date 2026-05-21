@@ -19,7 +19,7 @@ class GameRenderer {
     void _bindShader(ShaderView shader);
 
    public:
-    GameRenderer(SpriteRendererPtr spriteRenderer);
+    GameRenderer(SpriteRendererPtr spriteRenderer, ShaderPtr shader);
 
     void submit(const SpriteCommand &command);
     void flush();

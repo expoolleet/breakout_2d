@@ -15,12 +15,12 @@
 #include "game_level.hpp"
 #include "game_object.hpp"
 #include "game_renderer.hpp"
+#include "input.hpp"
 #include "particle_emitter.hpp"
 #include "player.hpp"
 #include "powerup.hpp"
 #include "powerup_type.hpp"
 #include "shader.hpp"
-#include "sprite_renderer.hpp"
 #include "task.hpp"
 #include "text_renderer.hpp"
 
@@ -30,22 +30,17 @@ constexpr glm::vec2 PLAYER_DEFAULT_SIZE = glm::vec2(4.0f, 0.65f);
 constexpr glm::vec2 PLAYER_START_POSITION = glm::vec2(-PLAYER_DEFAULT_SIZE.x / 2.0f, -(core::getWorldHeight() / 2.0f) + 1.0f);
 constexpr int MAX_BALL_DAMAGE = 3;
 constexpr int MIN_BALL_DAMAGE = 1;
-constexpr int MAX_KEY_CODE = 512;
-
-using BallPtr = std::unique_ptr<Ball>;
-using BallView = Ball *;
 
 enum class GameState {
     None,
-    Active,
     Menu,
-    Win
+    Active,
+    Win,
+    Loose,
 };
 
 class Game {
    private:
-    bool m_keys[MAX_KEY_CODE] = {false};
-
     std::vector<GameLevel> m_levels;
     std::vector<PowerUp> m_powerups;
     std::vector<BallView> m_stuckBalls;
@@ -88,16 +83,14 @@ class Game {
     void _calcBallNewPositionAndVelocity(Ball &ball, CollisionDirection dir, glm::vec2 diffVector);
 
    public:
-    GameState currentState = GameState::None;
+    Keys keys;
+    GameState currentState;
 
     Game(int attempts);
     ~Game();
 
     void init();
     void processInput(float dt);
-    void pressKey(int key);
-    void unpressKey(int key);
-    bool isKeyPressed(int key);
     void update(float dt);
     void fixedUpdate(float dt);
     void render(float alpha);

@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 
 #include "game_object.hpp"
+#include "input.hpp"
 #include "texture_2d.hpp"
 
 class Player : public GameObject {
@@ -12,6 +13,8 @@ class Player : public GameObject {
 
    public:
     Player(Texture2DRef texture, glm::vec2 position, glm::vec2 size);
+
+    void input(const Keys &keys);
 
     void update(float dt) override;
     void fixedUpdate(float dt) override;
