@@ -17,7 +17,7 @@
 #include "render_type.hpp"
 #include "shader.hpp"
 
-TextRenderer::TextRenderer(const char *pathToFonts) : m_pathToFonts(pathToFonts) {}
+TextRenderer::TextRenderer(const std::string &pathToFonts) : m_pathToFonts(pathToFonts) {}
 
 void TextRenderer::_renderText(const std::vector<TextVertex> &vertices) {
     if (vertices.empty()) {

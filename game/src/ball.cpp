@@ -4,19 +4,17 @@
 
 #include "collision_detection.hpp"
 #include "collision_type.hpp"
-#include "engine_context.hpp"
 #include "event_type.hpp"
 #include "game_core.hpp"
 #include "game_object.hpp"
 #include "player.hpp"
 #include "texture_2d.hpp"
 
-Ball::Ball(const Texture2D &texture, glm::vec2 position, glm::vec2 size, const Player &player)
-    : GameObject(texture, position, size), m_player(&player) {
+Ball::Ball(ContextPtr context, Texture2DPtr texture, glm::vec2 position, glm::vec2 size) : GameObject(context, texture, position, size) {
     m_type = GameObjectType::Ball;
 }
 
-Ball::Ball(const Texture2D &texture) : GameObject(texture) {
+Ball::Ball(ContextPtr context, Texture2DPtr texture) : GameObject(context, texture) {
     m_type = GameObjectType::Ball;
 }
 
@@ -35,7 +33,7 @@ void Ball::fixedUpdate(float dt) {
     float rightSide = worldAABB.z;
     float topSide = worldAABB.w;
     if (m_position.y <= bottomSide) {
-        Context::get().eventDispatcher->emit(BallFliedOff{*this});
+        m_ctx->eventDispatcher->emit(BallFliedOff{this});
         return;
     }
     if (m_position.x > leftSide && m_position.x + m_size.x < rightSide && m_position.y + m_size.y < topSide)
@@ -51,7 +49,7 @@ void Ball::fixedUpdate(float dt) {
             m_position.y = topSide - m_size.y;
             m_velocity.y = -m_velocity.y;
         }
-        Context::get().eventDispatcher->emit(BallHit{*this, m_position, CollisionType::Obstacle});
+        m_ctx->eventDispatcher->emit(BallHit{this, m_position, CollisionType::Obstacle});
     }
 }
 
@@ -68,10 +66,6 @@ Collision Ball::checkCollision(GameObject &gameObject) {
         setVelocity(glm::normalize(newVelocity) * glm::length(getVelocity()));
     }
     return collision;
-}
-
-void Ball::assignPlayer(const Player &player) {
-    m_player = &player;
 }
 
 void Ball::reset() {
@@ -112,4 +106,9 @@ void Ball::setBounceVelocity(glm::vec2 velocity) {
 
 void Ball::setStuckLocalPosition(glm::vec2 stuckPosition) {
     m_stuckPosition = stuckPosition;
+}
+
+void Ball::setPlayer(PlayerPtr player) {
+    assert(player && "Player pointer is null!");
+    m_player = player;
 }

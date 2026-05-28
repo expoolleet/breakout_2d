@@ -13,8 +13,8 @@ class PowerUp : public GameObject {
     float m_duration = 0.0f;
 
    public:
-    PowerUp(PowerUpType type, glm::vec4 color, float duration, const Texture2D &texture, glm::vec2 position, glm::vec2 size);
-    PowerUp();
+    PowerUp(ContextPtr context, Texture2DPtr texture, PowerUpType type, glm::vec4 color, float duration, glm::vec2 position,
+            glm::vec2 size);
 
     void update(float dt) override;
     void fixedUpdate(float dt) override;
@@ -25,3 +25,5 @@ class PowerUp : public GameObject {
     void activate();
     PowerUpType getType() const;
 };
+
+using PowerUpPtr = observer_ptr<PowerUp>;

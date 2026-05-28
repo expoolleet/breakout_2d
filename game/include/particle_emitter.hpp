@@ -15,7 +15,7 @@
 class ParticleEmitter {
    private:
     std::vector<Particle> m_particlePool = {};
-    const Texture2D *m_texture = nullptr;
+    Texture2DPtr m_texture;
     bool m_initialized = false;
     bool m_gravityEnabled = false;
     bool m_emitWhenStanding = false;
@@ -36,7 +36,7 @@ class ParticleEmitter {
     void _fillPool();
 
    public:
-    ParticleEmitter(const Texture2D &texture, int count);
+    ParticleEmitter(Texture2DPtr texture, int count);
     ~ParticleEmitter() = default;
     void init();
     void prepare(GameObject &gameObject, int newParticles, glm::vec2 offset = glm::vec2(0.0f), bool overrideColor = false);
@@ -69,4 +69,4 @@ class ParticleEmitter {
     void setParticleColor(glm::vec4 color);
 };
 
-using ParticleEmitterPtr = std::shared_ptr<ParticleEmitter>;
+using ParticleEmitterPtr = observer_ptr<ParticleEmitter>;

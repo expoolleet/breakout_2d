@@ -1,12 +1,14 @@
 #pragma once
 
-constexpr std::string DEFAULT_TEXTURE = "default";
+namespace texture_literals {
+inline constexpr std::string_view DEFAULT_TEXTURE = "default";
 
-constexpr std::string BALL_TEXTURE = "ball";
-constexpr std::string PLAYER_TEXTURE = "player";
-constexpr std::string BACKGROUND_TEXTURE = "background";
+inline constexpr std::string_view BALL_TEXTURE = "ball";
+inline constexpr std::string_view PLAYER_TEXTURE = "player";
+inline constexpr std::string_view BACKGROUND_TEXTURE = "background";
 
-constexpr std::string BRICK_TEXTURE = "brick";
-constexpr std::string MEDIUM_BRICK_TEXTURE = "medium_brick";
-constexpr std::string HARD_BRICK_TEXTURE = "hard_brick";
-constexpr std::string BADROCK_TEXTURE = "badrock";
+inline constexpr std::string_view BRICK_TEXTURE = "brick";
+inline constexpr std::string_view MEDIUM_BRICK_TEXTURE = "medium_brick";
+inline constexpr std::string_view HARD_BRICK_TEXTURE = "hard_brick";
+inline constexpr std::string_view BADROCK_TEXTURE = "badrock";
+}  // namespace texture_literals

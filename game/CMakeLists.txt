@@ -38,6 +38,7 @@ set(Sources
     src/fps_counter.cpp
     src/object_2d.cpp
     src/background.cpp
+    src/object_manager.cpp
 )
 
 add_executable(${Project}

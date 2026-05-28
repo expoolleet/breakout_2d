@@ -94,7 +94,7 @@ class TextRenderer {
     glm::mat4 &_getProjectionMat() noexcept;
 
    public:
-    TextRenderer(const char *pathToFonts);
+    TextRenderer(const std::string &pathToFonts);
     ~TextRenderer();
 
     bool updateProjectionMat = true;
@@ -107,3 +107,5 @@ class TextRenderer {
                     bool bold = false, OutlineData outlineData = {});
     void setCharLimit(unsigned int limit);
 };
+
+using TextRendererPtr = observer_ptr<TextRenderer>;

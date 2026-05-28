@@ -18,26 +18,26 @@ enum class RenderLayer {
 
 struct SpriteCommand {
     RenderLayer layer;
-    Shader *shader;
-    const Texture2D *texture;
+    ShaderPtr shader;
+    Texture2DPtr texture;
     glm::vec2 position;
     glm::vec2 size;
     float rotation;
     glm::vec4 color;
 
-    SpriteCommand(RenderLayer l, Shader *sh, const Texture2D *tex)
+    SpriteCommand(RenderLayer l, ShaderPtr sh, Texture2DPtr tex)
         : layer(l), shader(sh), texture(tex), position(glm::vec2(0.0f)), size(glm::vec2(1.0f)), rotation(0.0f), color(glm::vec4(1.0f)) {}
 
-    SpriteCommand(RenderLayer l, Shader *sh, const Texture2D *tex, glm::vec2 pos)
+    SpriteCommand(RenderLayer l, ShaderPtr sh, Texture2DPtr tex, glm::vec2 pos)
         : layer(l), shader(sh), texture(tex), position(pos), size(glm::vec2(1.0f)), rotation(0.0f), color(glm::vec4(1.0f)) {}
 
-    SpriteCommand(RenderLayer l, Shader *sh, const Texture2D *tex, glm::vec2 pos, glm::vec2 s)
+    SpriteCommand(RenderLayer l, ShaderPtr sh, Texture2DPtr tex, glm::vec2 pos, glm::vec2 s)
         : layer(l), shader(sh), texture(tex), position(pos), size(s), rotation(0.0f), color(glm::vec4(1.0f)) {}
 
-    SpriteCommand(RenderLayer l, Shader *sh, const Texture2D *tex, glm::vec2 pos, glm::vec2 s, float r)
+    SpriteCommand(RenderLayer l, ShaderPtr sh, Texture2DPtr tex, glm::vec2 pos, glm::vec2 s, float r)
         : layer(l), shader(sh), texture(tex), position(pos), size(s), rotation(r), color(glm::vec4(1.0f)) {}
 
-    SpriteCommand(RenderLayer l, Shader *sh, const Texture2D *tex, glm::vec2 pos, glm::vec2 s, float r, glm::vec4 col)
+    SpriteCommand(RenderLayer l, ShaderPtr sh, Texture2DPtr tex, glm::vec2 pos, glm::vec2 s, float r, glm::vec4 col)
         : layer(l), shader(sh), texture(tex), position(pos), size(s), rotation(r), color(col) {}
 };
 

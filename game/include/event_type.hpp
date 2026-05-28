@@ -7,19 +7,19 @@
 #include "powerup_type.hpp"
 
 struct BallFliedOff {
-    Ball &ball;
+    BallPtr ball;
 };
 
 struct BallUnstuck {
-    Ball &ball;
+    BallPtr ball;
 };
 
 struct BallStuck {
-    Ball &ball;
+    BallPtr ball;
 };
 
 struct BallHit {
-    Ball &ball;
+    BallPtr ball;
     glm::vec2 position;
     CollisionType collisionType;
 };

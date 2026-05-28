@@ -6,13 +6,13 @@
 #include <string>
 
 #include "custom_attributes.hpp"
-#include "engine_context.hpp"
 
 #ifdef _DEBUG
-#define ERRCHECK(result)
-if (result != FMOD_OK) {
-    std::cerr << "FMOD Error: " << FMOD_ErrorString(result) << std::endl;
-}
+#define ERRCHECK(result)                                                      \
+    if (result != FMOD_OK) {                                                  \
+        std::cerr << "FMOD Error: " << FMOD_ErrorString(result) << std::endl; \
+    }
+
 #else
 #define ERRCHECK(result) (result)
 #endif
@@ -23,6 +23,7 @@ void AudioManager::_saveEvent(const std::string &eventPath) {
     ERRCHECK(m_system->getEvent(eventPath.c_str(), &eventDesc));
     m_loadedEventDesc[eventPath] = eventDesc;
 }
+AudioManager::AudioManager(PathManagerPtr pathManager) : m_pathManager(pathManager) {}
 
 AudioManager::~AudioManager() noexcept {
     ERRCHECK(m_system->release());
@@ -36,7 +37,7 @@ void AudioManager::init() {
 void AudioManager::loadBank(const std::string &name) {
     FMOD::Studio::Bank *mainBank = nullptr;
     FMOD::Studio::Bank *stringsBank = nullptr;
-    std::string bankPath = Context::get().pathManager->getResourcePath("fmod/" + name);
+    std::string bankPath = m_pathManager->getResourcePath("fmod/" + name);
     ERRCHECK(m_system->loadBankFile((bankPath + "/" + name + ".bank").c_str(), FMOD_STUDIO_LOAD_BANK_NORMAL, &mainBank));
     ERRCHECK(m_system->loadBankFile((bankPath + "/" + name + ".strings.bank").c_str(), FMOD_STUDIO_LOAD_BANK_NORMAL, &stringsBank));
 }

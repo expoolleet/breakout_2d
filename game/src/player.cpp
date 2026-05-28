@@ -7,7 +7,8 @@
 #include "input.hpp"
 #include "texture_2d.hpp"
 
-Player::Player(const Texture2D &texture, glm::vec2 position, glm::vec2 size) : GameObject(texture, position, size) {
+Player::Player(ContextPtr context, Texture2DPtr texture, glm::vec2 position, glm::vec2 size)
+    : GameObject(context, texture, position, size) {
     m_type = GameObjectType::Player;
 }
 

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "observer_ptr.hpp"
 class Texture2D {
    private:
     unsigned int m_ID = 0;
@@ -9,7 +10,10 @@ class Texture2D {
     unsigned int m_internalFormat = 0;
 
    public:
-    Texture2D();
+    Texture2D() = default;
+
+    bool operator==(const Texture2D &other) const noexcept;
+
     void bind() const;
     unsigned int getImageFormat() const noexcept;
     unsigned int getWidth() const noexcept;
@@ -18,5 +22,4 @@ class Texture2D {
     void generate(unsigned int width, unsigned int height, bool alpha, unsigned char *data);
 };
 
-using Texture2DView = const Texture2D *;
-using Texture2DRef = const Texture2D &;
+using Texture2DPtr = observer_ptr<Texture2D>;

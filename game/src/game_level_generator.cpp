@@ -2,6 +2,8 @@
 
 #include "fast_random.hpp"
 
+GameLevelGenerator::GameLevelGenerator(GameLevelCreateInfo createInfo) : m_levelCreateInfo(createInfo) {}
+
 GameLevel GameLevelGenerator::generate(int levelWidth, int levelHeight) {
     assert(levelWidth > 0 && levelHeight > 0);
     LevelTiles tiles;
@@ -20,5 +22,5 @@ GameLevel GameLevelGenerator::generate(int levelWidth, int levelHeight) {
         }
         tiles.push_back(row);
     }
-    return GameLevel{tiles};
+    return GameLevel{m_levelCreateInfo, tiles};
 }

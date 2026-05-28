@@ -4,24 +4,32 @@
 #include <vector>
 
 #include "brick.hpp"
+#include "object_manager.hpp"
+#include "powerup_factory.hpp"
 
 using LevelTiles = std::vector<std::vector<int>>;
 
+struct GameLevelCreateInfo {
+    ContextPtr contextPtr;
+    ObjectManagerPtr objectManagerPtr;
+    PowerUpFactoryPtr powerUpFactoryPtr;
+};
+
 class GameLevel {
    private:
-    std::vector<Brick> m_bricks;
-    glm::vec2 m_position;
+    ContextPtr m_ctx;
+    ObjectManagerPtr m_objectManager;
+    PowerUpFactoryPtr m_powerupFactory;
+    std::vector<BrickPtr> m_bricks;
     LevelTiles m_tiles;
     int m_width = 0;
     int m_height = 0;
-    bool m_isLoaded = false;
+    bool m_loaded = false;
 
    public:
-    static GameLevel DefaultLevel;
-
     GameLevel() = default;
-    GameLevel(const std::string &levelPath);
-    GameLevel(LevelTiles tiles);
+    GameLevel(GameLevelCreateInfo createInfo, const std::string &levelPath);
+    GameLevel(GameLevelCreateInfo createInfo, LevelTiles tiles);
     ~GameLevel() noexcept;
     GameLevel &operator=(const GameLevel &) noexcept = default;
     GameLevel(const GameLevel &) noexcept = default;
@@ -33,7 +41,6 @@ class GameLevel {
     int getWidth() const noexcept;
     int getHeight() const noexcept;
     void setBrickPowerUp(size_t idx, PowerUpType type);
-    void setBricks(std::vector<Brick> bricks);
-    const std::vector<Brick> &getBricks() const & noexcept;
-    std::vector<Brick> &getBricks() & noexcept;
+    void setRandomBrickPowerUp(PowerUpType type);
+    std::vector<BrickPtr> &getBricks() noexcept;
 };

@@ -6,12 +6,13 @@
 #include "collision_detection.hpp"
 #include "collision_type.hpp"
 
-GameObject::GameObject(const Texture2D &texture, glm::vec2 position, glm::vec2 size) : Object2D(texture, position, size) {
+GameObject::GameObject(ContextPtr context, Texture2DPtr texture, glm::vec2 position, glm::vec2 size)
+    : Object2D(context, texture, position, size) {
     m_aabb.halfSize = glm::vec2(getSize().x / 2, getSize().y / 2);
     m_aabb.center = glm::vec2(getPosition().x + m_aabb.halfSize.x, getPosition().y + m_aabb.halfSize.y);
 }
 
-GameObject::GameObject(const Texture2D &texture) : Object2D(texture) {}
+GameObject::GameObject(ContextPtr context, Texture2DPtr texture) : Object2D(context, texture) {}
 
 Collision GameObject::checkCollision(GameObject &gameObject) {
     return cd::NoneCollision;
@@ -25,22 +26,8 @@ bool GameObject::isDestroyable() const noexcept {
     return m_isDestroyable;
 }
 
-bool GameObject::isDead() const noexcept {
-    return m_isDead;
-}
-
 void GameObject::setDestructibility(bool destroyable) noexcept {
     m_isDestroyable = destroyable;
-}
-
-void GameObject::destroy() noexcept {
-    m_isDead = true;
-    m_isHidden = true;
-}
-
-void GameObject::reset() {
-    m_isDead = false;
-    m_isHidden = false;
 }
 
 glm::vec2 GameObject::getPreviousPosition() {

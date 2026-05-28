@@ -1,7 +1,5 @@
 #pragma once
 
-#include <memory>
-
 #include "particle_emitter.hpp"
 #include "render_queue.hpp"
 #include "shader.hpp"
@@ -14,9 +12,9 @@ class GameRenderer {
     ShaderPtr m_spriteShader;
     ShaderPtr m_particleShader;
     RenderQueue m_renderQueue;
-    ShaderView m_activeShader = nullptr;
+    ShaderPtr m_activeShader;
 
-    void _bindShader(ShaderView shader);
+    void _bindShader(ShaderPtr shader);
 
    public:
     GameRenderer(SpriteRendererPtr spriteRenderer, ShaderPtr shader);
@@ -26,3 +24,5 @@ class GameRenderer {
     void setParticleShader(ShaderPtr shader);
     void addParticleEmitter(ParticleEmitterPtr emitter);
 };
+
+using GameRendererPtr = observer_ptr<GameRenderer>;

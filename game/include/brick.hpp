@@ -18,7 +18,7 @@ class Brick : public GameObject {
     PowerUpType m_powerUp = PowerUpType::None;
 
    public:
-    Brick(Texture2DRef texture, glm::vec2 position, glm::vec2 size, BrickType type);
+    Brick(ContextPtr context, Texture2DPtr texture, glm::vec2 position, glm::vec2 size, BrickType type);
     void update(float dt) override;
     void fixedUpdate(float dt) override;
     Collision checkCollision(GameObject &gameObject) override;
@@ -32,3 +32,5 @@ class Brick : public GameObject {
     void doHeal(unsigned int heal);
     void reset() override;
 };
+
+using BrickPtr = observer_ptr<Brick>;

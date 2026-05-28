@@ -12,6 +12,7 @@ struct Task {
     };
 
     std::coroutine_handle<promise_type> handle = nullptr;
+
     Task(std::coroutine_handle<promise_type> h);
     ~Task() noexcept;
 
@@ -20,4 +21,7 @@ struct Task {
 
     Task(Task &&) noexcept;
     Task &operator=(Task &&) noexcept;
+
+    bool isDone() const;
+    void resume() const;
 };

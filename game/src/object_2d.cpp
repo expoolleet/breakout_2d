@@ -3,29 +3,31 @@
 #include <cassert>
 #include <glm/glm.hpp>
 
-Object2D::Object2D(Texture2DRef texture, glm::vec2 position, glm::vec2 size)
-    : m_shader(nullptr), m_texture(&texture), m_position(position), m_size(size) {
-    assert(Texture != nullptr && "Texture address is null");
+Object2D::Object2D(ContextPtr context, Texture2DPtr texture, glm::vec2 position, glm::vec2 size)
+    : m_ctx(context), m_shader(nullptr), m_texture(texture), m_position(position), m_size(size) {
+    assert(texture != nullptr && "Texture address is null");
 }
 
-Object2D::Object2D(Texture2DRef texture) : m_shader(nullptr), m_texture(&texture) {
-    assert(Texture != nullptr && "Texture address is null");
+Object2D::Object2D(ContextPtr context, Texture2DPtr texture) : m_ctx(context), m_shader(nullptr), m_texture(texture) {
+    assert(texture != nullptr && "Texture address is null");
 }
 
-ShaderView Object2D::getShader() const noexcept {
+ShaderPtr Object2D::getShader() const noexcept {
     return m_shader;
 }
 
-void Object2D::setShader(ShaderRef shader) {
-    m_shader = &shader;
+void Object2D::setShader(ShaderPtr shader) {
+    assert(shader != nullptr && "Shader pointer is null!");
+    m_shader = shader;
 }
 
-Texture2DRef Object2D::getTexture() const noexcept {
-    return *m_texture;
+Texture2DPtr Object2D::getTexture() const noexcept {
+    return m_texture;
 }
 
-void Object2D::setTexture(Texture2DRef texture) {
-    m_texture = &texture;
+void Object2D::setTexture(Texture2DPtr texture) {
+    assert(texture != nullptr && "Texture pointer is null!");
+    m_texture = texture;
 }
 
 bool Object2D::isHidden() const noexcept {
@@ -58,4 +60,18 @@ void Object2D::setColor(glm::vec4 color) {
 
 glm::vec4 Object2D::getColor() const noexcept {
     return m_color;
+}
+
+bool Object2D::isAlive() const noexcept {
+    return m_isAlive;
+}
+
+void Object2D::destroy() noexcept {
+    m_isAlive = true;
+    m_isHidden = true;
+}
+
+void Object2D::reset() {
+    m_isAlive = false;
+    m_isHidden = false;
 }

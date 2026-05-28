@@ -4,6 +4,8 @@
 #include <string>
 #include <string_view>
 
+#include "observer_ptr.hpp"
+
 namespace fs = std::filesystem;
 
 class PathManager {
@@ -16,3 +18,5 @@ class PathManager {
     std::string getRootPath();
     std::string getResourcePath(std::string_view relativePath);
 };
+
+using PathManagerPtr = observer_ptr<PathManager>;

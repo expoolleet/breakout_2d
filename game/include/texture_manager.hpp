@@ -6,6 +6,7 @@
 #include <unordered_map>
 
 #include "custom_attributes.hpp"
+#include "path_manager.hpp"
 #include "string_operators.hpp"
 #include "texture_2d.hpp"
 
@@ -13,12 +14,15 @@ class TextureManager {
    private:
     std::unordered_map<std::string, std::unique_ptr<Texture2D>, string_hash, string_view_equal> m_textures;
     bool m_isDefaultTextureLoaded = false;
+    PathManagerPtr m_pathManager;
 
-    const Texture2D &_getDefaultTexture();
+    Texture2DPtr _getDefaultTexture();
 
    public:
-    TextureManager() = default;
+    TextureManager(PathManagerPtr pathManager);
     ~TextureManager();
-    void loadTexture(std::string path, bool alpha, std::string name);
-    const Texture2D &getTexture(std::string_view name);
+    void loadTexture(const std::string &path, bool alpha, std::string_view name);
+    Texture2DPtr getTexture(std::string_view name);
 };
+
+using TextureManagerPtr = std::unique_ptr<TextureManager>;

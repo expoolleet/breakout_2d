@@ -14,7 +14,7 @@ class SpriteRenderer {
    public:
     SpriteRenderer();
     ~SpriteRenderer() noexcept;
-    void drawSprite(Shader &shader, const Texture2D &texture, glm::vec2 position, glm::vec2 size, float rotate, glm::vec4 color);
+    void drawSprite(ShaderPtr shader, Texture2DPtr texture, glm::vec2 position, glm::vec2 size, float rotate, glm::vec4 color);
 };
 
-using SpriteRendererPtr = std::unique_ptr<SpriteRenderer>;
+using SpriteRendererPtr = observer_ptr<SpriteRenderer>;

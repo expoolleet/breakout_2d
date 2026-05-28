@@ -9,9 +9,10 @@
 #include "collision_detection.hpp"
 #include "collision_type.hpp"
 #include "game_object.hpp"
+#include "powerup_data.hpp"
 
-Brick::Brick(const Texture2D &texture, glm::vec2 position, glm::vec2 size, BrickType type)
-    : GameObject(texture, position, size), m_brickType(type) {
+Brick::Brick(ContextPtr context, Texture2DPtr texture, glm::vec2 position, glm::vec2 size, BrickType type)
+    : GameObject(context, texture, position, size), m_brickType(type) {
     BrickData data = getBrickData(type);
     setDestructibility(data.isDestroyable);
     setColor(data.color);
@@ -70,8 +71,5 @@ PowerUpType Brick::getPowerUpType() const noexcept {
 }
 
 void Brick::setPowerUpType(PowerUpType type) {
-    PowerUpData data = ::getPowerUpData(type);
-    setColor(data.color);
-    m_texture = &data.texture;
     m_powerUp = type;
 }

@@ -51,6 +51,10 @@ inline void initAPI() {
     }
 }
 
+inline void setUserPointer(void *ptr) {
+    glfwSetWindowUserPointer(window, ptr);
+}
+
 inline void setFrameBufferSizeCallback(auto &&cb) {
     glfwSetFramebufferSizeCallback(window, cb);
 }

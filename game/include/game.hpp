@@ -13,9 +13,11 @@
 #include "event_type.hpp"
 #include "game_core.hpp"
 #include "game_level.hpp"
+#include "game_level_generator.hpp"
 #include "game_object.hpp"
 #include "game_renderer.hpp"
 #include "input.hpp"
+#include "object_manager.hpp"
 #include "particle_emitter.hpp"
 #include "player.hpp"
 #include "powerup.hpp"
@@ -24,12 +26,30 @@
 #include "task.hpp"
 #include "text_renderer.hpp"
 
-constexpr std::string GAME_NAME = "BRAKEOUT 2D";
+constexpr std::string_view GAME_NAME = "BRAKEOUT 2D";
 constexpr glm::vec2 INITIAL_BALL_VELOCITY = glm::vec2(0.0f, 1.0f);
 constexpr glm::vec2 PLAYER_DEFAULT_SIZE = glm::vec2(4.0f, 0.65f);
 constexpr glm::vec2 PLAYER_START_POSITION = glm::vec2(-PLAYER_DEFAULT_SIZE.x / 2.0f, -(core::getWorldHeight() / 2.0f) + 1.0f);
 constexpr int MAX_BALL_DAMAGE = 3;
 constexpr int MIN_BALL_DAMAGE = 1;
+
+struct GameCreateInfo {
+    ContextPtr contextPtr;
+
+    ShaderPtr spriteShaderPtr;
+    ShaderPtr textShaderPtr;
+    ShaderPtr particleShaderPtr;
+
+    GameRendererPtr gameRendererPtr;
+    TextRendererPtr textRendererPtr;
+
+    ParticleEmitterPtr ballParticleEmitterPtr;
+    ParticleEmitterPtr collisionHitParticleEmitterPtr;
+
+    ObjectManagerPtr objectManagerPtr;
+
+    int gameAttempts;
+};
 
 enum class GameState {
     None,
@@ -42,30 +62,39 @@ enum class GameState {
 class Game {
    private:
     std::vector<GameLevel> m_levels;
-    std::vector<PowerUp> m_powerups;
-    std::vector<BallView> m_stuckBalls;
+    std::vector<PowerUpPtr> m_powerups;
+    std::vector<BallPtr> m_stuckBalls;
     std::vector<BallPtr> m_balls;
     std::vector<BallPtr> m_queueBalls;
     std::vector<glm::vec2> m_collisionPointHistory;
 
-    std::shared_ptr<Shader> m_spriteShader;
-    std::shared_ptr<Shader> m_textShader;
-    std::shared_ptr<Shader> m_particleShader;
+    ShaderPtr m_spriteShader;
+    ShaderPtr m_textShader;
+    ShaderPtr m_particleShader;
 
-    std::unique_ptr<Player> m_player;
-    std::unique_ptr<Background> m_background;
-    std::unique_ptr<GameRenderer> m_renderer;
-    std::unique_ptr<TextRenderer> m_textRenderer;
-    std::shared_ptr<ParticleEmitter> m_ballParticles;
-    std::shared_ptr<ParticleEmitter> m_collisionHitParticles;
+    BallPtr m_heroBall;
+
+    PlayerPtr m_player;
+
+    ContextPtr m_context;
+
+    ObjectManagerPtr m_objectManager;
+
+    std::unique_ptr<PowerUpFactory> m_powerUpFactory;
+    std::unique_ptr<GameLevelGenerator> m_levelGenerator;
+
+    GameRendererPtr m_renderer;
+    TextRendererPtr m_textRenderer;
+    ParticleEmitterPtr m_ballParticleEmitter;
+    ParticleEmitterPtr m_collisionHitParticleEmitter;
+
+    Background m_background;
 
     GameLevel m_currentLevel;
 
-    Ball *m_heroBall = nullptr;  // observer pointer
-
-    int m_currentLevelNumber = 0;
-    int m_attempts = 0;
+    int m_attempts;
     int m_currentAttempt = 0;
+    int m_currentLevelNumber = 0;
     int m_ballTrailParticlesPerFrame = 2;
     int m_collisionParticlesPerFrame = 30;
 
@@ -77,8 +106,6 @@ class Game {
 
     float m_nameSize = 0.07f;
 
-    Context &m_context;
-
     glm::vec2 _lerpPos(GameObject &gameObject, float alpha);
     void _calcBallNewPositionAndVelocity(Ball &ball, CollisionDirection dir, glm::vec2 diffVector);
 
@@ -86,8 +113,13 @@ class Game {
     Keys keys;
     GameState currentState;
 
-    Game(int attempts);
+    Game(GameCreateInfo createInfo);
     ~Game();
+
+    Game(const Game &) = delete;
+    Game &operator=(const Game &) = delete;
+    Game(Game &&) = delete;
+    Game &operator=(Game &&) = delete;
 
     void init();
     void processInput(float dt);
@@ -99,7 +131,7 @@ class Game {
     void nextLevel();
     void restartCurrentLevel();
     void resetHeroBall();
-    void resetBallPosition(Ball &ball);
+    void resetBallPosition(BallPtr ball);
     void resetPlayer();
     void setProjectionMatrix();
     void cleanDestroyedBalls();
@@ -109,12 +141,12 @@ class Game {
     void updatePowerUps(float dt);
     void cleanupPowerUps();
     void repositionStuckBallsOnPlayer();
-    void stickBallToPlayer(Ball &ball);
-    void unstickBallFromPlayer(Ball &ball);
+    void stickBallToPlayer(BallPtr ball);
+    void unstickBallFromPlayer(BallPtr ball);
     void clearStuckBallsExceptHeroBall();
 
     GameLevel getLevel(int lvlNumber);
-    std::vector<std::unique_ptr<Ball>> &getBalls();
+    std::vector<BallPtr> &getBalls();
 
     // handlers
     void onBallFliedOff(const BallFliedOff &e);

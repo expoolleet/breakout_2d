@@ -41,7 +41,7 @@ void ParticleEmitter::_fillPool() {
     }
 }
 
-ParticleEmitter::ParticleEmitter(const Texture2D &texture, int count) : m_texture(&texture), m_particleCount(count) {}
+ParticleEmitter::ParticleEmitter(Texture2DPtr texture, int count) : m_texture(texture), m_particleCount(count) {}
 
 void ParticleEmitter::init() {
     if (m_initialized) return;

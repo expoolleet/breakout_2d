@@ -12,7 +12,7 @@ class Player : public GameObject {
     bool m_sticky = false;
 
    public:
-    Player(Texture2DRef texture, glm::vec2 position, glm::vec2 size);
+    Player(ContextPtr context, Texture2DPtr texture, glm::vec2 position, glm::vec2 size);
 
     void input(const Keys &keys);
 
@@ -26,5 +26,4 @@ class Player : public GameObject {
     void setStickness(bool state) noexcept;
 };
 
-using PlayerView = const Player *;
-using PlayerRef = const Player &;
+using PlayerPtr = observer_ptr<Player>;

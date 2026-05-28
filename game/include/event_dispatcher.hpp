@@ -22,3 +22,5 @@ class EventDispatcher {
 
     void clear();
 };
+
+using EventDispatcherPtr = std::unique_ptr<EventDispatcher>;

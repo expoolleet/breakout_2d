@@ -1,32 +1,37 @@
 #pragma once
 
+#include "engine_context.hpp"
 #include "shader.hpp"
 #include "texture_2d.hpp"
 
 class Object2D {
    protected:
-    ShaderView m_shader = nullptr;
-    Texture2DView m_texture = nullptr;
+    ContextPtr m_ctx;
+    ShaderPtr m_shader;
+    Texture2DPtr m_texture;
+
     glm::vec2 m_position = glm::vec3(0.0f);
     glm::vec2 m_size = glm::vec3(0.0f);
     glm::vec4 m_color = glm::vec4(1.0f);
+
     bool m_isHidden = false;
+    bool m_isAlive = false;
 
    public:
-    Object2D(Texture2DRef texture);
-    Object2D(Texture2DRef texture, glm::vec2 position, glm::vec2 size);
+    Object2D(ContextPtr context, Texture2DPtr texture);
+    Object2D(ContextPtr context, Texture2DPtr texture, glm::vec2 position, glm::vec2 size);
 
     virtual ~Object2D() = default;
-    Object2D(const Object2D &) noexcept = default;
-    Object2D &operator=(const Object2D &) noexcept = default;
+    Object2D(const Object2D &) = default;
+    Object2D &operator=(const Object2D &) = default;
     Object2D(Object2D &&) noexcept = default;
-    Object2D &operator=(Object2D &&) noexcept = default;
+    Object2D &operator=(Object2D &&) = default;
 
-    virtual ShaderView getShader() const noexcept;
-    virtual void setShader(ShaderRef shader);
+    virtual ShaderPtr getShader() const noexcept;
+    virtual void setShader(ShaderPtr shader);
 
-    virtual Texture2DRef getTexture() const noexcept;
-    virtual void setTexture(Texture2DRef texture);
+    virtual Texture2DPtr getTexture() const noexcept;
+    virtual void setTexture(Texture2DPtr texture);
 
     virtual glm::vec2 getPosition() const;
     virtual void setPosition(glm::vec2 position);
@@ -39,4 +44,12 @@ class Object2D {
 
     virtual bool isHidden() const noexcept;
     virtual void hide(bool state) noexcept;
+
+    virtual bool isAlive() const noexcept;
+
+    virtual void destroy() noexcept;
+
+    virtual void reset();
 };
+
+using Object2DPtr = observer_ptr<Object2D>;

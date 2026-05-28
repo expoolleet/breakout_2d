@@ -6,6 +6,8 @@
 #include <unordered_map>
 #include <variant>
 
+#include "observer_ptr.hpp"
+#include "shader_observer.hpp"
 #include "string_operators.hpp"
 
 using UniformValue = std::variant<int, bool, float, glm::vec2, glm::vec3, glm::vec4, glm::mat3, glm::mat4>;
@@ -19,11 +21,14 @@ class Shader {
    public:
     Shader() = default;
     ~Shader() noexcept;
-    Shader(std::string vsPath, std::string fsPath);
-    Shader(std::string vsPath, std::string fsPath, std::string gsPath);
+    Shader(std::string vsPath, std::string fsPath, ShaderObserverPtr observer);
+    Shader(std::string vsPath, std::string fsPath, std::string gsPath, ShaderObserverPtr observer);
 
     Shader(const Shader &) = delete;
     Shader &operator=(const Shader &) = delete;
+
+    bool operator==(const Shader &other) const noexcept;
+    bool operator!=(const Shader &other) const noexcept;
 
     void use() const;
     void clear();
@@ -53,6 +58,4 @@ class Shader {
     void saveValue(std::string_view name, T value);
 };
 
-using ShaderPtr = std::shared_ptr<Shader>;
-using ShaderView = Shader *;
-using ShaderRef = Shader &;
+using ShaderPtr = observer_ptr<Shader>;

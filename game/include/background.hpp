@@ -6,5 +6,5 @@
 
 class Background : public Object2D {
    public:
-    Background(Texture2DRef texture);
+    Background(ContextPtr context, Texture2DPtr texture);
 };

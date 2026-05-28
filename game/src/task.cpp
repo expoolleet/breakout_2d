@@ -38,3 +38,11 @@ Task &Task::operator=(Task &&other) noexcept {
     }
     return *this;
 }
+
+bool Task::isDone() const {
+    return handle.done();
+}
+
+void Task::resume() const {
+    if (!handle.done()) handle.resume();
+}

@@ -17,30 +17,32 @@ enum class GameObjectType {
 
 class GameObject : public Object2D {
    protected:
-    bool m_isDestroyable = false;
-    bool m_isDead = false;
-    bool m_isColliding = true;
+    AABB m_aabb;
+
     glm::vec2 m_previousPosition = glm::vec3(0.0f);
     glm::vec2 m_velocity = glm::vec2(0.0f);
     glm::vec2 m_acceleration = glm::vec2(0.0f);
+
     float m_accelerationAttenuation = 0.1f;
     float m_speed = 0.0f;
+
     GameObjectType m_type = GameObjectType::None;
-    AABB m_aabb;
+
+    bool m_isDestroyable = false;
+    bool m_isColliding = true;
 
    public:
-    GameObject(const Texture2D &texture);
-    GameObject(const Texture2D &texture, glm::vec2 position, glm::vec2 size);
+    GameObject(ContextPtr context, Texture2DPtr texture);
+    GameObject(ContextPtr context, Texture2DPtr texture, glm::vec2 position, glm::vec2 size);
 
     virtual void update(float dt) = 0;
     virtual void fixedUpdate(float dt) = 0;
+
     virtual Collision checkCollision(GameObject &gameObject);
     virtual GameObjectType getObjectType() const noexcept;
 
     virtual bool isDestroyable() const noexcept;
-    virtual bool isDead() const noexcept;
     virtual void setDestructibility(bool flag) noexcept;
-    virtual void reset();
 
     virtual glm::vec2 getPreviousPosition();
     virtual void resetPosition(glm::vec2 position);
@@ -58,6 +60,4 @@ class GameObject : public Object2D {
     virtual void setAABB(AABB aabb) noexcept;
 
     void setPosition(glm::vec2 position) override;
-
-    void destroy() noexcept;
 };

@@ -1,10 +1,10 @@
 #include "game_renderer.hpp"
 
-void GameRenderer::_bindShader(ShaderView shader) {
+void GameRenderer::_bindShader(ShaderPtr shader) {
     if (shader) {
         m_activeShader = shader;
     } else {
-        m_activeShader = m_spriteShader.get();
+        m_activeShader = m_spriteShader;
     }
     m_activeShader->use();
 }
@@ -21,7 +21,7 @@ void GameRenderer::flush() {
 
     for (const auto &cmd : m_renderQueue.getCommands()) {
         _bindShader(cmd.shader);
-        m_spriteRenderer->drawSprite(*m_activeShader, *cmd.texture, cmd.position, cmd.size, cmd.rotation, cmd.color);
+        m_spriteRenderer->drawSprite(m_activeShader, cmd.texture, cmd.position, cmd.size, cmd.rotation, cmd.color);
     }
 
     m_particleShader->use();

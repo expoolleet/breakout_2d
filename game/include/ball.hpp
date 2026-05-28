@@ -14,21 +14,18 @@ class Ball : public GameObject {
    private:
     glm::vec2 m_bounceVelocity = glm::vec2(0.3f, 1.0f);
     glm::vec2 m_stuckPosition = glm::vec2(0.0f);
-    PlayerView m_player = nullptr;
     float m_radius = 0.0;
     unsigned int m_damage = 1;
     bool m_stuck = false;
+    PlayerPtr m_player;
 
    public:
-    Ball(Texture2DRef texture, glm::vec2 position, glm::vec2 size, PlayerRef player);
-    Ball(Texture2DRef texture);
-    Ball();
+    Ball(ContextPtr context, Texture2DPtr texture, glm::vec2 position, glm::vec2 size);
+    Ball(ContextPtr context, Texture2DPtr texture);
 
     void update(float dt) override;
     void fixedUpdate(float dt) override;
     Collision checkCollision(GameObject &gameObject) override;
-
-    void assignPlayer(PlayerRef player);
 
     void reset() override;
 
@@ -45,7 +42,8 @@ class Ball : public GameObject {
     void setBounceVelocity(glm::vec2 velocity);
 
     void setStuckLocalPosition(glm::vec2 stuckPosition);
+
+    void setPlayer(PlayerPtr player);
 };
 
-using BallPtr = std::unique_ptr<Ball>;
-using BallView = Ball *;
+using BallPtr = observer_ptr<Ball>;

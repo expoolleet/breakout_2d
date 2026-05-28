@@ -15,16 +15,24 @@
 #include "shader_manager.hpp"
 #include "string_operators.hpp"
 
-Shader::Shader(std::string vsPath, std::string fsPath) {
+Shader::Shader(std::string vsPath, std::string fsPath, ShaderObserverPtr observer) {
     ShaderManager::compileProgram(m_ID, vsPath, fsPath);
     ShaderManager::saveShader(m_ID, *this);
-    Context::get().shaderObserver->registerShader(m_ID, {vsPath, fsPath});
+    observer->registerShader(m_ID, {vsPath, fsPath});
 }
 
-Shader::Shader(std::string vsPath, std::string fsPath, std::string gsPath) {
+Shader::Shader(std::string vsPath, std::string fsPath, std::string gsPath, ShaderObserverPtr observer) {
     ShaderManager::compileProgram(m_ID, vsPath, gsPath, fsPath);
     ShaderManager::saveShader(m_ID, *this);
-    Context::get().shaderObserver->registerShader(m_ID, {vsPath, gsPath, fsPath});
+    observer->registerShader(m_ID, {vsPath, gsPath, fsPath});
+}
+
+bool Shader::operator==(const Shader &other) const noexcept {
+    return m_ID == other.m_ID;
+}
+
+bool Shader::operator!=(const Shader &other) const noexcept {
+    return m_ID != other.m_ID;
 }
 
 int Shader::_getUniformLocation(std::string_view name) {
