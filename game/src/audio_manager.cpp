@@ -17,11 +17,11 @@
 #define ERRCHECK(result) (result)
 #endif
 
-void AudioManager::_saveEvent(const std::string &eventPath) {
+void AudioManager::_saveEvent(std::string_view eventPath) {
     if (m_loadedEventDesc.contains(eventPath)) return;
     FMOD::Studio::EventDescription *eventDesc = nullptr;
-    ERRCHECK(m_system->getEvent(eventPath.c_str(), &eventDesc));
-    m_loadedEventDesc[eventPath] = eventDesc;
+    ERRCHECK(m_system->getEvent(eventPath.data(), &eventDesc));
+    m_loadedEventDesc[eventPath.data()] = eventDesc;
 }
 AudioManager::AudioManager(PathManagerPtr pathManager) : m_pathManager(pathManager) {}
 
@@ -42,18 +42,20 @@ void AudioManager::loadBank(const std::string &name) {
     ERRCHECK(m_system->loadBankFile((bankPath + "/" + name + ".strings.bank").c_str(), FMOD_STUDIO_LOAD_BANK_NORMAL, &stringsBank));
 }
 
-void AudioManager::playOnce(const std::string &eventPath) {
+void AudioManager::playOnce(std::string_view eventPath) {
     _saveEvent(eventPath);
     FMOD::Studio::EventInstance *instance = nullptr;
-    ERRCHECK(m_loadedEventDesc[eventPath]->createInstance(&instance));
+    auto it = m_loadedEventDesc.find(eventPath);
+    ERRCHECK(it->second->createInstance(&instance));
     ERRCHECK(instance->start());
     ERRCHECK(instance->release());
 }
 
-void AudioManager::playOnce(const std::string &eventPath, glm::vec2 position, glm::vec2 velocity) {
+void AudioManager::playOnce(std::string_view eventPath, glm::vec2 position, glm::vec2 velocity) {
     _saveEvent(eventPath);
     FMOD::Studio::EventInstance *instance = nullptr;
-    ERRCHECK(m_loadedEventDesc[eventPath]->createInstance(&instance));
+    auto it = m_loadedEventDesc.find(eventPath);
+    ERRCHECK(it->second->createInstance(&instance));
 
     FMOD_3D_ATTRIBUTES attr;
     attr.position = {position.x, position.y, 0.0f};

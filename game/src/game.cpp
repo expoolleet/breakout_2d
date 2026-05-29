@@ -34,6 +34,7 @@
 #include "timer.hpp"
 
 using namespace texture_literals;
+using namespace audio_events;
 
 glm::vec2 Game::_lerpPos(GameObject &gameObject, float alpha) {
     return glm::mix(gameObject.getPreviousPosition(), gameObject.getPosition(), alpha);
