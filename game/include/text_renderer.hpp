@@ -78,7 +78,7 @@ struct OutlineData {
 
 class TextRenderer {
    private:
-    fs::path m_pathToFonts;
+    fs::path m_fontsPath;
     std::unordered_map<char, Character> m_characters;
     std::unordered_map<unsigned char, GlyphData> m_glyphs;
     FontMetrics m_fontMetrics;
@@ -94,7 +94,7 @@ class TextRenderer {
     glm::mat4 &_getProjectionMat() noexcept;
 
    public:
-    TextRenderer(const std::string &pathToFonts);
+    TextRenderer(const std::string &fontsPath);
     ~TextRenderer();
 
     bool updateProjectionMat = true;

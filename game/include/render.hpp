@@ -12,8 +12,8 @@ struct BufferObject {
     size_t samples;
 
     BufferObject() : fbo(0), attachments({}) {}
-    BufferObject(unsigned int buffer, std::vector<unsigned int> tex) : fbo(buffer), attachments(tex), samples(1) {}
-    BufferObject(unsigned int buffer, std::vector<unsigned int> tex, size_t count) : fbo(buffer), attachments(tex), samples(count) {}
+    BufferObject(unsigned int buffer, std::vector<unsigned int> texs) : fbo(buffer), attachments(texs), samples(1) {}
+    BufferObject(unsigned int buffer, std::vector<unsigned int> texs, size_t count) : fbo(buffer), attachments(texs), samples(count) {}
 };
 
 // Render
@@ -53,6 +53,10 @@ inline void initAPI() {
 
 inline void setUserPointer(void *ptr) {
     glfwSetWindowUserPointer(window, ptr);
+}
+
+inline void *getUserPointer() {
+    return glfwGetWindowUserPointer(window);
 }
 
 inline void setFrameBufferSizeCallback(auto &&cb) {
@@ -144,22 +148,22 @@ inline BufferObject getFramebuffer(unsigned int colorAttachmentCount) {
     return BufferObject(fbo, colorAttachments);
 }
 
-inline BufferObject resizeFrambuffer(BufferObject oldBuffer) {
-    glDeleteFramebuffers(1, &oldBuffer.fbo);
-    for (auto &att : oldBuffer.attachments) {
+inline void resizeFrambuffer(BufferObject &buffer) {
+    glDeleteFramebuffers(1, &buffer.fbo);
+    for (auto &att : buffer.attachments) {
         glDeleteTextures(1, &att);
     }
-    unsigned int attachmentCount = static_cast<unsigned int>(oldBuffer.attachments.size());
-    oldBuffer.attachments.clear();
-    return getFramebuffer(attachmentCount);
+    unsigned int attachmentCount = static_cast<unsigned int>(buffer.attachments.size());
+    buffer.attachments.clear();
+    buffer = getFramebuffer(attachmentCount);
 }
 
-inline BufferObject resizeMultisamplingFrambuffer(BufferObject oldBuffer) {
-    glDeleteFramebuffers(1, &oldBuffer.fbo);
-    for (auto &att : oldBuffer.attachments) {
+inline void resizeMultisamplingFrambuffer(BufferObject &buffer) {
+    glDeleteFramebuffers(1, &buffer.fbo);
+    for (auto &att : buffer.attachments) {
         glDeleteTextures(1, &att);
     }
-    return getMultisamlpingFramebuffer(oldBuffer.samples);
+    buffer = getMultisamlpingFramebuffer(buffer.samples);
 }
 
 inline void setWindowTitle(const std::string &title) {

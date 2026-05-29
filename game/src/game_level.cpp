@@ -20,13 +20,13 @@
 using namespace texture_literals;
 
 GameLevel::GameLevel(GameLevelCreateInfo createInfo, LevelTiles tiles)
-    : m_ctx(createInfo.contextPtr),
+    : m_context(createInfo.contextPtr),
       m_objectManager(createInfo.objectManagerPtr),
       m_powerupFactory(createInfo.powerUpFactoryPtr),
       m_tiles(std::move(tiles)) {}
 
 GameLevel::GameLevel(GameLevelCreateInfo createInfo, const std::string &levelPath)
-    : m_ctx(createInfo.contextPtr), m_objectManager(createInfo.objectManagerPtr), m_powerupFactory(createInfo.powerUpFactoryPtr) {
+    : m_context(createInfo.contextPtr), m_objectManager(createInfo.objectManagerPtr), m_powerupFactory(createInfo.powerUpFactoryPtr) {
     std::string line;
     std::ifstream fileStream{levelPath};
 
@@ -71,22 +71,23 @@ void GameLevel::load() {
         glm::vec2 position = glm::vec2(xPos + offset, yPos - offset);
         glm::vec2 size = BRICK_SIZE - offset;
 
+        TextureManager &textureManager = m_context->getTextureManager();
         switch (code) {
             case -1:
-                m_bricks.push_back(m_objectManager->create<Brick>(m_ctx->textureManager->getTexture(BADROCK_TEXTURE), position, size,
-                                                                  BrickType::Undestroyable));
+                m_bricks.push_back(
+                    m_objectManager->create<Brick>(textureManager.getTexture(BADROCK_TEXTURE), position, size, BrickType::Undestroyable));
                 break;
             case 1:
                 m_bricks.push_back(
-                    m_objectManager->create<Brick>(m_ctx->textureManager->getTexture(BRICK_TEXTURE), position, size, BrickType::Standard));
+                    m_objectManager->create<Brick>(textureManager.getTexture(BRICK_TEXTURE), position, size, BrickType::Standard));
                 break;
             case 2:
                 m_bricks.push_back(
-                    m_objectManager->create<Brick>(m_ctx->textureManager->getTexture(BRICK_TEXTURE), position, size, BrickType::Hard));
+                    m_objectManager->create<Brick>(textureManager.getTexture(BRICK_TEXTURE), position, size, BrickType::Hard));
                 break;
             case 3:
-                m_bricks.push_back(m_objectManager->create<Brick>(m_ctx->textureManager->getTexture(BRICK_TEXTURE), position, size,
-                                                                  BrickType::ExtremelyTough));
+                m_bricks.push_back(
+                    m_objectManager->create<Brick>(textureManager.getTexture(BRICK_TEXTURE), position, size, BrickType::ExtremelyTough));
                 break;
             default:
                 logging::Warn("Could not load a brick with the tile code: {}", code);

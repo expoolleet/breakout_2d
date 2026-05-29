@@ -6,6 +6,7 @@
 #include <string>
 
 #include "custom_attributes.hpp"
+#include "logging.hpp"
 
 #ifdef _DEBUG
 #define ERRCHECK(result)                                                      \
@@ -26,6 +27,7 @@ void AudioManager::_saveEvent(std::string_view eventPath) {
 AudioManager::AudioManager(PathManagerPtr pathManager) : m_pathManager(pathManager) {}
 
 AudioManager::~AudioManager() noexcept {
+    logging::Log("Releasing fmod");
     ERRCHECK(m_system->release());
 }
 

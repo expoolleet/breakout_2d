@@ -8,12 +8,13 @@
 #include "texture_manager.hpp"
 
 class EngineContext {
-   public:
-    std::unique_ptr<AudioManager> audioManager;
-    std::unique_ptr<EventDispatcher> eventDispatcher;
-    std::unique_ptr<PathManager> pathManager;
-    std::unique_ptr<TextureManager> textureManager;
+   private:
+    AudioManager m_audioManager;
+    EventDispatcher m_eventDispatcher;
+    PathManager m_pathManager;
+    TextureManager m_textureManager;
 
+   public:
     EngineContext();
     ~EngineContext() noexcept;
 
@@ -21,6 +22,11 @@ class EngineContext {
     EngineContext &operator=(const EngineContext &) = delete;
     EngineContext(EngineContext &&) = delete;
     EngineContext &operator=(EngineContext &&) = delete;
+
+    AudioManager &getAudioManager() noexcept;
+    EventDispatcher &getEventDispatcher() noexcept;
+    PathManager &getPathManager() noexcept;
+    TextureManager &getTextureManager() noexcept;
 };
 
 using Context = EngineContext;

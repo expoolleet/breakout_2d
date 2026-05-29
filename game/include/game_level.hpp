@@ -17,7 +17,7 @@ struct GameLevelCreateInfo {
 
 class GameLevel {
    private:
-    ContextPtr m_ctx;
+    ContextPtr m_context;
     ObjectManagerPtr m_objectManager;
     PowerUpFactoryPtr m_powerupFactory;
     std::vector<BrickPtr> m_bricks;

@@ -6,7 +6,7 @@
 
 class Object2D {
    protected:
-    ContextPtr m_ctx;
+    ContextPtr m_context;
     ShaderPtr m_shader;
     Texture2DPtr m_texture;
 

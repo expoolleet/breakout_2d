@@ -7,38 +7,39 @@ set(CREATE_PACKAGE NO)
 project(${Project} LANGUAGES CXX)
 
 set(Sources
-    src/program.cpp
-    src/game.cpp
-    src/game_level.cpp
-    src/game_object.cpp
-    src/game_renderer.cpp
-    src/game_core.cpp
-    src/game_level_generator.cpp
+    src/app.cpp
+    src/audio_manager.cpp
+    src/background.cpp
     src/ball.cpp
     src/brick.cpp
+    src/canvas.cpp
+    src/engine_context.cpp
     src/event_dispatcher.cpp
+    src/fps_counter.cpp
+    src/game.cpp
+    src/game_core.cpp
+    src/game_level.cpp
+    src/game_level_generator.cpp
+    src/game_object.cpp
+    src/game_renderer.cpp
+    src/object_2d.cpp
+    src/object_manager.cpp
     src/particle_emitter.cpp
     src/path_manager.cpp
     src/player.cpp
+    src/powerup.cpp
+    src/powerup_factory.cpp
+    src/program.cpp
+    src/render_queue.cpp
     src/shader.cpp
     src/shader_manager.cpp
     src/shader_observer.cpp
     src/sprite_renderer.cpp
-    src/render_queue.cpp
+    src/task.cpp
     src/text_renderer.cpp
     src/texture_2d.cpp
     src/texture_manager.cpp
     src/window.cpp
-    src/canvas.cpp
-    src/powerup.cpp
-    src/powerup_factory.cpp
-    src/audio_manager.cpp
-    src/engine_context.cpp
-    src/task.cpp
-    src/fps_counter.cpp
-    src/object_2d.cpp
-    src/background.cpp
-    src/object_manager.cpp
 )
 
 add_executable(${Project}

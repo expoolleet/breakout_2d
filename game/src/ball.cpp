@@ -33,7 +33,7 @@ void Ball::fixedUpdate(float dt) {
     float rightSide = worldAABB.z;
     float topSide = worldAABB.w;
     if (m_position.y <= bottomSide) {
-        m_ctx->eventDispatcher->emit(BallFliedOff{this});
+        m_context->getEventDispatcher().emit(BallFliedOff{this});
         return;
     }
     if (m_position.x > leftSide && m_position.x + m_size.x < rightSide && m_position.y + m_size.y < topSide)
@@ -49,7 +49,7 @@ void Ball::fixedUpdate(float dt) {
             m_position.y = topSide - m_size.y;
             m_velocity.y = -m_velocity.y;
         }
-        m_ctx->eventDispatcher->emit(BallHit{this, m_position, CollisionType::Obstacle});
+        m_context->getEventDispatcher().emit(BallHit{this, m_position, CollisionType::Obstacle});
     }
 }
 

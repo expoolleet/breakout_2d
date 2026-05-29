@@ -17,7 +17,7 @@
 #include "render_type.hpp"
 #include "shader.hpp"
 
-TextRenderer::TextRenderer(const std::string &pathToFonts) : m_pathToFonts(pathToFonts) {}
+TextRenderer::TextRenderer(const std::string &fontsPath) : m_fontsPath(fontsPath) {}
 
 void TextRenderer::_renderText(const std::vector<TextVertex> &vertices) {
     if (vertices.empty()) {
@@ -75,7 +75,7 @@ void TextRenderer::initFont(std::string_view font, unsigned int fontSize) {
     logging::Log("Initializing font: {}", font);
 
     FT_Face face;
-    if (FT_New_Face(m_ft, (m_pathToFonts / font).string().c_str(), 0, &face)) {
+    if (FT_New_Face(m_ft, (m_fontsPath / font).string().c_str(), 0, &face)) {
         logging::Error("Failed to load font");
         return;
     }

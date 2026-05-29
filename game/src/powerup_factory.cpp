@@ -14,15 +14,16 @@ PowerUpPtr PowerUpFactory::createPowerUp(PowerUpType type, glm::vec2 position) {
 }
 
 PowerUpData PowerUpFactory::getPowerUpData(PowerUpType type) {
+    TextureManager &textureManager = m_context->getTextureManager();
     switch (type) {
         case PowerUpType::FastBalls:
-            return PowerUpData(glm::vec4(1.0f, 0.0f, 1.0f, 1.0f), 10.0f, m_context->textureManager->getTexture(BRICK_TEXTURE));
+            return PowerUpData(glm::vec4(1.0f, 0.0f, 1.0f, 1.0f), 10.0f, textureManager.getTexture(BRICK_TEXTURE));
         case PowerUpType::StickyPlayer:
-            return PowerUpData(glm::vec4(0.5f, 0.0f, 0.0f, 1.0f), 10.0f, m_context->textureManager->getTexture(BRICK_TEXTURE));
+            return PowerUpData(glm::vec4(0.5f, 0.0f, 0.0f, 1.0f), 10.0f, textureManager.getTexture(BRICK_TEXTURE));
         case PowerUpType::PassTrough:
-            return PowerUpData(glm::vec4(0.25f, 0.75f, 0.0f, 1.0f), 3.0f, m_context->textureManager->getTexture(BRICK_TEXTURE));
+            return PowerUpData(glm::vec4(0.25f, 0.75f, 0.0f, 1.0f), 3.0f, textureManager.getTexture(BRICK_TEXTURE));
         case PowerUpType::WidePlayer:
-            return PowerUpData(glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), 10.0f, m_context->textureManager->getTexture(BRICK_TEXTURE));
+            return PowerUpData(glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), 10.0f, textureManager.getTexture(BRICK_TEXTURE));
         case PowerUpType::None:
         default:
             return PowerUpData();

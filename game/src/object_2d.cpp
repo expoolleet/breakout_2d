@@ -4,11 +4,11 @@
 #include <glm/glm.hpp>
 
 Object2D::Object2D(ContextPtr context, Texture2DPtr texture, glm::vec2 position, glm::vec2 size)
-    : m_ctx(context), m_shader(nullptr), m_texture(texture), m_position(position), m_size(size) {
+    : m_context(context), m_shader(nullptr), m_texture(texture), m_position(position), m_size(size) {
     assert(texture != nullptr && "Texture address is null");
 }
 
-Object2D::Object2D(ContextPtr context, Texture2DPtr texture) : m_ctx(context), m_shader(nullptr), m_texture(texture) {
+Object2D::Object2D(ContextPtr context, Texture2DPtr texture) : m_context(context), m_shader(nullptr), m_texture(texture) {
     assert(texture != nullptr && "Texture address is null");
 }
 
