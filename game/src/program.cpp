@@ -10,7 +10,6 @@ int main() {
 
     App app;
     app.run();
-
-    render::terminate();
-    return 0;
+    app.close();
+    return EXIT_SUCCESS;
 }

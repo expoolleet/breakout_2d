@@ -68,10 +68,6 @@ Collision Ball::checkCollision(GameObject &gameObject) {
     return collision;
 }
 
-void Ball::reset() {
-    GameObject::reset();
-}
-
 bool Ball::isStuck() const noexcept {
     return m_stuck;
 }

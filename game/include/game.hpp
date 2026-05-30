@@ -3,7 +3,6 @@
 #include <atomic>
 #include <glm/glm.hpp>
 #include <memory>
-#include <thread>
 #include <vector>
 
 #include "background.hpp"
@@ -14,7 +13,6 @@
 #include "game_core.hpp"
 #include "game_level.hpp"
 #include "game_level_generator.hpp"
-#include "game_object.hpp"
 #include "game_renderer.hpp"
 #include "input.hpp"
 #include "object_manager.hpp"
@@ -51,15 +49,67 @@ struct GameCreateInfo {
     int gameAttempts;
 };
 
-enum class GameState {
-    None,
-    Menu,
-    Active,
-    Win,
-    Loose,
-};
-
 class Game {
+   public:
+    enum class State {
+        None,
+        Menu,
+        Active,
+        Win,
+        Loose,
+    };
+
+    Keys keys;
+    State currentState;
+
+    Game(GameCreateInfo createInfo);
+    ~Game();
+
+    Game(const Game &) = delete;
+    Game &operator=(const Game &) = delete;
+    Game(Game &&) = delete;
+    Game &operator=(Game &&) = delete;
+
+    void init();
+    void processInput(float dt);
+    void update(float dt);
+    void fixedUpdate(float dt);
+    void render(float alpha);
+    void renderText(float alpha);
+    void doCollisions();
+    void nextLevel();
+    void restartCurrentLevel();
+    void resetHeroBall();
+    void resetBallPosition(BallPtr ball);
+    void resetPlayer();
+    void setProjectionMatrix();
+    void destroyBallsExceptHeroBall();
+    void spawnBall(glm::vec2 position);
+    void spawnPowerUp(PowerUpType type, glm::vec2 position);
+    void updatePowerUps(float dt);
+    void cleanupPowerUps();
+    void repositionStuckBallsOnPlayer();
+    void stickBallToPlayer(BallPtr ball);
+    void unstickBallFromPlayer(BallPtr ball);
+    void clearStuckBallsExceptHeroBall();
+
+    GameLevel getLevel(int lvlNumber);
+
+    // handlers
+    void onBallFliedOff(const BallFliedOff &e);
+    void onPowerUpActivated(const PowerUpActivated &e);
+    void onPowerUpFinished(const PowerUpFinished &e);
+    void onBallHit(const BallHit &e);
+    void onBallUnstuck(const BallUnstuck &e);
+    void onBallStuck(const BallStuck &e);
+
+    // coroutines
+    Task animateName(float dt);
+
+    // testing
+    void setGodMode(bool enabled) noexcept;
+    bool isGodModeEnabled() const noexcept;
+
    private:
     std::vector<GameLevel> m_levels;
     std::vector<PowerUpPtr> m_powerups;
@@ -100,62 +150,11 @@ class Game {
 
     size_t m_maxCountBallsStuckToPlayer = 0;
 
-    std::atomic<bool> m_running = false;
-
-    std::thread m_consoleInputThread;
+    std::atomic<bool> m_running{true};
 
     float m_nameSize = 0.07f;
 
-    glm::vec2 _lerpPos(GameObject &gameObject, float alpha);
+    bool m_godMode = false;
+
     void _calcBallNewPositionAndVelocity(Ball &ball, CollisionDirection dir, glm::vec2 diffVector);
-
-   public:
-    Keys keys;
-    GameState currentState;
-
-    Game(GameCreateInfo createInfo);
-    ~Game();
-
-    Game(const Game &) = delete;
-    Game &operator=(const Game &) = delete;
-    Game(Game &&) = delete;
-    Game &operator=(Game &&) = delete;
-
-    void init();
-    void processInput(float dt);
-    void update(float dt);
-    void fixedUpdate(float dt);
-    void render(float alpha);
-    void renderText(float alpha);
-    void doCollisions();
-    void nextLevel();
-    void restartCurrentLevel();
-    void resetHeroBall();
-    void resetBallPosition(BallPtr ball);
-    void resetPlayer();
-    void setProjectionMatrix();
-    void cleanDestroyedBalls();
-    void destroyBallsExceptHeroBall();
-    void spawnBall(glm::vec2 position);
-    void spawnPowerUp(PowerUpType type, glm::vec2 position);
-    void updatePowerUps(float dt);
-    void cleanupPowerUps();
-    void repositionStuckBallsOnPlayer();
-    void stickBallToPlayer(BallPtr ball);
-    void unstickBallFromPlayer(BallPtr ball);
-    void clearStuckBallsExceptHeroBall();
-
-    GameLevel getLevel(int lvlNumber);
-    std::vector<BallPtr> &getBalls();
-
-    // handlers
-    void onBallFliedOff(const BallFliedOff &e);
-    void onPowerUpActivated(const PowerUpActivated &e);
-    void onPowerUpFinished(const PowerUpFinished &e);
-    void onBallHit(const BallHit &e);
-    void onBallUnstuck(const BallUnstuck &e);
-    void onBallStuck(const BallStuck &e);
-
-    // coroutines
-    Task animateName(float dt);
 };

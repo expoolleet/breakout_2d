@@ -33,4 +33,8 @@ glm::vec2 getScreenPosition(glm::vec2 worldPosition);
 glm::mat4 getProjectionMatrix();
 
 glm::mat4 getScaledProjectionMatrix();
+
+glm::vec2 lerp(glm::vec2 &&start, glm::vec2 &&finish, float alpha);
+
+float lerp(float start, float finish, float alpha);
 };  // namespace core

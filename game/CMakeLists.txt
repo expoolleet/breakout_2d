@@ -215,7 +215,7 @@ target_precompile_headers(${Project} PRIVATE
     <nlohmann/json.hpp>
 )
 
-target_compile_definitions(${Project} PRIVATE $<$<CONFIG:Debug>:DEBUG_MODE>)
+target_compile_definitions(${Project} PRIVATE $<$<CONFIG:Debug>:DEBUG>)
 
 # project packing
 if (${CREATE_PACKAGE})

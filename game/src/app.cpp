@@ -2,9 +2,10 @@
 
 #include "audio_manager.hpp"
 #include "canvas.hpp"
+#include "console_input.hpp"
+#include "custom_attributes.hpp"
 #include "fast_random.hpp"
 #include "fps_counter.hpp"
-#include "game.hpp"
 #include "game_renderer.hpp"
 #include "render.hpp"
 #include "sprite_renderer.hpp"
@@ -158,7 +159,7 @@ void App::run() {
         render::pollWindowEvents();
         game.processInput(frameTime);
 
-        // objectManager.cleanup();
+        objectManager.cleanup();
 
         fpsCounter.update();
 
@@ -166,6 +167,43 @@ void App::run() {
 
         render::swapBuffers();
         shaderObserver.update();
+
+        _handleConsoleInput(game);
     }
+}
+
+void App::close() {
     shaderObserver.stopObserving();
+    render::terminate();
+}
+
+void App::_handleConsoleInput(Game &game) {
+    NO_DESTROY_ATTR static std::string command;
+    NO_DESTROY_ATTR static bool firstInput = true;
+    if (firstInput) {
+        std::cout << ">\r";
+        firstInput = false;
+    }
+    if (isTyping()) {
+        char key = getTypedKey();
+        if (isEnterPressed(key)) {
+            std::cout << "  enter";
+            if (command == "ball") {
+                game.spawnBall(glm::vec2(0.0f));
+            } else if (command == "god") {
+                game.setGodMode(!game.isGodModeEnabled());
+            }
+            clearInput(command.size());
+            command.clear();
+        } else if (isBackspacePressed(key)) {
+            std::cout << "  backspace";
+            if (!command.empty()) {
+                clearInput(command.size());
+                command.pop_back();
+            }
+        } else {
+            command.push_back(key);
+        }
+        std::cout << ">" << command << "\r";
+    }
 }

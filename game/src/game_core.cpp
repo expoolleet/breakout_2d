@@ -54,3 +54,11 @@ glm::mat4 core::getScaledProjectionMatrix() {
     }
     return glm::scale(getProjectionMatrix(), glm::vec3(xScale, yScale, 1.0f));
 }
+
+glm::vec2 core::lerp(glm::vec2 &&start, glm::vec2 &&finish, float alpha) {
+    return glm::mix(start, finish, alpha);
+}
+
+float core::lerp(float start, float finish, float alpha) {
+    return start + (finish - start) * alpha;
+}

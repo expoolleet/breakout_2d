@@ -27,8 +27,6 @@ class Ball : public GameObject {
     void fixedUpdate(float dt) override;
     Collision checkCollision(GameObject &gameObject) override;
 
-    void reset() override;
-
     bool isStuck() const noexcept;
     void setStuck(bool state);
 

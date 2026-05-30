@@ -67,11 +67,11 @@ bool Object2D::isAlive() const noexcept {
 }
 
 void Object2D::destroy() noexcept {
-    m_isAlive = true;
     m_isHidden = true;
+    m_isAlive = false;
 }
 
 void Object2D::reset() {
-    m_isAlive = false;
     m_isHidden = false;
+    m_isAlive = true;
 }

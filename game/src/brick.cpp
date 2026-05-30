@@ -26,7 +26,8 @@ void Brick::update(float dt) {}
 void Brick::fixedUpdate(float dt) {}
 
 Collision Brick::checkCollision(GameObject &gameObject) {
-    if (Ball *ball = dynamic_cast<Ball *>(&gameObject)) {
+    if (gameObject.getObjectType() == GameObjectType::Ball) {
+        BallPtr ball = dynamic_cast<Ball *>(&gameObject);
         Collision collision = cd::checkCollision(*ball, *this);
         if (std::get<0>(collision)) {
             if (isDestroyable()) {

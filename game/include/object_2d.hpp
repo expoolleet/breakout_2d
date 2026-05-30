@@ -15,7 +15,7 @@ class Object2D {
     glm::vec4 m_color = glm::vec4(1.0f);
 
     bool m_isHidden = false;
-    bool m_isAlive = false;
+    bool m_isAlive = true;
 
    public:
     Object2D(ContextPtr context, Texture2DPtr texture);

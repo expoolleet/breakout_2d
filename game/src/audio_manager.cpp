@@ -27,7 +27,7 @@ void AudioManager::_saveEvent(std::string_view eventPath) {
 AudioManager::AudioManager(PathManagerPtr pathManager) : m_pathManager(pathManager) {}
 
 AudioManager::~AudioManager() noexcept {
-    logging::Log("Releasing fmod");
+    logging::Log("AudioManager is destroyed properly. FMOD is released");
     ERRCHECK(m_system->release());
 }
 

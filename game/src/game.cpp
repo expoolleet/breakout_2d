@@ -6,7 +6,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <memory>
 #include <string>
-#include <thread>
 
 #include "audio_events.hpp"
 #include "ball.hpp"
@@ -35,10 +34,6 @@
 
 using namespace texture_literals;
 using namespace audio_events;
-
-glm::vec2 Game::_lerpPos(GameObject &gameObject, float alpha) {
-    return glm::mix(gameObject.getPreviousPosition(), gameObject.getPosition(), alpha);
-}
 
 void Game::_calcBallNewPositionAndVelocity(Ball &ball, CollisionDirection dir, glm::vec2 diffVector) {
     glm::vec2 ballVelocity = ball.getVelocity();
@@ -77,7 +72,7 @@ Game::Game(GameCreateInfo createInfo)
       m_collisionHitParticleEmitter(createInfo.collisionHitParticleEmitterPtr),
       m_background({m_context, m_context->getTextureManager().getTexture(BACKGROUND_TEXTURE)}),
       m_attempts(createInfo.gameAttempts),
-      currentState(GameState::Active) {
+      currentState(State::Active) {
     assert(m_attempts > 0);
 }
 
@@ -145,42 +140,27 @@ void Game::init() {
     m_renderer->addParticleEmitter(m_ballParticleEmitter);
     m_renderer->addParticleEmitter(m_collisionHitParticleEmitter);
 
-    m_context->getEventDispatcher().subscribe<BallFliedOff>([this](const BallFliedOff &e) { this->onBallFliedOff(e); });
-    m_context->getEventDispatcher().subscribe<BallHit>([this](const BallHit &e) { this->onBallHit(e); });
-    m_context->getEventDispatcher().subscribe<PowerUpActivated>([this](const PowerUpActivated &e) { this->onPowerUpActivated(e); });
-    m_context->getEventDispatcher().subscribe<PowerUpFinished>([this](const PowerUpFinished &e) { this->onPowerUpFinished(e); });
-    m_context->getEventDispatcher().subscribe<BallUnstuck>([this](const BallUnstuck &e) { this->onBallUnstuck(e); });
-    m_context->getEventDispatcher().subscribe<BallStuck>([this](const BallStuck &e) { this->onBallStuck(e); });
-
-    m_running = true;
-
-#ifdef DEBUG_MODE
-    unsigned int sleepTime = 250;
-    m_consoleInputThread = std::thread([this, sleepTime]() {
-        std::string command;
-        while (m_running) {
-            std::cin >> command;
-            if (command == "ball") {
-                this->spawnBall(glm::vec2(0.0f));
-            }
-            std::this_thread::sleep_for(std::chrono::milliseconds(sleepTime));
-        }
-    });
-#endif
+    EventDispatcher &eventDispatcher = m_context->getEventDispatcher();
+    eventDispatcher.subscribe<BallFliedOff>([this](const BallFliedOff &e) { this->onBallFliedOff(e); });
+    eventDispatcher.subscribe<BallHit>([this](const BallHit &e) { this->onBallHit(e); });
+    eventDispatcher.subscribe<PowerUpActivated>([this](const PowerUpActivated &e) { this->onPowerUpActivated(e); });
+    eventDispatcher.subscribe<PowerUpFinished>([this](const PowerUpFinished &e) { this->onPowerUpFinished(e); });
+    eventDispatcher.subscribe<BallUnstuck>([this](const BallUnstuck &e) { this->onBallUnstuck(e); });
+    eventDispatcher.subscribe<BallStuck>([this](const BallStuck &e) { this->onBallStuck(e); });
 }
 
 void Game::processInput(float dt) {
-    if (currentState == GameState::Win && keys.isPressed(KEY_ENTER)) {
-        currentState = GameState::Active;
+    if (currentState == State::Win && keys.isPressed(KEY_ENTER)) {
+        currentState = State::Active;
         nextLevel();
     }
 
-    if (currentState == GameState::Loose && keys.isPressed(KEY_ENTER)) {
-        currentState = GameState::Active;
+    if (currentState == State::Loose && keys.isPressed(KEY_ENTER)) {
+        currentState = State::Active;
         restartCurrentLevel();
     }
 
-    if (currentState != GameState::Active) {
+    if (currentState != State::Active) {
         return;
     }
 
@@ -224,14 +204,13 @@ void Game::fixedUpdate(float dt) {
 
     updatePowerUps(dt);
     cleanupPowerUps();
-    cleanDestroyedBalls();
 }
 
 void Game::render(float alpha) {
-    if (currentState == GameState::Menu) return;
+    if (currentState == State::Menu) return;
 
-    m_renderer->submit(
-        {RenderLayer::Player, m_player->getShader(), m_player->getTexture(), _lerpPos(*m_player, alpha), m_player->getSize()});
+    m_renderer->submit({RenderLayer::Player, m_player->getShader(), m_player->getTexture(),
+                        core::lerp(m_player->getPreviousPosition(), m_player->getPosition(), alpha), m_player->getSize()});
 
     for (const auto &brick : m_currentLevel.getBricks()) {
         if (!brick->isHidden()) {
@@ -240,13 +219,14 @@ void Game::render(float alpha) {
         }
     }
     for (auto &ball : m_balls) {
-        m_renderer->submit(
-            {RenderLayer::Ball, ball->getShader(), ball->getTexture(), _lerpPos(*ball, alpha), ball->getSize(), 0.0f, ball->getColor()});
+        m_renderer->submit({RenderLayer::Ball, ball->getShader(), ball->getTexture(),
+                            core::lerp(ball->getPreviousPosition(), ball->getPosition(), alpha), ball->getSize(), 0.0f, ball->getColor()});
     }
     for (auto &powerup : m_powerups) {
         if (!powerup->isHidden()) {
-            m_renderer->submit({RenderLayer::PowerUp, powerup->getShader(), powerup->getTexture(), _lerpPos(*powerup, alpha),
-                                powerup->getSize(), 0.0f, powerup->getColor()});
+            m_renderer->submit({RenderLayer::PowerUp, powerup->getShader(), powerup->getTexture(),
+                                core::lerp(powerup->getPreviousPosition(), powerup->getPosition(), alpha), powerup->getSize(), 0.0f,
+                                powerup->getColor()});
         }
     }
 
@@ -258,7 +238,7 @@ void Game::render(float alpha) {
 
 void Game::renderText(float dt) {
     m_textShader->use();
-    if (currentState == GameState::Win) {
+    if (currentState == State::Win) {
         glm::vec2 textPos = core::getWorldPosition(0.25f, 0.5f);
         m_textRenderer->renderMSDF(*m_textShader, "YOU WON! :)", textPos, 0.07f, glm::vec3(0.0f, 0.9f, 0.6f), false,
                                    {glm::vec3(0.0f), 5.0f});
@@ -269,7 +249,7 @@ void Game::renderText(float dt) {
     m_textRenderer->renderMSDF(*m_textShader, std::format("Attempts: {}", std::to_string(m_attempts - m_currentAttempt)),
                                core::getWorldPosition(0.01f, 0.9f), 0.03f);
 
-#ifdef _DEBUG
+#ifdef DEBUG
     m_textRenderer->renderMSDF(*m_textShader, std::format("Ball count: {}", m_balls.size()), core::getWorldPosition(0.85f, 0.01f), 0.02f,
                                glm::vec3(1.0f), false, {glm::vec3(0.0f), 1.0f});
     m_textRenderer->renderMSDF(*m_textShader, std::format("Hero ball speed: {:.2f}", m_heroBall->getSpeed()),
@@ -377,10 +357,6 @@ void Game::unstickBallFromPlayer(BallPtr ball) {
     m_context->getEventDispatcher().emit(BallUnstuck{ball});
 }
 
-void Game::cleanDestroyedBalls() {
-    std::erase_if(m_balls, [](BallPtr ball) { return ball->isAlive(); });
-}
-
 void Game::destroyBallsExceptHeroBall() {
     for (auto ball : m_balls) {
         if (ball != m_heroBall) {
@@ -437,21 +413,14 @@ void Game::spawnPowerUp(PowerUpType type, glm::vec2 position) {
     m_powerups.push_back(m_powerUpFactory->createPowerUp(type, position));
 }
 
-std::vector<BallPtr> &Game::getBalls() {
-    return m_balls;
-}
-
 Game::~Game() {
     m_running = false;
-    if (m_consoleInputThread.joinable()) {
-        m_consoleInputThread.join();
-    }
 }
 
 void Game::onBallFliedOff(const BallFliedOff &e) {
     if (e.ball == m_heroBall) {
-        if (currentState == GameState::Active && ++m_currentAttempt >= m_attempts) {
-            currentState = GameState::Loose;
+        if (!m_godMode && currentState == State::Active && ++m_currentAttempt >= m_attempts) {
+            currentState = State::Loose;
         } else {
             resetHeroBall();
         }
@@ -563,7 +532,7 @@ void Game::doCollisions() {
         }
     }
     for (auto &brick : m_currentLevel.getBricks()) {
-        if (brick->isAlive()) continue;
+        if (!brick->isAlive()) continue;
         for (auto &ball : m_balls) {
             if (!ball->isColliding()) continue;
             Collision collision = brick->checkCollision(*ball);
@@ -580,7 +549,7 @@ void Game::doCollisions() {
                 }
 
                 if (m_currentLevel.isFinished()) {
-                    currentState = GameState::Win;
+                    currentState = State::Win;
                 }
             }
         }
@@ -596,4 +565,12 @@ Task Game::animateName(float dt) {
         m_nameSize -= dt * 0.005f;
         co_await std::suspend_always{};
     }
+}
+
+void Game::setGodMode(bool enabled) noexcept {
+    m_godMode = enabled;
+}
+
+bool Game::isGodModeEnabled() const noexcept {
+    return m_godMode;
 }
