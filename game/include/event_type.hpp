@@ -28,10 +28,19 @@ struct PlayerMoved {
     glm::vec2 position;
 };
 
+struct PowerUpSpawned {
+    PowerUpType type;
+    glm::vec2 position;
+};
+
 struct PowerUpActivated {
     PowerUpType type;
 };
 
 struct PowerUpFinished {
     PowerUpType type;
+};
+
+struct GameFinished {
+    bool playerWon;
 };

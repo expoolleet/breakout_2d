@@ -26,10 +26,11 @@ class Brick : public GameObject {
     BrickType getBrickType() const noexcept;
     PowerUpType getPowerUpType() const noexcept;
     void setPowerUpType(PowerUpType type);
+    void setHardenessPoints(int hp) noexcept;
     int getCurrentHardnessPoints() const noexcept;
     int getMaxHardnessPoints() const noexcept;
-    void doDamage(unsigned int damage);
-    void doHeal(unsigned int heal);
+    void damage(unsigned int damage);
+    void heal(unsigned int heal);
     void reset() override;
 };
 

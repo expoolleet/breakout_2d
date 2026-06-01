@@ -35,7 +35,7 @@ class GameLevel {
     GameLevel(const GameLevel &) noexcept = default;
 
     void load();
-    void restart();
+    void reset();
     bool isFinished() const noexcept;
     bool isLoaded() const noexcept;
     int getWidth() const noexcept;

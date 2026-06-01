@@ -49,3 +49,9 @@ template void EventDispatcher::emit<BallUnstuck>(const BallUnstuck &eventData);
 
 template void EventDispatcher::subscribe<BallStuck>(std::function<void(const BallStuck &)> callback);
 template void EventDispatcher::emit<BallStuck>(const BallStuck &eventData);
+
+template void EventDispatcher::subscribe<GameFinished>(std::function<void(const GameFinished &)> callback);
+template void EventDispatcher::emit<GameFinished>(const GameFinished &eventData);
+
+template void EventDispatcher::subscribe<PowerUpSpawned>(std::function<void(const PowerUpSpawned &)> callback);
+template void EventDispatcher::emit<PowerUpSpawned>(const PowerUpSpawned &eventData);

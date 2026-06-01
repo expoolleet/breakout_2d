@@ -56,14 +56,14 @@ class Game {
         Menu,
         Active,
         Win,
-        Loose,
+        Defeat,
     };
 
     Keys keys;
     State currentState;
 
     Game(GameCreateInfo createInfo);
-    ~Game();
+    ~Game() = default;
 
     Game(const Game &) = delete;
     Game &operator=(const Game &) = delete;
@@ -78,37 +78,31 @@ class Game {
     void renderText(float alpha);
     void doCollisions();
     void nextLevel();
-    void restartCurrentLevel();
+    void resetCurrentLevel();
     void resetHeroBall();
     void resetBallPosition(BallPtr ball);
     void resetPlayer();
     void setProjectionMatrix();
-    void destroyBallsExceptHeroBall();
+    void clearBalls();
+    void clearStuckBalls();
+    void keepStuckBalls();
+    void appendQueueBalls();
+    void updateBalls(float dt);
+    void updateParticles(float dt);
     void spawnBall(glm::vec2 position);
     void spawnPowerUp(PowerUpType type, glm::vec2 position);
     void updatePowerUps(float dt);
-    void cleanupPowerUps();
+    void eraseFinishedPowerUps();
+    void clearPowerUps();
     void repositionStuckBallsOnPlayer();
     void stickBallToPlayer(BallPtr ball);
     void unstickBallFromPlayer(BallPtr ball);
-    void clearStuckBallsExceptHeroBall();
-
-    GameLevel getLevel(int lvlNumber);
-
-    // handlers
-    void onBallFliedOff(const BallFliedOff &e);
-    void onPowerUpActivated(const PowerUpActivated &e);
-    void onPowerUpFinished(const PowerUpFinished &e);
-    void onBallHit(const BallHit &e);
-    void onBallUnstuck(const BallUnstuck &e);
-    void onBallStuck(const BallStuck &e);
-
-    // coroutines
-    Task animateName(float dt);
 
     // testing
     void setGodMode(bool enabled) noexcept;
     bool isGodModeEnabled() const noexcept;
+
+    GameLevel getLevel(int lvlNumber);
 
    private:
     std::vector<GameLevel> m_levels;
@@ -150,11 +144,21 @@ class Game {
 
     size_t m_maxCountBallsStuckToPlayer = 0;
 
-    std::atomic<bool> m_running{true};
-
     float m_nameSize = 0.07f;
 
     bool m_godMode = false;
 
     void _calcBallNewPositionAndVelocity(Ball &ball, CollisionDirection dir, glm::vec2 diffVector);
+
+    // handlers
+    void _onBallFliedOff(const BallFliedOff &e);
+    void _onPowerUpActivated(const PowerUpActivated &e);
+    void _onPowerUpFinished(const PowerUpFinished &e);
+    void _onBallHit(const BallHit &e);
+    void _onBallUnstuck(const BallUnstuck &e);
+    void _onBallStuck(const BallStuck &e);
+    void _onGameFinished(const GameFinished &e);
+
+    // coroutines
+    Task _animateName(float dt);
 };

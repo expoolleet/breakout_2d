@@ -97,7 +97,7 @@ void GameLevel::load() {
     std::partition(m_bricks.begin(), m_bricks.end(), [](auto &brick) { return brick->isDestroyable(); });
 }
 
-void GameLevel::restart() {
+void GameLevel::reset() {
     for (auto &brick : m_bricks) {
         if (!brick->isDestroyable()) continue;
         brick->reset();
@@ -127,6 +127,7 @@ int GameLevel::getHeight() const noexcept {
 void GameLevel::setBrickPowerUp(size_t idx, PowerUpType type) {
     assert(idx >= 0 && idx < m_bricks.size());
     PowerUpData data = m_powerupFactory->getPowerUpData(type);
+    m_bricks[idx]->setHardenessPoints(1);
     m_bricks[idx]->setColor(data.color);
     m_bricks[idx]->setTexture(data.texture);
     m_bricks[idx]->setPowerUpType(type);

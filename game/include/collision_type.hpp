@@ -28,3 +28,8 @@ enum class CollisionDataType {
 
 // isCollided, CollisionDirection, diffVector, collisionPoint
 using Collision = std::tuple<bool, CollisionDirection, glm::vec2, glm::vec2>;
+
+template <CollisionDataType T>
+inline auto get(const Collision &c) {
+    return std::get<static_cast<int>(T)>(c);
+}

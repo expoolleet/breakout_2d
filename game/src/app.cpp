@@ -159,7 +159,7 @@ void App::run() {
         render::pollWindowEvents();
         game.processInput(frameTime);
 
-        objectManager.cleanup();
+        // objectManager.cleanup();
 
         fpsCounter.update();
 
