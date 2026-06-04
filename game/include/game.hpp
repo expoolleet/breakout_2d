@@ -78,7 +78,7 @@ class Game {
     void renderText(float alpha);
     void doCollisions();
     void nextLevel();
-    void resetCurrentLevel();
+    void resetLevel(GameLevel &level);
     void resetHeroBall();
     void resetBallPosition(BallPtr ball);
     void resetPlayer();
@@ -144,7 +144,7 @@ class Game {
 
     size_t m_maxCountBallsStuckToPlayer = 0;
 
-    float m_nameSize = 0.07f;
+    float m_nameSize = 2.0f;
 
     bool m_godMode = false;
 

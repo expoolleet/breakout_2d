@@ -4,14 +4,14 @@ enum class PowerUpType {
     WidePlayer,
     StickyPlayer,
     PassTrough,
-    FastBalls,
+    FastHeroBall,
     None,
 };
 
 inline const char *toString(PowerUpType type) {
     switch (type) {
-        case PowerUpType::FastBalls:
-            return "FastBalls";
+        case PowerUpType::FastHeroBall:
+            return "FastHeroBall";
         case PowerUpType::StickyPlayer:
             return "StickyPlayer";
         case PowerUpType::PassTrough:

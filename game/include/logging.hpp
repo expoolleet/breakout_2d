@@ -11,7 +11,7 @@ NO_DESTROY_ATTR inline std::string m_lastWarnMessage;
 NO_DESTROY_ATTR inline std::string m_lastErrorMessage;
 
 template <typename... Args>
-inline void Log(std::format_string<Args...> message, Args &&...args) {
+inline void Info(std::format_string<Args...> message, Args &&...args) {
     auto formatedMessage = std::format(message, std::forward<Args>(args)...);
     if (m_lastInfoMessage == formatedMessage) {
         return;
@@ -20,7 +20,7 @@ inline void Log(std::format_string<Args...> message, Args &&...args) {
     std::cout << "INFO: " + formatedMessage << "\n";
 }
 
-inline void Log(int value) {
+inline void Info(int value) {
     auto message = std::to_string(value);
     if (m_lastInfoMessage == message) {
         return;
@@ -30,7 +30,7 @@ inline void Log(int value) {
 }
 
 template <typename... Args>
-inline void LogSilent(std::format_string<Args...> message, Args &&...args) {
+inline void InfoSilent(std::format_string<Args...> message, Args &&...args) {
     auto formatedMessage = std::format(message, std::forward<Args>(args)...);
     std::cout << formatedMessage << "\n";
 }

@@ -5,12 +5,12 @@
 EngineContext::EngineContext() : m_audioManager(&m_pathManager), m_textureManager(&m_pathManager) {
     m_pathManager.init();
     m_audioManager.init();
-    logging::Log("Engine context is created");
+    logging::Info("Engine context is created");
 }
 
 EngineContext::~EngineContext() noexcept {
     m_eventDispatcher.clear();
-    logging::Log("Engine context is destroyed properly");
+    logging::Info("Engine context is destroyed properly");
 }
 
 AudioManager &EngineContext::getAudioManager() noexcept {

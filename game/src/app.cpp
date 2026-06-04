@@ -85,7 +85,7 @@ void App::run() {
     std::string fontsPath = context.getPathManager().getResourcePath("fonts");
     TextRenderer textRenderer{fontsPath};
     textRenderer.initRenderer();
-    textRenderer.initFontMSDF(fontsPath + "/msdf/roboto/atlas.png", fontsPath + "/msdf/roboto/atlas.json");
+    textRenderer.initFontMSDF(fontsPath + "/msdf/home_video/atlas.png", fontsPath + "/msdf/home_video/atlas.json");
 
     SpriteRenderer spriteRenderer;
     GameRenderer renderer{&spriteRenderer, &spriteShader};

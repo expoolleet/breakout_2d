@@ -193,10 +193,10 @@ void ShaderManager::checkIncludes(std::string &shaderCode) {
 }
 
 void ShaderManager::printSavedShaders() {
-    logging::Log("Printing available shaders:");
+    logging::Info("Printing available shaders:");
     int count = 0;
     for (auto &[id, shader] : m_shaders) {
-        logging::LogSilent("{}. {}", ++count, *id);
+        logging::InfoSilent("{}. {}", ++count, *id);
     }
 }
 

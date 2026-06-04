@@ -12,8 +12,8 @@ void ObjectManager::cleanup() {
         }
         return false;
     });
-    logging::Log("(ObjectManager) Erased {} objects", count);
-    logging::Log("(ObjectManager) Objects left {}", m_objects.size());
+    logging::Info("(ObjectManager) Erased {} objects", count);
+    logging::Info("(ObjectManager) Objects left {}", m_objects.size());
 }
 
 size_t ObjectManager::size() {

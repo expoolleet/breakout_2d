@@ -26,7 +26,7 @@ void PowerUp::fixedUpdate(float dt) {
 
         if (isFinished()) {
             m_context->getEventDispatcher().emit(PowerUpFinished{m_powerUpType});
-            logging::Log("PowerUp: {} is finished", toString(m_powerUpType));
+            logging::Info("PowerUp: {} is finished", toString(m_powerUpType));
         }
         return;
     }
@@ -63,7 +63,7 @@ Collision PowerUp::checkCollision(GameObject &gameObject) {
     if (std::get<0>(collision) && !isActivated() && gameObject.getObjectType() == GameObjectType::Player) {
         hide(true);
         m_context->getEventDispatcher().emit(PowerUpActivated{m_powerUpType});
-        logging::Log("PowerUp: {} is activated", toString(m_powerUpType));
+        logging::Info("PowerUp: {} is activated", toString(m_powerUpType));
         activate();
     }
     return collision;

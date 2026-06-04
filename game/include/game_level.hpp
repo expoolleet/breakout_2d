@@ -16,16 +16,6 @@ struct GameLevelCreateInfo {
 };
 
 class GameLevel {
-   private:
-    ContextPtr m_context;
-    ObjectManagerPtr m_objectManager;
-    PowerUpFactoryPtr m_powerupFactory;
-    std::vector<BrickPtr> m_bricks;
-    LevelTiles m_tiles;
-    int m_width = 0;
-    int m_height = 0;
-    bool m_loaded = false;
-
    public:
     GameLevel() = default;
     GameLevel(GameLevelCreateInfo createInfo, const std::string &levelPath);
@@ -38,9 +28,20 @@ class GameLevel {
     void reset();
     bool isFinished() const noexcept;
     bool isLoaded() const noexcept;
+    void cleanup();
     int getWidth() const noexcept;
     int getHeight() const noexcept;
     void setBrickPowerUp(size_t idx, PowerUpType type);
     void setRandomBrickPowerUp(PowerUpType type);
     std::vector<BrickPtr> &getBricks() noexcept;
+
+   private:
+    ContextPtr m_context;
+    ObjectManagerPtr m_objectManager;
+    PowerUpFactoryPtr m_powerupFactory;
+    std::vector<BrickPtr> m_bricks;
+    LevelTiles m_tiles;
+    int m_width = 0;
+    int m_height = 0;
+    bool m_loaded = false;
 };

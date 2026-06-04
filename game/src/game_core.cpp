@@ -23,7 +23,7 @@ glm::vec2 core::getWorldPosition(glm::vec2 screenPosition) {
 glm::vec2 core::getWorldPosition(float xNorm, float yNorm) {
     float halfWidth = getWorldWidth() / 2.0f;
     float halfHeight = getWorldHeight() / 2.0f;
-    return glm::vec2((1.0f - xNorm) * (-halfWidth) + xNorm * halfWidth, (1.0f - yNorm) * (-halfHeight) + yNorm * halfHeight);
+    return glm::vec2(lerp(-halfWidth, halfWidth, xNorm), lerp(-halfHeight, halfHeight, yNorm));
 }
 
 glm::vec2 core::getScreenPosition(float xNorm, float yNorm) {

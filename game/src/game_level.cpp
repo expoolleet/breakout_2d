@@ -140,3 +140,9 @@ void GameLevel::setRandomBrickPowerUp(PowerUpType type) {
 bool GameLevel::isLoaded() const noexcept {
     return m_loaded;
 }
+
+void GameLevel::cleanup() {
+    for (auto &brick : m_bricks) {
+        brick->destroy();
+    }
+}
