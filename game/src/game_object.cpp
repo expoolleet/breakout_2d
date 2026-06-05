@@ -18,7 +18,7 @@ Collision GameObject::checkCollision(GameObject &gameObject) {
     return cd::NoneCollision;
 }
 
-GameObjectType GameObject::getObjectType() const noexcept {
+GameObjectType GameObject::getType() const noexcept {
     return m_type;
 }
 
@@ -30,17 +30,21 @@ void GameObject::setDestructibility(bool destroyable) noexcept {
     m_isDestroyable = destroyable;
 }
 
-glm::vec2 GameObject::getPreviousPosition() {
+glm::vec2 GameObject::getPreviousPosition() const noexcept {
     return m_previousPosition;
 }
 
-void GameObject::setPosition(glm::vec2 position) {
+void GameObject::setPosition(glm::vec2 position) noexcept {
     m_previousPosition = m_position;
-    m_position = position;
-    m_aabb.center = glm::vec2(m_position.x + m_aabb.halfSize.x, m_position.y + m_aabb.halfSize.y);
+    m_aabb.center = glm::vec2(position.x + m_aabb.halfSize.x, position.y + m_aabb.halfSize.y);
+    Object2D::setPosition(position);
 }
 
-void GameObject::resetPosition(glm::vec2 position) {
+void GameObject::setLocalPosition(glm::vec2 position) noexcept {
+    Object2D::setLocalPosition(position);
+}
+
+void GameObject::resetPosition(glm::vec2 position) noexcept {
     m_previousPosition = position;
     m_position = position;
 }
@@ -49,7 +53,7 @@ glm::vec2 GameObject::getVelocity() const noexcept {
     return m_velocity;
 }
 
-void GameObject::setVelocity(glm::vec2 velocity) {
+void GameObject::setVelocity(glm::vec2 velocity) noexcept {
     m_velocity = velocity;
 }
 
@@ -57,11 +61,11 @@ float GameObject::getSpeed() const noexcept {
     return m_speed;
 }
 
-void GameObject::setSpeed(float speed) {
+void GameObject::setSpeed(float speed) noexcept {
     m_speed = speed;
 }
 
-void GameObject::setColliding(bool colliding) {
+void GameObject::setColliding(bool colliding) noexcept {
     m_isColliding = colliding;
 }
 

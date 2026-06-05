@@ -21,9 +21,7 @@ Ball::Ball(ContextPtr context, Texture2DPtr texture) : GameObject(context, textu
 void Ball::update(float dt) {}
 
 void Ball::fixedUpdate(float dt) {
-    if (isStuck()) {
-        setPosition(m_player->getPosition() + m_stuckPosition);
-    } else {
+    if (!isStuck()) {
         setPosition(m_position + m_velocity * m_speed * dt);
     }
 
@@ -56,12 +54,11 @@ void Ball::fixedUpdate(float dt) {
 Collision Ball::checkCollision(GameObject &gameObject) {
     if (isStuck()) return cd::NoneCollision;
     Collision collision = cd::checkCollision(*this, gameObject);
-    if (gameObject.getObjectType() == GameObjectType::Player && std::get<0>(collision)) {
-        Player *player = static_cast<Player *>(&gameObject);
-        float centerBoard = m_player->getPosition().x + m_player->getSize().x / 2;
+    if (gameObject.getType() == GameObjectType::Player && std::get<0>(collision)) {
+        float centerBoard = gameObject.getPosition().x + gameObject.getSize().x / 2;
         float distance = (getPosition().x + getRadius()) - centerBoard;
-        float percentage = distance / (m_player->getSize().x / 2.0f);
-        glm::vec2 newVelocity = getBounceVelocity() * percentage * player->getStrength();
+        float percentage = distance / (gameObject.getSize().x / 2.0f);
+        glm::vec2 newVelocity = getBounceVelocity() * percentage * static_cast<Player *>(&gameObject)->getStrength();
         newVelocity.y = std::abs(getVelocity().y);
         setVelocity(glm::normalize(newVelocity) * glm::length(getVelocity()));
     }
@@ -98,13 +95,4 @@ glm::vec2 Ball::getBounceVelocity() const noexcept {
 
 void Ball::setBounceVelocity(glm::vec2 velocity) {
     m_bounceVelocity = velocity;
-}
-
-void Ball::setStuckLocalPosition(glm::vec2 stuckPosition) {
-    m_stuckPosition = stuckPosition;
-}
-
-void Ball::setPlayer(PlayerPtr player) {
-    assert(player && "Player pointer is null!");
-    m_player = player;
 }

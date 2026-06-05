@@ -15,7 +15,41 @@ enum class GameObjectType {
     PowerUp
 };
 
+class GameObject;
+using GameObjectPtr = observer_ptr<GameObject>;
+
 class GameObject : public Object2D {
+   public:
+    GameObject(ContextPtr context, Texture2DPtr texture);
+    GameObject(ContextPtr context, Texture2DPtr texture, glm::vec2 position, glm::vec2 size);
+
+    virtual void update(float dt) = 0;
+    virtual void fixedUpdate(float dt) = 0;
+
+    virtual Collision checkCollision(GameObject &gameObject);
+    virtual GameObjectType getType() const noexcept;
+
+    virtual bool isDestroyable() const noexcept;
+    virtual void setDestructibility(bool flag) noexcept;
+
+    virtual glm::vec2 getPreviousPosition() const noexcept;
+    virtual void resetPosition(glm::vec2 position) noexcept;
+
+    virtual glm::vec2 getVelocity() const noexcept;
+    virtual void setVelocity(glm::vec2 velocity) noexcept;
+
+    virtual float getSpeed() const noexcept;
+    virtual void setSpeed(float speed) noexcept;
+
+    virtual void setColliding(bool flag) noexcept;
+    virtual bool isColliding() const noexcept;
+
+    virtual AABB getAABB() const noexcept;
+    virtual void setAABB(AABB aabb) noexcept;
+
+    void setPosition(glm::vec2 position) noexcept override;
+    void setLocalPosition(glm::vec2 position) noexcept override;
+
    protected:
     AABB m_aabb;
 
@@ -30,34 +64,4 @@ class GameObject : public Object2D {
 
     bool m_isDestroyable = false;
     bool m_isColliding = true;
-
-   public:
-    GameObject(ContextPtr context, Texture2DPtr texture);
-    GameObject(ContextPtr context, Texture2DPtr texture, glm::vec2 position, glm::vec2 size);
-
-    virtual void update(float dt) = 0;
-    virtual void fixedUpdate(float dt) = 0;
-
-    virtual Collision checkCollision(GameObject &gameObject);
-    virtual GameObjectType getObjectType() const noexcept;
-
-    virtual bool isDestroyable() const noexcept;
-    virtual void setDestructibility(bool flag) noexcept;
-
-    virtual glm::vec2 getPreviousPosition();
-    virtual void resetPosition(glm::vec2 position);
-
-    virtual glm::vec2 getVelocity() const noexcept;
-    virtual void setVelocity(glm::vec2 velocity);
-
-    virtual float getSpeed() const noexcept;
-    virtual void setSpeed(float speed);
-
-    virtual void setColliding(bool flag);
-    virtual bool isColliding() const noexcept;
-
-    virtual AABB getAABB() const noexcept;
-    virtual void setAABB(AABB aabb) noexcept;
-
-    void setPosition(glm::vec2 position) override;
 };

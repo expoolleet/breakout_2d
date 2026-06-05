@@ -112,7 +112,6 @@ void Game::init() {
     ball->setRadius(ball->getSize().x / 2);
     ball->setSpeed(BALL_DEFAULT_SPEED);
     ball->setDamage(1);
-    ball->setPlayer(m_player);
     m_heroBall = ball;
     m_balls.push_back(ball);
     stickBallToPlayer(m_heroBall);
@@ -265,34 +264,34 @@ void Game::renderText(float dt) {
     if (currentState == State::Win) {
         m_textRenderer->renderMSDF(*m_textShader, "You won!\n(press Enter to continue)",
                                    {core::getWorldPosition(0.075f, 0.5f), glm::vec3(0.0f, 0.9f, 0.6f), 2.0f, TextAlign::Center},
-                                   {.width = 1.0f});
+                                   {.width = 2.0f});
     } else if (currentState == State::Defeat) {
         m_textRenderer->renderMSDF(*m_textShader, "Game over\n(press Enter to restart)",
                                    {core::getWorldPosition(0.075f, 0.5f), glm::vec3(0.9f, 0.1f, 0.3f), 2.0f, TextAlign::Center},
-                                   {.width = 1.0f});
+                                   {.width = 2.0f});
     }
 
     else {
         glm::vec2 namePos = core::getWorldPosition(0.25f, 0.5f);
         m_textRenderer->renderMSDF(*m_textShader, GAME_NAME, {namePos, glm::vec3(1.0f), m_nameSize, TextAlign::Left, true},
-                                   {glm::vec3(0.0f), 1.0f});
+                                   {glm::vec3(0.0f), 2.0f});
     }
     m_textRenderer->renderMSDF(*m_textShader, std::format("Attempts: {}", std::to_string(m_attempts - m_currentAttempt)),
-                               {.position = core::getWorldPosition(0.01f, 0.9f), .scale = 0.7f});
+                               {.position = core::getWorldPosition(0.01f, 0.9f), .scale = 0.7f}, {glm::vec3(0.0f), 0.7f});
 
 #ifdef DEBUG
-    m_textRenderer->renderMSDF(*m_textShader, std::format("Ball count: {}", m_balls.size()),
-                               {core::getWorldPosition(0.75f, 0.01f), glm::vec3(1.0f), 0.8f}, {glm::vec3(0.0f), 0.5f});
+    m_textRenderer->renderMSDF(*m_textShader, std::format("Ball (created) count: {}", m_balls.size()),
+                               {core::getWorldPosition(0.65f, 0.01f), glm::vec3(1.0f), 0.7f}, {glm::vec3(0.0f), 0.7f});
     m_textRenderer->renderMSDF(*m_textShader, std::format("Hero ball speed: {:.2f}", m_heroBall->getSpeed()),
-                               {core::getWorldPosition(0.01f, 0.09f), glm::vec3(1.0f), 0.8f}, {glm::vec3(0.0f), 0.5f});
+                               {core::getWorldPosition(0.01f, 0.09f), glm::vec3(1.0f), 0.8f}, {glm::vec3(0.0f), 0.8f});
     m_textRenderer->renderMSDF(
         *m_textShader, std::format("Hero ball vel.x: {:.2f}; vel.y: {:.2f}", m_heroBall->getVelocity().x, m_heroBall->getVelocity().y),
-        {core::getWorldPosition(0.01f, 0.05f), glm::vec3(1.0f), 0.8f}, {glm::vec3(0.0f), 0.5f});
+        {core::getWorldPosition(0.01f, 0.05f), glm::vec3(1.0f), 0.8f}, {glm::vec3(0.0f), 0.8f});
     m_textRenderer->renderMSDF(
         *m_textShader, std::format("Hero ball pos.x: {:.2f}; pos.y: {:.2f}", m_heroBall->getPosition().x, m_heroBall->getPosition().y),
-        {core::getWorldPosition(0.01f, 0.01f), glm::vec3(1.0f), 0.8f}, {glm::vec3(0.0f), 0.5f});
-    m_textRenderer->renderMSDF(*m_textShader, std::format("Object count: {}", m_objectManager->size()),
-                               {core::getWorldPosition(0.75f, 0.9f), glm::vec3(1.0f), 0.8f});
+        {core::getWorldPosition(0.01f, 0.01f), glm::vec3(1.0f), 0.8f}, {glm::vec3(0.0f), 0.8f});
+    m_textRenderer->renderMSDF(*m_textShader, std::format("Object (created) count: {}", m_objectManager->size()),
+                               {core::getWorldPosition(0.65f, 0.9f), glm::vec3(1.0f), 0.7f}, {glm::vec3(0.0f), 0.7f});
 #endif
 }
 
@@ -369,7 +368,7 @@ void Game::repositionStuckBallsOnPlayer() {
     float xPadding = 0.02f;
     float xOffset = static_cast<float>(m_stuckBalls.size()) * (m_heroBall->getSize().x / 2.0f);
     for (auto &ball : m_stuckBalls) {
-        ball->setStuckLocalPosition(glm::vec2(m_player->getSize().x / 2.0f - xOffset, ball->getSize().y));
+        ball->setLocalPosition(glm::vec2(m_player->getSize().x / 2.0f - xOffset, ball->getSize().y));
         xOffset -= ball->getSize().x + xPadding;
     }
 }
@@ -383,6 +382,7 @@ void Game::stickBallToPlayer(BallPtr ball) {
     if (!isHero && !m_heroBall->isStuck() && stuckBallsCount == m_maxCountBallsStuckToPlayer - 1) return;
     if (stuckBallsCount >= m_maxCountBallsStuckToPlayer) return;
 
+    ball->setParent(m_player.get());
     ball->setStuck(true);
     m_stuckBalls.push_back(ball);
     repositionStuckBallsOnPlayer();
@@ -390,11 +390,12 @@ void Game::stickBallToPlayer(BallPtr ball) {
 }
 
 void Game::unstickBallFromPlayer(BallPtr ball) {
+    ball->setParent(nullptr);
     ball->setStuck(false);
     ball->setVelocity(INITIAL_BALL_VELOCITY);
     ball->setPosition(ball->getPosition() + ball->getVelocity() * 0.1f);
-    repositionStuckBallsOnPlayer();
     m_stuckBalls.pop_back();
+    repositionStuckBallsOnPlayer();
     m_context->getEventDispatcher().emit(BallUnstuck{ball});
 }
 
@@ -416,7 +417,6 @@ void Game::clearStuckBalls() {
 
 void Game::spawnBall(glm::vec2 position) {
     auto ball = m_objectManager->create<Ball>(m_context->getTextureManager().getTexture("ball"), glm::vec2(0.0f), BALL_DEFAULT_SIZE);
-    ball->setPlayer(m_player);
     ball->setPosition(position);
     glm::vec2 randomVelocity = glm::normalize(
         glm::vec2(fastrand::frandomFloatInRange(-1.0f, 1.0f), INITIAL_BALL_VELOCITY.y + fastrand::frandomFloatInRange(-0.5f, 0.5f)));
@@ -503,7 +503,7 @@ void Game::_onPowerUpActivated(const PowerUpActivated &e) {
 
 void Game::_onPowerUpFinished(const PowerUpFinished &e) {
     for (auto &powerup : m_powerups) {
-        if (powerup->getType() == e.type && !powerup->isFinished()) {
+        if (powerup->getPowerUpType() == e.type && !powerup->isFinished()) {
             return;
         }
     }

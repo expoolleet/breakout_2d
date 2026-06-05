@@ -16,7 +16,6 @@ class Keys {
     bool prevKeys[MAX_KEY_CODE] = {false};
 
     inline void update() noexcept {
-        // std::cout << keys[KEY_SPACE] << " " << prevKeys[KEY_SPACE] << "\n";
         std::copy(keys, keys + MAX_KEY_CODE, prevKeys);
     }
 

@@ -159,8 +159,6 @@ void App::run() {
         render::pollWindowEvents();
         game.processInput(frameTime);
 
-        // objectManager.cleanup();
-
         fpsCounter.update();
 
         render::setWindowTitle(std::format("{} ({} fps)", GAME_NAME, fpsCounter.getFPS()));

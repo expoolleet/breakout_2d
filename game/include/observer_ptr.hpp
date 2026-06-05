@@ -12,6 +12,13 @@ class observer_ptr {
 
     observer_ptr() = default;
     observer_ptr(T *ptr) : m_ptr(ptr) {}
+    observer_ptr(const observer_ptr<T> &other) : m_ptr(other.m_ptr) {}
+    observer_ptr &operator=(const observer_ptr<T> &other) {
+        if (this != &other) {
+            m_ptr = other.m_ptr;
+        }
+        return *this;
+    }
 
     inline T *operator->() const noexcept {
         assert(m_ptr && "Object's pointer is null!");
@@ -34,4 +41,8 @@ class observer_ptr {
     inline bool operator!=(const observer_ptr<T> &otherPtr) const noexcept {
         return !(otherPtr.m_ptr == m_ptr);
     }
-};
+
+    inline T *get() const noexcept {
+        return m_ptr;
+    }
+};  // namespace std

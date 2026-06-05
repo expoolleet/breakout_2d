@@ -31,7 +31,7 @@ class Brick : public GameObject {
     int getMaxHardnessPoints() const noexcept;
     void damage(unsigned int damage);
     void heal(unsigned int heal);
-    void reset() override;
+    void reset() noexcept override;
 };
 
 using BrickPtr = observer_ptr<Brick>;

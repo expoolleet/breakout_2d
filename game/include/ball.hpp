@@ -17,7 +17,6 @@ class Ball : public GameObject {
     float m_radius = 0.0;
     unsigned int m_damage = 1;
     bool m_stuck = false;
-    PlayerPtr m_player;
 
    public:
     Ball(ContextPtr context, Texture2DPtr texture, glm::vec2 position, glm::vec2 size);
@@ -38,10 +37,6 @@ class Ball : public GameObject {
 
     glm::vec2 getBounceVelocity() const noexcept;
     void setBounceVelocity(glm::vec2 velocity);
-
-    void setStuckLocalPosition(glm::vec2 stuckPosition);
-
-    void setPlayer(PlayerPtr player);
 };
 
 using BallPtr = observer_ptr<Ball>;

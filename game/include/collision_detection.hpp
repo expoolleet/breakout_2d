@@ -6,7 +6,6 @@
 #include "ball.hpp"
 #include "collision_type.hpp"
 #include "game_object.hpp"
-#include "logging.hpp"
 
 // Collision Detection namespace
 namespace cd {

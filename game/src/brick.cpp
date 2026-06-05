@@ -26,7 +26,7 @@ void Brick::update(float dt) {}
 void Brick::fixedUpdate(float dt) {}
 
 Collision Brick::checkCollision(GameObject &gameObject) {
-    if (gameObject.getObjectType() == GameObjectType::Ball) {
+    if (gameObject.getType() == GameObjectType::Ball) {
         BallPtr ball = dynamic_cast<Ball *>(&gameObject);
         Collision collision = cd::checkCollision(*ball, *this);
         if (std::get<0>(collision)) {
@@ -63,7 +63,7 @@ void Brick::heal(unsigned int heal) {
     m_hardnessPoints = std::min(m_maxHardnessPoints, m_hardnessPoints + static_cast<int>(heal));
 }
 
-void Brick::reset() {
+void Brick::reset() noexcept {
     GameObject::reset();
     m_hardnessPoints = m_maxHardnessPoints;
 }

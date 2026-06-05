@@ -23,7 +23,7 @@ class PowerUp : public GameObject {
     bool isActivated();
     bool isFinished();
     void activate();
-    PowerUpType getType() const;
+    PowerUpType getPowerUpType() const;
 };
 
 using PowerUpPtr = observer_ptr<PowerUp>;

@@ -54,13 +54,13 @@ void PowerUp::activate() {
     m_activated = true;
 }
 
-PowerUpType PowerUp::getType() const {
+PowerUpType PowerUp::getPowerUpType() const {
     return m_powerUpType;
 }
 
 Collision PowerUp::checkCollision(GameObject &gameObject) {
     Collision collision = cd::checkCollision(*this, gameObject);
-    if (std::get<0>(collision) && !isActivated() && gameObject.getObjectType() == GameObjectType::Player) {
+    if (std::get<0>(collision) && !isActivated() && gameObject.getType() == GameObjectType::Player) {
         hide(true);
         m_context->getEventDispatcher().emit(PowerUpActivated{m_powerUpType});
         logging::Info("PowerUp: {} is activated", toString(m_powerUpType));

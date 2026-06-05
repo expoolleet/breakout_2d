@@ -213,6 +213,8 @@ target_precompile_headers(${Project} PRIVATE
     <glm/gtc/matrix_transform.hpp>
     <glm/gtc/type_ptr.hpp>
     <nlohmann/json.hpp>
+
+    "include/observer_ptr.hpp"
 )
 
 target_compile_definitions(${Project} PRIVATE $<$<CONFIG:Debug>:DEBUG>)
