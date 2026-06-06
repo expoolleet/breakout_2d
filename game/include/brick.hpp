@@ -29,8 +29,8 @@ class Brick : public GameObject {
     void setHardenessPoints(int hp) noexcept;
     int getCurrentHardnessPoints() const noexcept;
     int getMaxHardnessPoints() const noexcept;
-    void damage(unsigned int damage);
-    void heal(unsigned int heal);
+    void damage(int damage);
+    void heal(int heal);
     void reset() noexcept override;
 };
 

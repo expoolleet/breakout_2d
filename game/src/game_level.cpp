@@ -58,6 +58,11 @@ void GameLevel::load() {
     size_t rows = m_tiles.size();
     size_t columns = m_tiles[0].size();
     size_t brickCount = rows * columns;
+
+    std::vector<PowerUpType> powerUpTypes(brickCount, PowerUpType::None);
+    copy(m_powerUpTypes.begin(), m_powerUpTypes.end(), powerUpTypes.begin());
+    fastrand::shuffle(powerUpTypes);
+
     float offset = 0.1f;
     float xStart = -(static_cast<float>(columns) * BRICK_SIZE.x / 2.0f) - offset;
     float yStart = core::getWorldAABB().w - BRICK_SIZE.y;
@@ -90,10 +95,12 @@ void GameLevel::load() {
                     m_objectManager->create<Brick>(textureManager.getTexture(BRICK_TEXTURE), position, size, BrickType::ExtremelyTough));
                 break;
             default:
-                logging::Warn("Could not load a brick with the tile code: {}", code);
+                logging::Warn("(GameLevel) Could not load a brick with the tile code: {}", code);
                 break;
         }
+        setBrickPowerUp(m_bricks.back(), powerUpTypes[i]);
     }
+
     std::partition(m_bricks.begin(), m_bricks.end(), [](auto &brick) { return brick->isDestroyable(); });
 }
 
@@ -126,11 +133,25 @@ int GameLevel::getHeight() const noexcept {
 
 void GameLevel::setBrickPowerUp(size_t idx, PowerUpType type) {
     assert(idx >= 0 && idx < m_bricks.size());
+    if (type == PowerUpType::None) return;
     PowerUpData data = m_powerupFactory->getPowerUpData(type);
     m_bricks[idx]->setHardenessPoints(1);
     m_bricks[idx]->setColor(data.color);
     m_bricks[idx]->setTexture(data.texture);
     m_bricks[idx]->setPowerUpType(type);
+}
+
+void GameLevel::setBrickPowerUp(BrickPtr brick, PowerUpType type) {
+    if (type == PowerUpType::None) return;
+    PowerUpData data = m_powerupFactory->getPowerUpData(type);
+    brick->setHardenessPoints(1);
+    brick->setColor(data.color);
+    brick->setTexture(data.texture);
+    brick->setPowerUpType(type);
+}
+
+void GameLevel::setRandomPowerUps(std::vector<PowerUpType> powerUpTypes) {
+    m_powerUpTypes = std::move(powerUpTypes);
 }
 
 void GameLevel::setRandomBrickPowerUp(PowerUpType type) {

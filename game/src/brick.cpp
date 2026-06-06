@@ -40,7 +40,7 @@ Collision Brick::checkCollision(GameObject &gameObject) {
 }
 
 void Brick::setHardenessPoints(int hp) noexcept {
-    assert(hp >= 1 && "HP need to be above 1!");
+    assert(hp >= 1 && "Hardeness points of brick needs to be above 1");
     m_hardnessPoints = hp;
 }
 
@@ -52,15 +52,17 @@ int Brick::getMaxHardnessPoints() const noexcept {
     return m_maxHardnessPoints;
 }
 
-void Brick::damage(unsigned int damage) {
-    m_hardnessPoints = std::max(0, m_hardnessPoints - static_cast<int>(damage));
+void Brick::damage(int damage) {
+    assert(damage >= 0 && "Damage needs to be above 0");
+    m_hardnessPoints = std::max(0, m_hardnessPoints - damage);
     if (m_hardnessPoints == 0) {
         destroy();
     }
 }
 
-void Brick::heal(unsigned int heal) {
-    m_hardnessPoints = std::min(m_maxHardnessPoints, m_hardnessPoints + static_cast<int>(heal));
+void Brick::heal(int heal) {
+    assert(heal >= 0 && "Heal needs to be above 0");
+    m_hardnessPoints = std::min(m_maxHardnessPoints, m_hardnessPoints + heal);
 }
 
 void Brick::reset() noexcept {

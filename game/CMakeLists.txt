@@ -22,6 +22,7 @@ set(Sources
     src/game_level_generator.cpp
     src/game_object.cpp
     src/game_renderer.cpp
+    src/game_scene.cpp
     src/object_2d.cpp
     src/object_manager.cpp
     src/particle_emitter.cpp

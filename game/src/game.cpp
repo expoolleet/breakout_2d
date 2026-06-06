@@ -61,6 +61,7 @@ void Game::_calcBallNewPositionAndVelocity(Ball &ball, CollisionDirection dir, g
 
 Game::Game(GameCreateInfo createInfo)
     : currentState(State::Active),
+      m_mainScene(createInfo.contextPtr),
       m_spriteShader(createInfo.spriteShaderPtr),
       m_textShader(createInfo.textShaderPtr),
       m_particleShader(createInfo.particleShaderPtr),
@@ -97,17 +98,13 @@ void Game::init() {
     m_currentLevel = m_levelGenerator->generate(3, 3);
     m_currentLevel.load();
 
-    m_currentLevel.setBrickPowerUp(0, PowerUpType::StickyPlayer);
-    m_currentLevel.setBrickPowerUp(1, PowerUpType::WidePlayer);
-    m_currentLevel.setBrickPowerUp(2, PowerUpType::PassTrough);
-    m_currentLevel.setBrickPowerUp(3, PowerUpType::FastHeroBall);
+    TextureManager &textureManager = m_context->getTextureManager();
 
-    m_player =
-        m_objectManager->create<Player>(m_context->getTextureManager().getTexture("player"), PLAYER_START_POSITION, PLAYER_DEFAULT_SIZE);
+    m_player = m_objectManager->create<Player>(textureManager.getTexture("player"), PLAYER_START_POSITION, PLAYER_DEFAULT_SIZE);
     m_player->setSpeed(30.0f);
     m_player->setAABB({glm::vec2(0.0f), (PLAYER_DEFAULT_SIZE / 2.0f) + 0.05f});
 
-    BallPtr ball = m_objectManager->create<Ball>(m_context->getTextureManager().getTexture("ball"), glm::vec2(0.0f), BALL_DEFAULT_SIZE);
+    BallPtr ball = m_objectManager->create<Ball>(textureManager.getTexture("ball"), glm::vec2(0.0f), BALL_DEFAULT_SIZE);
     ball->setVelocity(INITIAL_BALL_VELOCITY);
     ball->setRadius(ball->getSize().x / 2);
     ball->setSpeed(BALL_DEFAULT_SPEED);
@@ -240,11 +237,13 @@ void Game::render(float alpha) {
         m_renderer->submit(
             {RenderLayer::Brick, brick->getShader(), brick->getTexture(), brick->getPosition(), brick->getSize(), 0.0f, brick->getColor()});
     }
+
     for (auto &ball : m_balls) {
         if (ball->isHidden()) continue;
         m_renderer->submit({RenderLayer::Ball, ball->getShader(), ball->getTexture(),
                             core::lerp(ball->getPreviousPosition(), ball->getPosition(), alpha), ball->getSize(), 0.0f, ball->getColor()});
     }
+
     for (auto &powerup : m_powerups) {
         if (powerup->isHidden()) continue;
         m_renderer->submit({RenderLayer::PowerUp, powerup->getShader(), powerup->getTexture(),
@@ -269,9 +268,7 @@ void Game::renderText(float dt) {
         m_textRenderer->renderMSDF(*m_textShader, "Game over\n(press Enter to restart)",
                                    {core::getWorldPosition(0.075f, 0.5f), glm::vec3(0.9f, 0.1f, 0.3f), 2.0f, TextAlign::Center},
                                    {.width = 2.0f});
-    }
-
-    else {
+    } else {
         glm::vec2 namePos = core::getWorldPosition(0.25f, 0.5f);
         m_textRenderer->renderMSDF(*m_textShader, GAME_NAME, {namePos, glm::vec3(1.0f), m_nameSize, TextAlign::Left, true},
                                    {glm::vec3(0.0f), 2.0f});
@@ -335,6 +332,10 @@ void Game::resetHeroBall() {
     m_heroBall->reset();
     m_heroBall->setSpeed(BALL_DEFAULT_SPEED);
     m_heroBall->setStuck(true);
+    m_heroBall->setParent(m_player.get());
+    if (auto it = std::find(m_stuckBalls.begin(), m_stuckBalls.end(), m_heroBall); it == m_stuckBalls.end()) {
+        m_stuckBalls.push_back(m_heroBall);
+    }
 }
 
 void Game::resetBallPosition(BallPtr ball) {

@@ -32,6 +32,8 @@ class GameLevel {
     int getWidth() const noexcept;
     int getHeight() const noexcept;
     void setBrickPowerUp(size_t idx, PowerUpType type);
+    void setBrickPowerUp(BrickPtr brick, PowerUpType type);
+    void setRandomPowerUps(std::vector<PowerUpType> powerUpTypes);
     void setRandomBrickPowerUp(PowerUpType type);
     std::vector<BrickPtr> &getBricks() noexcept;
 
@@ -40,6 +42,7 @@ class GameLevel {
     ObjectManagerPtr m_objectManager;
     PowerUpFactoryPtr m_powerupFactory;
     std::vector<BrickPtr> m_bricks;
+    std::vector<PowerUpType> m_powerUpTypes;
     LevelTiles m_tiles;
     int m_width = 0;
     int m_height = 0;

@@ -1,11 +1,11 @@
 #pragma once
 
 enum class PowerUpType {
-    WidePlayer,
-    StickyPlayer,
-    PassTrough,
-    FastHeroBall,
-    None,
+    None = 0,
+    WidePlayer = 1,
+    StickyPlayer = 2,
+    PassTrough = 3,
+    FastHeroBall = 4,
 };
 
 inline const char *toString(PowerUpType type) {

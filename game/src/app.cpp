@@ -57,6 +57,7 @@ App::App() : objectManager(&context) {
     textureManager.loadTexture(texturesPath + "/brick_undestroyable.png", true, BADROCK_TEXTURE);
     textureManager.loadTexture(texturesPath + "/ball.png", true, "ball");
     textureManager.loadTexture(texturesPath + "/player_skin_2.png", true, PLAYER_TEXTURE);
+    textureManager.loadTexture(texturesPath + "/powerup_brick.png", true, POWERUP_BRICK_TEXTURE);
 
     Canvas::init();
 

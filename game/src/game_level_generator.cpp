@@ -22,5 +22,13 @@ GameLevel GameLevelGenerator::generate(int levelWidth, int levelHeight) {
         }
         tiles.push_back(row);
     }
-    return GameLevel{m_levelCreateInfo, tiles};
+    GameLevel level{m_levelCreateInfo, tiles};
+
+    std::vector<PowerUpType> powerUpTypes;
+    int powerUpMaxCount = levelWidth * levelHeight / 3;
+    for (int i = 0; i < powerUpMaxCount; ++i) {
+        powerUpTypes.push_back(static_cast<PowerUpType>(fastrand::frandomIntInRange(0, 4)));
+    }
+    level.setRandomPowerUps(powerUpTypes);
+    return level;
 }

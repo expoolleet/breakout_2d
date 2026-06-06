@@ -1,6 +1,7 @@
 #pragma once
 
 #include "engine_context.hpp"
+#include "scene_node.hpp"
 #include "shader.hpp"
 #include "texture_2d.hpp"
 
@@ -9,6 +10,7 @@ using Object2DPtr = observer_ptr<Object2D>;
 
 class Object2D {
    public:
+    Object2D(ContextPtr context);
     Object2D(ContextPtr context, Texture2DPtr texture);
     Object2D(ContextPtr context, Texture2DPtr texture, glm::vec2 position, glm::vec2 size);
 
@@ -45,18 +47,16 @@ class Object2D {
     virtual void reset() noexcept;
 
     void setParent(Object2DPtr parent);
-    Object2DPtr getParent() const noexcept;
     void addChild(Object2DPtr child);
-    void removeChild(Object2DPtr child);
     void clearChildren() noexcept;
+    Object2DPtr getParent() const noexcept;
 
    protected:
-    Object2DPtr m_parent;
-    std::vector<Object2DPtr> m_children;
-
     ContextPtr m_context;
     ShaderPtr m_shader;
     Texture2DPtr m_texture;
+
+    SceneNode<Object2D> m_node;
 
     glm::vec2 m_position = glm::vec3(0.0f);
     glm::vec2 m_localPosition = glm::vec3(0.0f);
@@ -65,4 +65,7 @@ class Object2D {
 
     bool m_isHidden = false;
     bool m_isAlive = true;
+
+    void _addChildUnsafe(Object2DPtr child);
+    void _removeChildUnsafe(Object2DPtr child);
 };

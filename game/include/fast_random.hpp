@@ -63,4 +63,14 @@ inline float frandomFloatInRange(float a, float b) {
     return a + frandom() * (b - a);
 }
 
+inline int frandomIntInRange(int a, int b) {
+    return a + static_cast<int>(frandom() * (b - a));
+}
+
+// Fisher-Yates shuffle
+template <typename T>
+inline void shuffle(std::vector<T> &arr) {
+    std::shuffle(arr.begin(), arr.end(), getEngine_mt19937());
+}
+
 }  // namespace fastrand

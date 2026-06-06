@@ -13,6 +13,7 @@
 #include "game_level.hpp"
 #include "game_level_generator.hpp"
 #include "game_renderer.hpp"
+#include "game_scene.hpp"
 #include "input.hpp"
 #include "object_manager.hpp"
 #include "particle_emitter.hpp"
@@ -110,6 +111,8 @@ class Game {
     std::vector<BallPtr> m_balls;
     std::vector<BallPtr> m_queueBalls;
     std::vector<glm::vec2> m_collisionPointHistory;
+
+    Scene m_mainScene;
 
     ShaderPtr m_spriteShader;
     ShaderPtr m_textShader;

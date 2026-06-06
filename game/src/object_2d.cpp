@@ -5,6 +5,8 @@
 
 #include "logging.hpp"
 
+Object2D::Object2D(ContextPtr context) : m_context(context), m_shader(nullptr), m_texture(nullptr) {}
+
 Object2D::Object2D(ContextPtr context, Texture2DPtr texture, glm::vec2 position, glm::vec2 size)
     : m_context(context), m_shader(nullptr), m_texture(texture), m_position(position), m_size(size) {
     assert(texture != nullptr && "Texture address is null");
@@ -15,7 +17,7 @@ Object2D::Object2D(ContextPtr context, Texture2DPtr texture) : m_context(context
 }
 
 Object2D::~Object2D() noexcept {
-    for (auto &child : m_children) {
+    for (auto &child : m_node.m_children) {
         child->destroy();
     }
 }
@@ -47,8 +49,8 @@ void Object2D::hide(bool hidden) noexcept {
 }
 
 glm::vec2 Object2D::getPosition() const noexcept {
-    if (m_parent) {
-        return m_parent->getPosition() + m_localPosition;
+    if (m_node.m_parent) {
+        return m_node.m_parent->getPosition() + m_localPosition;
     }
     return m_position;
 }
@@ -63,15 +65,15 @@ glm::vec2 Object2D::getSize() const noexcept {
 
 void Object2D::setPosition(glm::vec2 position) noexcept {
     m_position = position;
-    for (auto &child : m_children) {
+    for (auto &child : m_node.m_children) {
         child->setPosition(child->getLocalPosition() + m_position);
     }
 }
 
 void Object2D::setLocalPosition(glm::vec2 position) noexcept {
     m_localPosition = position;
-    if (m_parent) {
-        setPosition(m_parent->getPosition() + m_localPosition);
+    if (m_node.m_parent) {
+        setPosition(m_node.m_parent->getPosition() + m_localPosition);
     }
 }
 
@@ -94,11 +96,17 @@ bool Object2D::isAlive() const noexcept {
 void Object2D::destroy() noexcept {
     m_isHidden = true;
     m_isAlive = false;
+    for (auto &child : m_node.m_children) {
+        child->destroy();
+    }
 }
 
 void Object2D::reset() noexcept {
     m_isHidden = false;
     m_isAlive = true;
+    for (auto &child : m_node.m_children) {
+        child->reset();
+    }
 }
 
 void Object2D::setParent(Object2DPtr parent) {
@@ -106,47 +114,43 @@ void Object2D::setParent(Object2DPtr parent) {
         logging::Error("(Object2D) Cannot set parent to self");
         return;
     }
-    Object2DPtr oldParent = m_parent;
-    m_parent = parent;
+    Object2DPtr oldParent = m_node.m_parent;
+    m_node.m_parent = parent;
     if (oldParent) {
-        oldParent->removeChild(this);
+        oldParent->_removeChildUnsafe(this);
     }
-    if (m_parent) {
-        m_parent->addChild(this);
+    if (m_node.m_parent) {
+        m_node.m_parent->_addChildUnsafe(this);
     }
 }
 
 Object2DPtr Object2D::getParent() const noexcept {
-    return m_parent;
+    return m_node.m_parent;
 }
 
 void Object2D::addChild(Object2DPtr child) {
-    if (this == child.get()) {
-        logging::Error("(Object2D) Cannot set child to self");
-        return;
-    }
-    if (!child->getParent()) child->setParent(this);
-    auto it = std::find(m_children.begin(), m_children.end(), child);
-    if (it != m_children.end()) {
-        logging::Error("(Object2D) Cannot set child to object twice");
-        return;
-    }
-    m_children.push_back(child);
-}
-
-void Object2D::removeChild(Object2DPtr child) {
-    auto it = std::find(m_children.begin(), m_children.end(), child);
-    if (it == m_children.end()) {
-        logging::Error("(Object2D) Could not find a child to delete from parent");
-    }
-    m_children.erase(it);
-    if (child->getParent()) child->setParent(nullptr);
+    if (!child) return;
+    child->setParent(this);
 }
 
 void Object2D::clearChildren() noexcept {
-    if (m_children.empty()) return;
-    for (auto &child : m_children) {
-        if (child->getParent()) child->setParent(nullptr);
+    if (m_node.m_children.empty()) return;
+    auto copy = m_node.m_children;
+    for (auto &child : copy) {
+        child->setParent(nullptr);
     }
-    m_children.clear();
+}
+
+void Object2D::_addChildUnsafe(Object2DPtr child) {
+    auto it = std::find(m_node.m_children.begin(), m_node.m_children.end(), child);
+    if (it == m_node.m_children.end()) {
+        m_node.m_children.push_back(child);
+    }
+}
+
+void Object2D::_removeChildUnsafe(Object2DPtr child) {
+    auto it = std::find(m_node.m_children.begin(), m_node.m_children.end(), child);
+    if (it != m_node.m_children.end()) {
+        m_node.m_children.erase(it);
+    }
 }
