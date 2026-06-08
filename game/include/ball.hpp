@@ -4,7 +4,6 @@
 
 #include "collision_type.hpp"
 #include "game_object.hpp"
-#include "player.hpp"
 #include "texture_2d.hpp"
 
 constexpr float BALL_DEFAULT_SPEED = 20.0f;

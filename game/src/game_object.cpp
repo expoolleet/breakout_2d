@@ -5,14 +5,15 @@
 
 #include "collision_detection.hpp"
 #include "collision_type.hpp"
+#include "sprite_object.hpp"
 
 GameObject::GameObject(ContextPtr context, Texture2DPtr texture, glm::vec2 position, glm::vec2 size)
-    : Object2D(context, texture, position, size) {
+    : SpriteObject(context, texture, position, size) {
     m_aabb.halfSize = glm::vec2(getSize().x / 2, getSize().y / 2);
     m_aabb.center = glm::vec2(getPosition().x + m_aabb.halfSize.x, getPosition().y + m_aabb.halfSize.y);
 }
 
-GameObject::GameObject(ContextPtr context, Texture2DPtr texture) : Object2D(context, texture) {}
+GameObject::GameObject(ContextPtr context, Texture2DPtr texture) : SpriteObject(context, texture) {}
 
 Collision GameObject::checkCollision(GameObject &gameObject) {
     return cd::NoneCollision;
@@ -30,31 +31,34 @@ void GameObject::setDestructibility(bool destroyable) noexcept {
     m_isDestroyable = destroyable;
 }
 
-glm::vec2 GameObject::getPreviousPosition() const noexcept {
-    return m_previousPosition;
+void GameObject::setSize(glm::vec2 size) noexcept {
+    m_size = size;
+    m_aabb.halfSize = glm::vec2(m_size.x / 2, m_size.y / 2);
 }
 
 void GameObject::setPosition(glm::vec2 position) noexcept {
     m_previousPosition = m_position;
-    m_aabb.center = glm::vec2(position.x + m_aabb.halfSize.x, position.y + m_aabb.halfSize.y);
+    m_aabb.center = position + m_aabb.halfSize;
     Object2D::setPosition(position);
 }
 
 void GameObject::setLocalPosition(glm::vec2 position) noexcept {
+    if (m_node.m_parent) {
+        m_aabb.center = m_node.m_parent->getPosition() + position + m_aabb.halfSize;
+    } else {
+        m_aabb.center = position + m_aabb.halfSize;
+    }
     Object2D::setLocalPosition(position);
+}
+
+glm::vec2 GameObject::getPreviousPosition() const noexcept {
+    return m_previousPosition;
 }
 
 void GameObject::resetPosition(glm::vec2 position) noexcept {
     m_previousPosition = position;
-    m_position = position;
-}
-
-glm::vec2 GameObject::getVelocity() const noexcept {
-    return m_velocity;
-}
-
-void GameObject::setVelocity(glm::vec2 velocity) noexcept {
-    m_velocity = velocity;
+    m_aabb.center = glm::vec2(position.x + m_aabb.halfSize.x, position.y + m_aabb.halfSize.y);
+    Object2D::setPosition(position);
 }
 
 float GameObject::getSpeed() const noexcept {

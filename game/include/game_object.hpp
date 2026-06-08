@@ -5,6 +5,7 @@
 #include "aabb.hpp"
 #include "collision_type.hpp"
 #include "object_2d.hpp"
+#include "sprite_object.hpp"
 #include "texture_2d.hpp"
 
 enum class GameObjectType {
@@ -18,7 +19,7 @@ enum class GameObjectType {
 class GameObject;
 using GameObjectPtr = observer_ptr<GameObject>;
 
-class GameObject : public Object2D {
+class GameObject : public SpriteObject {
    public:
     GameObject(ContextPtr context, Texture2DPtr texture);
     GameObject(ContextPtr context, Texture2DPtr texture, glm::vec2 position, glm::vec2 size);
@@ -32,14 +33,10 @@ class GameObject : public Object2D {
     virtual bool isDestroyable() const noexcept;
     virtual void setDestructibility(bool flag) noexcept;
 
-    virtual glm::vec2 getPreviousPosition() const noexcept;
-    virtual void resetPosition(glm::vec2 position) noexcept;
-
-    virtual glm::vec2 getVelocity() const noexcept;
-    virtual void setVelocity(glm::vec2 velocity) noexcept;
-
     virtual float getSpeed() const noexcept;
     virtual void setSpeed(float speed) noexcept;
+
+    virtual void setSize(glm::vec2 size) noexcept override;
 
     virtual void setColliding(bool flag) noexcept;
     virtual bool isColliding() const noexcept;
@@ -47,15 +44,16 @@ class GameObject : public Object2D {
     virtual AABB getAABB() const noexcept;
     virtual void setAABB(AABB aabb) noexcept;
 
-    void setPosition(glm::vec2 position) noexcept override;
-    void setLocalPosition(glm::vec2 position) noexcept override;
+    virtual void resetPosition(glm::vec2 position) noexcept;
+    virtual glm::vec2 getPreviousPosition() const noexcept;
+
+    virtual void setPosition(glm::vec2 position) noexcept override;
+    virtual void setLocalPosition(glm::vec2 position) noexcept override;
 
    protected:
     AABB m_aabb;
 
     glm::vec2 m_previousPosition = glm::vec3(0.0f);
-    glm::vec2 m_velocity = glm::vec2(0.0f);
-    glm::vec2 m_acceleration = glm::vec2(0.0f);
 
     float m_accelerationAttenuation = 0.1f;
     float m_speed = 0.0f;

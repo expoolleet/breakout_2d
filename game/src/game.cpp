@@ -103,6 +103,7 @@ void Game::init() {
     m_player = m_objectManager->create<Player>(textureManager.getTexture("player"), PLAYER_START_POSITION, PLAYER_DEFAULT_SIZE);
     m_player->setSpeed(30.0f);
     m_player->setAABB({glm::vec2(0.0f), (PLAYER_DEFAULT_SIZE / 2.0f) + 0.05f});
+    m_currentLevel.addChild(m_player.get());
 
     BallPtr ball = m_objectManager->create<Ball>(textureManager.getTexture("ball"), glm::vec2(0.0f), BALL_DEFAULT_SIZE);
     ball->setVelocity(INITIAL_BALL_VELOCITY);
@@ -172,6 +173,7 @@ void Game::processInput(float dt) {
 
 void Game::update(float dt) {
     _animateName(dt).resume();
+    _moveScene(dt).resume();
 }
 
 void Game::fixedUpdate(float dt) {
@@ -617,6 +619,17 @@ Task Game::_animateName(float dt) {
     }
     while (std::sin(timer::time()) < 0.0f) {
         m_nameSize -= dt * 0.5f;
+        co_await std::suspend_always{};
+    }
+}
+
+Task Game::_moveScene(float dt) {
+    while (std::sin(timer::time()) > 0.0f) {
+        m_currentLevel.setPosition(m_currentLevel.getPosition() + glm::vec2(0.0, dt));
+        co_await std::suspend_always{};
+    }
+    while (std::sin(timer::time()) < 0.0f) {
+        m_currentLevel.setPosition(m_currentLevel.getPosition() + glm::vec2(0.0, -dt));
         co_await std::suspend_always{};
     }
 }

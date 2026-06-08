@@ -20,13 +20,13 @@
 using namespace texture_literals;
 
 GameLevel::GameLevel(GameLevelCreateInfo createInfo, LevelTiles tiles)
-    : m_context(createInfo.contextPtr),
+    : Object2D(createInfo.contextPtr),
       m_objectManager(createInfo.objectManagerPtr),
       m_powerupFactory(createInfo.powerUpFactoryPtr),
       m_tiles(std::move(tiles)) {}
 
 GameLevel::GameLevel(GameLevelCreateInfo createInfo, const std::string &levelPath)
-    : m_context(createInfo.contextPtr), m_objectManager(createInfo.objectManagerPtr), m_powerupFactory(createInfo.powerUpFactoryPtr) {
+    : Object2D(createInfo.contextPtr), m_objectManager(createInfo.objectManagerPtr), m_powerupFactory(createInfo.powerUpFactoryPtr) {
     std::string line;
     std::ifstream fileStream{levelPath};
 
@@ -101,10 +101,14 @@ void GameLevel::load() {
         setBrickPowerUp(m_bricks.back(), powerUpTypes[i]);
     }
 
+    for (auto &brick : m_bricks) {
+        addChild(brick.get());
+    }
+
     std::partition(m_bricks.begin(), m_bricks.end(), [](auto &brick) { return brick->isDestroyable(); });
 }
 
-void GameLevel::reset() {
+void GameLevel::reset() noexcept {
     for (auto &brick : m_bricks) {
         if (!brick->isDestroyable()) continue;
         brick->reset();

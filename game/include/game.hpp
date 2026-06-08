@@ -163,4 +163,5 @@ class Game {
 
     // coroutines
     Task _animateName(float dt);
+    Task _moveScene(float dt);
 };

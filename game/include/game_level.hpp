@@ -15,17 +15,16 @@ struct GameLevelCreateInfo {
     PowerUpFactoryPtr powerUpFactoryPtr;
 };
 
-class GameLevel {
+class GameLevel : public Object2D {
    public:
     GameLevel() = default;
     GameLevel(GameLevelCreateInfo createInfo, const std::string &levelPath);
     GameLevel(GameLevelCreateInfo createInfo, LevelTiles tiles);
-    ~GameLevel() noexcept;
+    virtual ~GameLevel() noexcept override;
     GameLevel &operator=(const GameLevel &) noexcept = default;
     GameLevel(const GameLevel &) noexcept = default;
 
     void load();
-    void reset();
     bool isFinished() const noexcept;
     bool isLoaded() const noexcept;
     void cleanup();
@@ -37,8 +36,9 @@ class GameLevel {
     void setRandomBrickPowerUp(PowerUpType type);
     std::vector<BrickPtr> &getBricks() noexcept;
 
+    virtual void reset() noexcept override;
+
    private:
-    ContextPtr m_context;
     ObjectManagerPtr m_objectManager;
     PowerUpFactoryPtr m_powerupFactory;
     std::vector<BrickPtr> m_bricks;

@@ -35,6 +35,7 @@ set(Sources
     src/shader.cpp
     src/shader_manager.cpp
     src/shader_observer.cpp
+    src/sprite_object.cpp
     src/sprite_renderer.cpp
     src/task.cpp
     src/text_renderer.cpp

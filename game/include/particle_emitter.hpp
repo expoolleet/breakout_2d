@@ -3,9 +3,9 @@
 #include <unordered_map>
 #include <vector>
 
-#include "game_object.hpp"
 #include "particle.hpp"
 #include "shader.hpp"
+#include "sprite_object.hpp"
 #include "texture_2d.hpp"
 
 #define MAX_PARTICLES 7500
@@ -30,7 +30,7 @@ class ParticleEmitter {
     std::pair<float, float> m_positionOffsetRange = {0.0f, 0.0f};
     glm::vec4 m_particleColor = glm::vec4(1.0f);
 
-    std::unordered_map<GameObject *, glm::vec2> m_objectPositionMap;
+    std::unordered_map<SpriteObject *, glm::vec2> m_objectPositionMap;
 
     int _findFirstUnusedParticle();
     void _fillPool();
@@ -39,12 +39,11 @@ class ParticleEmitter {
     ParticleEmitter(Texture2DPtr texture, int count);
     ~ParticleEmitter() = default;
     void init();
-    void prepare(GameObject &gameObject, int newParticles, glm::vec2 offset = glm::vec2(0.0f), bool overrideColor = false);
+    void prepare(SpriteObject &object, int newParticles, glm::vec2 offset = glm::vec2(0.0f), bool overrideColor = false);
     void prepareAtPosition(glm::vec2 position, int newParticles);
     void update(float dt);
     void render(Shader &shader);
-    void respawnParticleAtObject(Particle &particle, GameObject &gameObject, glm::vec2 offset = glm::vec2(0.0f),
-                                 bool overrideColor = false);
+    void respawnParticleAtObject(Particle &particle, SpriteObject &object, glm::vec2 offset = glm::vec2(0.0f), bool overrideColor = false);
     void respawnParticle(Particle &particle, glm::vec2 position);
 
     float getParticleLifeTime() const noexcept;
