@@ -6,12 +6,11 @@ class Window {
     inline static int m_height;
     inline static GLFWwindow *m_window = nullptr;
 
-    // Removing default constructor
     Window() = delete;
-    // Removing copy constructor
     Window(const Window &) = delete;
-    // Removing the assignment operator
     Window &operator=(const Window &) = delete;
+    Window(Window &&) = delete;
+    Window &operator=(Window &&) = delete;
 
    public:
     inline static int getWidth() noexcept {

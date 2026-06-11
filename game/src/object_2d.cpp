@@ -3,9 +3,12 @@
 #include <cassert>
 #include <glm/glm.hpp>
 
+#include "logging.hpp"
+
 Object2D::Object2D(ContextPtr context) : m_context(context) {}
 
-Object2D::Object2D(ContextPtr context, glm::vec2 position, glm::vec2 size) : m_context(context), m_size(size) {
+Object2D::Object2D(ContextPtr context, glm::vec2 position, glm::vec2 size) : m_context(context) {
+    setSize(size);
     setPosition(position);
 }
 
@@ -29,6 +32,7 @@ glm::vec2 Object2D::getSize() const noexcept {
 
 void Object2D::setSize(glm::vec2 size) noexcept {
     m_size = size;
+    m_aabb.halfSize = m_size / 2.0f;
 }
 
 bool Object2D::isAlive() const noexcept {
@@ -52,9 +56,6 @@ void Object2D::reset() noexcept {
 }
 
 glm::vec2 Object2D::getPosition() const noexcept {
-    if (m_node.m_parent) {
-        return m_node.m_parent->getPosition() + m_localPosition;
-    }
     return m_position;
 }
 
@@ -64,22 +65,23 @@ glm::vec2 Object2D::getLocalPosition() const noexcept {
 
 void Object2D::setPosition(glm::vec2 position) noexcept {
     m_position = position;
+
     if (m_node.m_parent) {
-        m_localPosition = position - m_node.m_parent->getPosition();
+        m_localPosition = m_position - m_node.m_parent->getPosition();
     } else {
-        m_localPosition = position;
+        m_localPosition = m_position;
     }
+
+    m_aabb.center = m_position + m_aabb.halfSize;
+
     for (auto &child : m_node.m_children) {
-        child->setPosition(child->getLocalPosition() + m_position);
+        child->setPosition(m_position + child->getLocalPosition());
     }
 }
 
 void Object2D::setLocalPosition(glm::vec2 position) noexcept {
-    if (m_node.m_parent) {
-        setPosition(m_node.m_parent->getPosition() + position);
-    } else {
-        m_localPosition = position;
-    }
+    glm::vec2 newGlobalPos = m_node.m_parent ? m_node.m_parent->getPosition() + position : position;
+    setPosition(newGlobalPos);
 }
 
 glm::vec2 Object2D::getVelocity() const noexcept {
@@ -88,4 +90,26 @@ glm::vec2 Object2D::getVelocity() const noexcept {
 
 void Object2D::setVelocity(glm::vec2 velocity) noexcept {
     m_velocity = velocity;
+}
+
+AABB Object2D::getAABB() const noexcept {
+    return m_aabb;
+}
+
+void Object2D::setAABB(AABB aabb) noexcept {
+    m_aabb = std::move(aabb);
+}
+
+void Object2D::setParent(observer_ptr<Object2D> parent) {
+    SceneNodeInterface::setParent(parent);
+    if (m_node.m_parent) {
+        setLocalPosition(m_position - m_node.m_parent->m_position);
+    } else {
+        setLocalPosition(m_position);
+    }
+}
+
+void Object2D::addChild(observer_ptr<Object2D> child) {
+    SceneNodeInterface::addChild(child);
+    child->setLocalPosition(child->m_position - m_position);
 }

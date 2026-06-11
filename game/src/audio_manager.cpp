@@ -5,7 +5,6 @@
 #include <fmod_studio.hpp>
 #include <string>
 
-#include "custom_attributes.hpp"
 #include "logging.hpp"
 
 #ifdef _DEBUG

@@ -5,7 +5,6 @@
 #include <string_view>
 #include <unordered_map>
 
-#include "custom_attributes.hpp"
 #include "path_manager.hpp"
 #include "string_operators.hpp"
 #include "texture_2d.hpp"

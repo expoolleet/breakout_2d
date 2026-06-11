@@ -4,7 +4,6 @@
 #include <glm/glm.hpp>
 
 #include "fast_random.hpp"
-#include "game_object.hpp"
 #include "glad/glad.h"
 #include "logging.hpp"
 #include "particle.hpp"

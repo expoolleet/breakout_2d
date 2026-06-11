@@ -14,7 +14,7 @@ class SceneNodeInterface {
     SceneNodeInterface &operator=(SceneNodeInterface<T> &&) = default;
     virtual ~SceneNodeInterface() noexcept = default;
 
-    inline void setParent(observer_ptr<T> parent) {
+    inline virtual void setParent(observer_ptr<T> parent) {
         assert(static_cast<T *>(this) != parent.get() && "Cannot set parent to self");
         auto oldParent = m_node.m_parent;
         m_node.m_parent = parent;
@@ -30,13 +30,13 @@ class SceneNodeInterface {
         return m_node.m_parent;
     }
 
-    inline std::vector<observer_ptr<T>> &getChildren() noexcept {
-        return m_node.m_children;
-    }
-
-    inline void addChild(observer_ptr<T> child) {
+    inline virtual void addChild(observer_ptr<T> child) {
         if (!child) return;
         child->setParent(static_cast<T *>(this));
+    }
+
+    inline std::vector<observer_ptr<T>> &getChildren() noexcept {
+        return m_node.m_children;
     }
 
     inline void clearChildren() noexcept {

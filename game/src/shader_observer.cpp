@@ -8,7 +8,6 @@
 #include <thread>
 #include <vector>
 
-#include "custom_attributes.hpp"
 #include "logging.hpp"
 #include "shader_manager.hpp"
 

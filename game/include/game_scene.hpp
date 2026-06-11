@@ -8,8 +8,6 @@ class Scene : public SceneNodeInterface<Object2D> {
     virtual ~Scene() noexcept override = default;
     Scene(ContextPtr context);
 
-    
-
    private:
     ContextPtr m_context;
 };

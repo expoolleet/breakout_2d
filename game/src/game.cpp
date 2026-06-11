@@ -97,6 +97,7 @@ void Game::init() {
     m_currentLevelNumber = 1;
     m_currentLevel = m_levelGenerator->generate(3, 3);
     m_currentLevel.load();
+    m_currentLevel.setPosition(glm::vec2(0.0f, -7.0f));
 
     TextureManager &textureManager = m_context->getTextureManager();
 
@@ -173,7 +174,7 @@ void Game::processInput(float dt) {
 
 void Game::update(float dt) {
     _animateName(dt).resume();
-    _moveScene(dt).resume();
+    //_moveScene(dt).resume();
 }
 
 void Game::fixedUpdate(float dt) {
@@ -271,9 +272,9 @@ void Game::renderText(float dt) {
                                    {core::getWorldPosition(0.075f, 0.5f), glm::vec3(0.9f, 0.1f, 0.3f), 2.0f, TextAlign::Center},
                                    {.width = 2.0f});
     } else {
-        glm::vec2 namePos = core::getWorldPosition(0.25f, 0.5f);
+        glm::vec2 namePos = core::getWorldPosition(0.3f, 0.3f);
         m_textRenderer->renderMSDF(*m_textShader, GAME_NAME, {namePos, glm::vec3(1.0f), m_nameSize, TextAlign::Left, true},
-                                   {glm::vec3(0.0f), 2.0f});
+                                   {glm::vec3(0.0f), 1.0f});
     }
     m_textRenderer->renderMSDF(*m_textShader, std::format("Attempts: {}", std::to_string(m_attempts - m_currentAttempt)),
                                {.position = core::getWorldPosition(0.01f, 0.9f), .scale = 0.7f}, {glm::vec3(0.0f), 0.7f});

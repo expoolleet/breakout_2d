@@ -2,6 +2,7 @@
 
 #include <format>
 #include <iostream>
+#include <glm/glm.hpp>
 
 #include "custom_attributes.hpp"
 
@@ -22,6 +23,24 @@ inline void Info(std::format_string<Args...> message, Args &&...args) {
 
 inline void Info(int value) {
     auto message = std::to_string(value);
+    if (m_lastInfoMessage == message) {
+        return;
+    }
+    m_lastInfoMessage = message;
+    std::cout << "INFO: " + message << "\n";
+}
+
+inline void Info(glm::vec2 vector) {
+    auto message = std::to_string(vector.x) + ", " + std::to_string(vector.y);
+    if (m_lastInfoMessage == message) {
+        return;
+    }
+    m_lastInfoMessage = message;
+    std::cout << "INFO: " + message << "\n";
+}
+
+inline void Info(glm::vec3 vector) {
+    auto message = std::to_string(vector.x) + ", " + std::to_string(vector.y) + ", " + std::to_string(vector.z);
     if (m_lastInfoMessage == message) {
         return;
     }

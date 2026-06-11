@@ -3,20 +3,20 @@
 #include "GLFW/glfw3.h"
 #include "logging.hpp"
 
-constexpr int MAX_KEY_CODE = 1024;
+inline constexpr int MAX_KEY_CODE = 1024;
 
-constexpr int KEY_A = GLFW_KEY_A;
-constexpr int KEY_D = GLFW_KEY_D;
-constexpr int KEY_SPACE = GLFW_KEY_SPACE;
-constexpr int KEY_ENTER = GLFW_KEY_ENTER;
+inline constexpr int KEY_A = GLFW_KEY_A;
+inline constexpr int KEY_D = GLFW_KEY_D;
+inline constexpr int KEY_SPACE = GLFW_KEY_SPACE;
+inline constexpr int KEY_ENTER = GLFW_KEY_ENTER;
 
 class Keys {
    public:
-    bool keys[MAX_KEY_CODE] = {false};
-    bool prevKeys[MAX_KEY_CODE] = {false};
+    std::array<bool, MAX_KEY_CODE> keys = {false};
+    std::array<bool, MAX_KEY_CODE> prevKeys = {false};
 
     inline void update() noexcept {
-        std::copy(keys, keys + MAX_KEY_CODE, prevKeys);
+        std::copy(keys.begin(), keys.begin() + MAX_KEY_CODE, prevKeys.data());
     }
 
     inline void press(int key) noexcept {

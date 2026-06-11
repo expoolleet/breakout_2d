@@ -24,12 +24,12 @@
 #include "task.hpp"
 #include "text_renderer.hpp"
 
-constexpr std::string_view GAME_NAME = "BRAKEOUT 2D";
-constexpr glm::vec2 INITIAL_BALL_VELOCITY = glm::vec2(0.0f, 1.0f);
-constexpr glm::vec2 PLAYER_DEFAULT_SIZE = glm::vec2(4.0f, 0.65f);
-constexpr glm::vec2 PLAYER_START_POSITION = glm::vec2(-PLAYER_DEFAULT_SIZE.x / 2.0f, -(core::getWorldHeight() / 2.0f) + 1.0f);
-constexpr int MAX_BALL_DAMAGE = 3;
-constexpr int MIN_BALL_DAMAGE = 1;
+inline constexpr std::string_view GAME_NAME = "Brakeout 2D";
+inline constexpr glm::vec2 INITIAL_BALL_VELOCITY = glm::vec2(0.0f, 1.0f);
+inline constexpr glm::vec2 PLAYER_DEFAULT_SIZE = glm::vec2(4.0f, 0.65f);
+inline constexpr glm::vec2 PLAYER_START_POSITION = glm::vec2(-PLAYER_DEFAULT_SIZE.x / 2.0f, -(core::getWorldHeight() / 2.0f) + 1.0f);
+inline constexpr int MAX_BALL_DAMAGE = 3;
+inline constexpr int MIN_BALL_DAMAGE = 1;
 
 struct GameCreateInfo {
     ContextPtr contextPtr;
@@ -146,7 +146,7 @@ class Game {
 
     size_t m_maxCountBallsStuckToPlayer = 0;
 
-    float m_nameSize = 2.0f;
+    float m_nameSize = 1.0f;
 
     bool m_godMode = false;
 

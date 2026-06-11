@@ -8,9 +8,9 @@
 #include "sprite_object.hpp"
 #include "texture_2d.hpp"
 
-#define MAX_PARTICLES 7500
+inline constexpr int MAX_PARTICLES = 7500;
 
-#define GRAVITATIONAL_ACCELERATION 9.807f
+inline constexpr float GRAVITATIONAL_ACCELERATION = 9.807f;
 
 class ParticleEmitter {
    private:

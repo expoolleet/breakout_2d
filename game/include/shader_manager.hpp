@@ -9,7 +9,7 @@
 
 #include "shader.hpp"
 
-#define SHADER_INFO_LOG_SIZE 2048
+inline constexpr int SHADER_INFO_LOG_SIZE = 2048;
 
 #define SHADING_LANGUAGE_INCLUDE_SUPPORT (GLAD_GL_ARB_shading_language_include && glNamedStringARB != NULL)
 

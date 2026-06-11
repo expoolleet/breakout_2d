@@ -15,7 +15,7 @@ std::suspend_always Task::promise_type::final_suspend() noexcept {
 void Task::promise_type::return_void() {}
 
 void Task::promise_type::unhandled_exception() {
-    std::terminate();
+    std::rethrow_exception(std::move(std::current_exception()));
 }
 
 Task::Task(std::coroutine_handle<promise_type> h) : handle(h) {}

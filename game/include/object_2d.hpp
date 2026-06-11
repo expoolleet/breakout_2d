@@ -1,5 +1,6 @@
 #pragma once
 
+#include "aabb.hpp"
 #include "engine_context.hpp"
 #include "interfaces/scene_node_interface.hpp"
 
@@ -36,15 +37,21 @@ class Object2D : public SceneNodeInterface<Object2D> {
     virtual glm::vec2 getVelocity() const noexcept;
     virtual void setVelocity(glm::vec2 velocity) noexcept;
 
+    virtual AABB getAABB() const noexcept;
+    virtual void setAABB(AABB aabb) noexcept;
+
+    virtual void setParent(observer_ptr<Object2D> parent) override;
+    virtual void addChild(observer_ptr<Object2D> child) override;
+
    protected:
+    AABB m_aabb;
+
     ContextPtr m_context;
 
-    glm::vec2 m_position = glm::vec3(0.0f);
-    glm::vec2 m_localPosition = glm::vec3(0.0f);
-
+    glm::vec2 m_position = glm::vec2(0.0f);
+    glm::vec2 m_localPosition = glm::vec2(0.0f);
     glm::vec2 m_velocity = glm::vec2(0.0f);
-
-    glm::vec2 m_size = glm::vec3(0.0f);
+    glm::vec2 m_size = glm::vec2(1.0f);
 
     bool m_isHidden = false;
     bool m_isAlive = true;

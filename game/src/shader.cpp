@@ -9,7 +9,6 @@
 #include <unordered_set>
 #include <variant>
 
-#include "engine_context.hpp"
 #include "glad/glad.h"
 #include "logging.hpp"
 #include "shader_manager.hpp"

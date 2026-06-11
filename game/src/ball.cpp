@@ -69,11 +69,11 @@ bool Ball::isStuck() const noexcept {
     return m_stuck;
 }
 
-void Ball::setStuck(bool state) {
+void Ball::setStuck(bool state) noexcept {
     m_stuck = state;
 }
 
-void Ball::setRadius(float radius) {
+void Ball::setRadius(float radius) noexcept {
     m_radius = radius;
 }
 
@@ -81,11 +81,11 @@ float Ball::getRadius() const noexcept {
     return m_radius;
 }
 
-void Ball::setDamage(unsigned int damage) {
+void Ball::setDamage(int damage) noexcept {
     m_damage = damage;
 }
 
-unsigned int Ball::getDamage() const noexcept {
+int Ball::getDamage() const noexcept {
     return m_damage;
 }
 
@@ -93,6 +93,6 @@ glm::vec2 Ball::getBounceVelocity() const noexcept {
     return m_bounceVelocity;
 }
 
-void Ball::setBounceVelocity(glm::vec2 velocity) {
+void Ball::setBounceVelocity(glm::vec2 velocity) noexcept {
     m_bounceVelocity = velocity;
 }
