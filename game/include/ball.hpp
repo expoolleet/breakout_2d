@@ -6,8 +6,11 @@
 #include "game_object.hpp"
 #include "texture_2d.hpp"
 
+inline constexpr int BALL_DAMAGE_MIN = 1;
+inline constexpr int BALL_DAMAGE_MAX = 3;
 inline constexpr float BALL_DEFAULT_SPEED = 20.0f;
 inline constexpr glm::vec2 BALL_DEFAULT_SIZE = glm::vec2(0.65f);
+inline constexpr glm::vec2 BALL_INITIAL_VELOCITY = glm::vec2(0.0f, 1.0f);
 
 class Ball : public GameObject {
    private:

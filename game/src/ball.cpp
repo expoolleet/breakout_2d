@@ -2,6 +2,7 @@
 
 #include <glm/glm.hpp>
 
+#include "brick.hpp"
 #include "collision_detection.hpp"
 #include "collision_type.hpp"
 #include "event_type.hpp"
@@ -11,11 +12,11 @@
 #include "texture_2d.hpp"
 
 Ball::Ball(ContextPtr context, Texture2DPtr texture, glm::vec2 position, glm::vec2 size) : GameObject(context, texture, position, size) {
-    m_type = GameObjectType::Ball;
+    m_getGameObjectType = GameObjectType::Ball;
 }
 
 Ball::Ball(ContextPtr context, Texture2DPtr texture) : GameObject(context, texture) {
-    m_type = GameObjectType::Ball;
+    m_getGameObjectType = GameObjectType::Ball;
 }
 
 void Ball::update(float dt) {}
@@ -54,13 +55,22 @@ void Ball::fixedUpdate(float dt) {
 Collision Ball::checkCollision(GameObject &gameObject) {
     if (isStuck()) return cd::NoneCollision;
     Collision collision = cd::checkCollision(*this, gameObject);
-    if (gameObject.getType() == GameObjectType::Player && std::get<0>(collision)) {
+    if (!std::get<0>(collision)) {
+        return cd::NoneCollision;
+    }
+
+    if (gameObject.getGameObjectType() == GameObjectType::Player) {
         float centerBoard = gameObject.getPosition().x + gameObject.getSize().x / 2;
         float distance = (getPosition().x + getRadius()) - centerBoard;
         float percentage = distance / (gameObject.getSize().x / 2.0f);
         glm::vec2 newVelocity = getBounceVelocity() * percentage * static_cast<Player *>(&gameObject)->getStrength();
         newVelocity.y = std::abs(getVelocity().y);
         setVelocity(glm::normalize(newVelocity) * glm::length(getVelocity()));
+    } else if (gameObject.getGameObjectType() == GameObjectType::Brick) {
+        BrickPtr brick = dynamic_cast<Brick *>(&gameObject);
+        if (brick->isDestroyable()) {
+            brick->damage(m_damage);
+        }
     }
     return collision;
 }

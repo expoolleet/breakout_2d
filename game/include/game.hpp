@@ -9,7 +9,6 @@
 #include "collision_type.hpp"
 #include "engine_context.hpp"
 #include "event_type.hpp"
-#include "game_core.hpp"
 #include "game_level.hpp"
 #include "game_level_generator.hpp"
 #include "game_renderer.hpp"
@@ -18,18 +17,11 @@
 #include "object_manager.hpp"
 #include "particle_emitter.hpp"
 #include "player.hpp"
-#include "powerup.hpp"
-#include "powerup_type.hpp"
 #include "shader.hpp"
 #include "task.hpp"
 #include "text_renderer.hpp"
 
 inline constexpr std::string_view GAME_NAME = "Brakeout 2D";
-inline constexpr glm::vec2 INITIAL_BALL_VELOCITY = glm::vec2(0.0f, 1.0f);
-inline constexpr glm::vec2 PLAYER_DEFAULT_SIZE = glm::vec2(4.0f, 0.65f);
-inline constexpr glm::vec2 PLAYER_START_POSITION = glm::vec2(-PLAYER_DEFAULT_SIZE.x / 2.0f, -(core::getWorldHeight() / 2.0f) + 1.0f);
-inline constexpr int MAX_BALL_DAMAGE = 3;
-inline constexpr int MIN_BALL_DAMAGE = 1;
 
 struct GameCreateInfo {
     ContextPtr contextPtr;
@@ -61,6 +53,7 @@ class Game {
 
     Keys keys;
     State currentState;
+    GameLevel currentLevel;
 
     Game(GameCreateInfo createInfo);
     ~Game() = default;
@@ -89,11 +82,6 @@ class Game {
     void appendQueueBalls();
     void updateBalls(float dt);
     void updateParticles(float dt);
-    void spawnBall(glm::vec2 position);
-    void spawnPowerUp(PowerUpType type, glm::vec2 position);
-    void updatePowerUps(float dt);
-    void eraseFinishedPowerUps();
-    void clearPowerUps();
     void repositionStuckBallsOnPlayer();
     void stickBallToPlayer(BallPtr ball);
     void unstickBallFromPlayer(BallPtr ball);
@@ -106,7 +94,6 @@ class Game {
 
    private:
     std::vector<GameLevel> m_levels;
-    std::vector<PowerUpPtr> m_powerups;
     std::vector<BallPtr> m_stuckBalls;
     std::vector<BallPtr> m_balls;
     std::vector<BallPtr> m_queueBalls;
@@ -135,8 +122,6 @@ class Game {
     ParticleEmitterPtr m_collisionHitParticleEmitter;
 
     Background m_background;
-
-    GameLevel m_currentLevel;
 
     int m_attempts;
     int m_currentAttempt = 0;

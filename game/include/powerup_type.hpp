@@ -8,7 +8,7 @@ enum class PowerUpType {
     FastHeroBall = 4,
 };
 
-inline const char *toString(PowerUpType type) {
+inline std::string to_string(PowerUpType type) {
     switch (type) {
         case PowerUpType::FastHeroBall:
             return "FastHeroBall";

@@ -8,9 +8,11 @@
 #include <string>
 #include <vector>
 
+#include "ball.hpp"
 #include "brick.hpp"
 #include "brick_type.hpp"
 #include "engine_context.hpp"
+#include "event_type.hpp"
 #include "fast_random.hpp"
 #include "game_core.hpp"
 #include "logging.hpp"
@@ -22,11 +24,11 @@ using namespace texture_literals;
 GameLevel::GameLevel(GameLevelCreateInfo createInfo, LevelTiles tiles)
     : Object2D(createInfo.contextPtr),
       m_objectManager(createInfo.objectManagerPtr),
-      m_powerupFactory(createInfo.powerUpFactoryPtr),
+      m_powerUpFactory(createInfo.powerUpFactoryPtr),
       m_tiles(std::move(tiles)) {}
 
 GameLevel::GameLevel(GameLevelCreateInfo createInfo, const std::string &levelPath)
-    : Object2D(createInfo.contextPtr), m_objectManager(createInfo.objectManagerPtr), m_powerupFactory(createInfo.powerUpFactoryPtr) {
+    : Object2D(createInfo.contextPtr), m_objectManager(createInfo.objectManagerPtr), m_powerUpFactory(createInfo.powerUpFactoryPtr) {
     std::string line;
     std::ifstream fileStream{levelPath};
 
@@ -138,7 +140,7 @@ int GameLevel::getHeight() const noexcept {
 void GameLevel::setBrickPowerUp(size_t idx, PowerUpType type) {
     assert(idx >= 0 && idx < m_bricks.size());
     if (type == PowerUpType::None) return;
-    PowerUpData data = m_powerupFactory->getPowerUpData(type);
+    PowerUpData data = m_powerUpFactory->getPowerUpData(type);
     m_bricks[idx]->setHardenessPoints(1);
     m_bricks[idx]->setColor(data.color);
     m_bricks[idx]->setTexture(data.texture);
@@ -147,7 +149,7 @@ void GameLevel::setBrickPowerUp(size_t idx, PowerUpType type) {
 
 void GameLevel::setBrickPowerUp(BrickPtr brick, PowerUpType type) {
     if (type == PowerUpType::None) return;
-    PowerUpData data = m_powerupFactory->getPowerUpData(type);
+    PowerUpData data = m_powerUpFactory->getPowerUpData(type);
     brick->setHardenessPoints(1);
     brick->setColor(data.color);
     brick->setTexture(data.texture);
@@ -170,4 +172,61 @@ void GameLevel::cleanup() {
     for (auto &brick : m_bricks) {
         brick->destroy();
     }
+}
+
+void GameLevel::spawnBall(glm::vec2 position) {
+    auto ball = m_objectManager->create<Ball>(m_context->getTextureManager().getTexture("ball"), glm::vec2(0.0f), BALL_DEFAULT_SIZE);
+    ball->setPosition(position);
+    glm::vec2 randomVelocity = glm::normalize(
+        glm::vec2(fastrand::frandomFloatInRange(-1.0f, 1.0f), BALL_INITIAL_VELOCITY.y + fastrand::frandomFloatInRange(-0.5f, 0.5f)));
+    ball->setVelocity(randomVelocity);
+    ball->setRadius(ball->getSize().x / 2);
+    float speedOffset = 10.0f;
+    ball->setSpeed(fastrand::frandomFloatInRange(BALL_DEFAULT_SPEED - speedOffset, BALL_DEFAULT_SPEED + speedOffset));
+    int damage = fastrand::randomIntInRange(BALL_DAMAGE_MIN, BALL_DAMAGE_MAX);
+    switch (damage) {
+        case 1:
+            ball->setColor(glm::vec4(0.5f, 0.5f, 0.5f, 1.0f));
+            break;
+        case 2:
+            ball->setColor(glm::vec4(0.9f, 0.6f, 0.2f, 1.0f));
+            break;
+        case 3:
+            ball->setColor(glm::vec4(0.9f, 0.1f, 0.2f, 1.0f));
+            break;
+        default:
+            logging::Warn("Could not apply color to the ball with given damage: {}", damage);
+            break;
+    }
+    ball->setDamage(damage);
+    ball->setStuck(false);
+    ball->setParent(this);
+    m_context->getEventDispatcher().emit(BallSpawned{ball});
+}
+
+void GameLevel::updatePowerUps(float dt) {
+    for (auto &powerUp : m_powerUps) {
+        powerUp->fixedUpdate(dt);
+    }
+}
+
+void GameLevel::clearPowerUps() {
+    for (auto &powerUp : m_powerUps) {
+        powerUp->destroy();
+    }
+    m_powerUps.clear();
+}
+
+void GameLevel::eraseFinishedPowerUps() {
+    std::erase_if(m_powerUps, [](PowerUpPtr powerUp) { return powerUp->isFinished(); });
+}
+
+void GameLevel::spawnPowerUp(PowerUpType type, glm::vec2 position) {
+    m_powerUps.push_back(m_powerUpFactory->createPowerUp(type, position));
+    m_powerUps.back()->setParent(this);
+    m_context->getEventDispatcher().emit(PowerUpSpawned{type, position});
+}
+
+std::vector<PowerUpPtr> &GameLevel::getPowerUps() noexcept {
+    return m_powerUps;
 }

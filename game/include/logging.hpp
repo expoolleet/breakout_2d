@@ -1,15 +1,19 @@
 #pragma once
 
 #include <format>
-#include <iostream>
 #include <glm/glm.hpp>
+#include <iostream>
 
 #include "custom_attributes.hpp"
+#include "glm_stringify.hpp"
 
 namespace logging {
 NO_DESTROY_ATTR inline std::string m_lastInfoMessage;
 NO_DESTROY_ATTR inline std::string m_lastWarnMessage;
 NO_DESTROY_ATTR inline std::string m_lastErrorMessage;
+
+using glm::to_string;
+using std::to_string;
 
 template <typename... Args>
 inline void Info(std::format_string<Args...> message, Args &&...args) {
@@ -21,26 +25,15 @@ inline void Info(std::format_string<Args...> message, Args &&...args) {
     std::cout << "INFO: " + formatedMessage << "\n";
 }
 
-inline void Info(int value) {
-    auto message = std::to_string(value);
-    if (m_lastInfoMessage == message) {
-        return;
+template <typename T>
+inline void Info(const T &value) {
+    std::string message;
+    if constexpr (std::is_convertible_v<T, std::string_view>) {
+        message = value;
+    } else {
+        message = to_string(value);
     }
-    m_lastInfoMessage = message;
-    std::cout << "INFO: " + message << "\n";
-}
 
-inline void Info(glm::vec2 vector) {
-    auto message = std::to_string(vector.x) + ", " + std::to_string(vector.y);
-    if (m_lastInfoMessage == message) {
-        return;
-    }
-    m_lastInfoMessage = message;
-    std::cout << "INFO: " + message << "\n";
-}
-
-inline void Info(glm::vec3 vector) {
-    auto message = std::to_string(vector.x) + ", " + std::to_string(vector.y) + ", " + std::to_string(vector.z);
     if (m_lastInfoMessage == message) {
         return;
     }
@@ -52,6 +45,17 @@ template <typename... Args>
 inline void InfoSilent(std::format_string<Args...> message, Args &&...args) {
     auto formatedMessage = std::format(message, std::forward<Args>(args)...);
     std::cout << formatedMessage << "\n";
+}
+
+template <typename T>
+inline void InfoSilent(const T &value) {
+    std::string message;
+    if constexpr (std::is_convertible_v<T, std::string_view>) {
+        message = value;
+    } else {
+        message = to_string(value);
+    }
+    std::cout << message << "\n";
 }
 
 template <typename... Args>

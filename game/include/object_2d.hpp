@@ -57,4 +57,8 @@ class Object2D : public SceneNodeInterface<Object2D> {
     bool m_isAlive = true;
 };
 
+inline std::string to_string(Object2D *object) {
+    return std::format("{}<{}>", typeid(*object).name(), static_cast<void *>(object));
+}
+
 using Object2DPtr = observer_ptr<Object2D>;

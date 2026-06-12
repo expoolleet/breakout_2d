@@ -18,7 +18,7 @@ Brick::Brick(ContextPtr context, Texture2DPtr texture, glm::vec2 position, glm::
     m_color = data.color;
     m_hardnessPoints = data.maxHardnessPoints;
     m_maxHardnessPoints = m_hardnessPoints;
-    m_type = GameObjectType::Brick;
+    m_getGameObjectType = GameObjectType::Brick;
 }
 
 void Brick::update(float dt) {}
@@ -26,16 +26,6 @@ void Brick::update(float dt) {}
 void Brick::fixedUpdate(float dt) {}
 
 Collision Brick::checkCollision(GameObject &gameObject) {
-    if (gameObject.getType() == GameObjectType::Ball) {
-        BallPtr ball = dynamic_cast<Ball *>(&gameObject);
-        Collision collision = cd::checkCollision(*ball, *this);
-        if (std::get<0>(collision)) {
-            if (isDestroyable()) {
-                damage(ball->getDamage());
-            }
-            return collision;
-        }
-    }
     return cd::NoneCollision;
 }
 

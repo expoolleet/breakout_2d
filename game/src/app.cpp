@@ -33,7 +33,12 @@ static void keyCallback(GLFWwindow *window, int key, int scanCode, int action, i
     }
 #ifdef _DEBUG
     if (key == GLFW_KEY_T && action == GLFW_PRESS) {
-        args->gamePtr->spawnBall(glm::vec2(0.0f));
+        args->gamePtr->currentLevel.spawnBall(glm::vec2(0.0f));
+    }
+
+    if (key == GLFW_KEY_N && action == GLFW_PRESS) {
+        logging::Info("Next level");
+        args->gamePtr->nextLevel();
     }
 #endif
 }
@@ -188,7 +193,7 @@ void App::_handleConsoleInput(Game &game) {
         if (isEnterPressed(key)) {
             std::cout << "  enter";
             if (command == "ball") {
-                game.spawnBall(glm::vec2(0.0f));
+                game.currentLevel.spawnBall(glm::vec2(0.0f));
             } else if (command == "god") {
                 game.setGodMode(!game.isGodModeEnabled());
             }

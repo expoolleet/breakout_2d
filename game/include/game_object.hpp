@@ -26,7 +26,7 @@ class GameObject : public SpriteObject {
     virtual void fixedUpdate(float dt) = 0;
 
     virtual Collision checkCollision(GameObject &gameObject);
-    virtual GameObjectType getType() const noexcept;
+    virtual GameObjectType getGameObjectType() const noexcept;
 
     virtual bool isDestroyable() const noexcept;
     virtual void setDestructibility(bool flag) noexcept;
@@ -43,7 +43,7 @@ class GameObject : public SpriteObject {
     virtual void setPosition(glm::vec2 position) noexcept override;
 
    protected:
-    GameObjectType m_type = GameObjectType::None;
+    GameObjectType m_getGameObjectType = GameObjectType::None;
 
     glm::vec2 m_previousPosition = glm::vec3(0.0f);
 

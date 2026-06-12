@@ -3,8 +3,6 @@
 #include <cassert>
 #include <glm/glm.hpp>
 
-#include "logging.hpp"
-
 Object2D::Object2D(ContextPtr context) : m_context(context) {}
 
 Object2D::Object2D(ContextPtr context, glm::vec2 position, glm::vec2 size) : m_context(context) {

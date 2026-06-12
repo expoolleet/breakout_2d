@@ -4,6 +4,7 @@
 
 #include "ball.hpp"
 #include "collision_type.hpp"
+#include "powerup.hpp"
 #include "powerup_type.hpp"
 
 struct BallFliedOff {
@@ -24,6 +25,10 @@ struct BallHit {
     CollisionType collisionType;
 };
 
+struct BallSpawned {
+    BallPtr ball;
+};
+
 struct PlayerMoved {
     glm::vec2 position;
 };
@@ -34,11 +39,11 @@ struct PowerUpSpawned {
 };
 
 struct PowerUpActivated {
-    PowerUpType type;
+    PowerUpPtr powerUp;
 };
 
 struct PowerUpFinished {
-    PowerUpType type;
+    PowerUpPtr powerUp;
 };
 
 struct GameFinished {

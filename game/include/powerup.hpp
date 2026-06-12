@@ -11,6 +11,7 @@ class PowerUp : public GameObject {
     PowerUpType m_powerUpType = PowerUpType::None;
     bool m_activated = false;
     float m_duration = 0.0f;
+    float m_currentDuration = 0.0f;
 
    public:
     PowerUp(ContextPtr context, Texture2DPtr texture, PowerUpType type, glm::vec4 color, float duration, glm::vec2 position,
@@ -19,6 +20,7 @@ class PowerUp : public GameObject {
     void update(float dt) override;
     void fixedUpdate(float dt) override;
     Collision checkCollision(GameObject &gameObject) override;
+    virtual void reset() noexcept override;
 
     bool isActivated();
     bool isFinished();

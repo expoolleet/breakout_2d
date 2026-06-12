@@ -9,7 +9,7 @@
 
 Player::Player(ContextPtr context, Texture2DPtr texture, glm::vec2 position, glm::vec2 size)
     : GameObject(context, texture, position, size) {
-    m_type = GameObjectType::Player;
+    m_getGameObjectType = GameObjectType::Player;
 }
 
 void Player::input(const Keys &keys) {

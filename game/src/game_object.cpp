@@ -16,8 +16,8 @@ Collision GameObject::checkCollision(GameObject &gameObject) {
     return cd::NoneCollision;
 }
 
-GameObjectType GameObject::getType() const noexcept {
-    return m_type;
+GameObjectType GameObject::getGameObjectType() const noexcept {
+    return m_getGameObjectType;
 }
 
 bool GameObject::isDestroyable() const noexcept {

@@ -34,15 +34,22 @@ class GameLevel : public Object2D {
     void setBrickPowerUp(BrickPtr brick, PowerUpType type);
     void setRandomPowerUps(std::vector<PowerUpType> powerUpTypes);
     void setRandomBrickPowerUp(PowerUpType type);
+    void spawnBall(glm::vec2 position);
+    void spawnPowerUp(PowerUpType type, glm::vec2 position);
+    void updatePowerUps(float dt);
+    void eraseFinishedPowerUps();
+    void clearPowerUps();
     std::vector<BrickPtr> &getBricks() noexcept;
+    std::vector<PowerUpPtr> &getPowerUps() noexcept;
 
     virtual void reset() noexcept override;
 
    private:
     ObjectManagerPtr m_objectManager;
-    PowerUpFactoryPtr m_powerupFactory;
+    PowerUpFactoryPtr m_powerUpFactory;
     std::vector<BrickPtr> m_bricks;
     std::vector<PowerUpType> m_powerUpTypes;
+    std::vector<PowerUpPtr> m_powerUps;
     LevelTiles m_tiles;
     int m_width = 0;
     int m_height = 0;
