@@ -1,17 +1,32 @@
 #pragma once
 
-enum class PowerUpType {
+enum class PowerUpType : int {
     None = 0,
-    WidePlayer = 1,
-    StickyPlayer = 2,
-    PassTrough = 3,
-    FastHeroBall = 4,
+
+    // Player
+    WidePlayer,
+    NarrowPlayer,
+    StickyPlayer,
+    SpeedPlayer,
+    Laser,
+    ExtraLife,
+
+    // Ball
+    PassTrough,
+    SpeedBall,
+    BallBox,
+
+    // Others
+    ScoreBonus,
+
+    // Last type is for counting
+    PowerUpTypeCount,
 };
 
 inline std::string to_string(PowerUpType type) {
     switch (type) {
-        case PowerUpType::FastHeroBall:
-            return "FastHeroBall";
+        case PowerUpType::SpeedBall:
+            return "SpeedBall";
         case PowerUpType::StickyPlayer:
             return "StickyPlayer";
         case PowerUpType::PassTrough:

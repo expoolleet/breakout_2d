@@ -14,7 +14,6 @@ Brick::Brick(ContextPtr context, Texture2DPtr texture, glm::vec2 position, glm::
     : GameObject(context, texture, position, size), m_brickType(type) {
     BrickData data = getBrickData(type);
     m_isDestroyable = data.isDestroyable;
-    m_isAlive = m_isDestroyable;
     m_color = data.color;
     m_hardnessPoints = data.maxHardnessPoints;
     m_maxHardnessPoints = m_hardnessPoints;

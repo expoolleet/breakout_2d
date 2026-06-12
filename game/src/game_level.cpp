@@ -2,10 +2,7 @@
 
 #include <algorithm>
 #include <format>
-#include <fstream>
 #include <glm/glm.hpp>
-#include <sstream>
-#include <string>
 #include <vector>
 
 #include "ball.hpp"
@@ -23,31 +20,9 @@ using namespace texture_literals;
 
 GameLevel::GameLevel(GameLevelCreateInfo createInfo, LevelTiles tiles)
     : Object2D(createInfo.contextPtr),
+      m_tiles(std::move(tiles)),
       m_objectManager(createInfo.objectManagerPtr),
-      m_powerUpFactory(createInfo.powerUpFactoryPtr),
-      m_tiles(std::move(tiles)) {}
-
-GameLevel::GameLevel(GameLevelCreateInfo createInfo, const std::string &levelPath)
-    : Object2D(createInfo.contextPtr), m_objectManager(createInfo.objectManagerPtr), m_powerUpFactory(createInfo.powerUpFactoryPtr) {
-    std::string line;
-    std::ifstream fileStream{levelPath};
-
-    if (!fileStream.is_open()) {
-        logging::Error("Could not load the level file: {}", levelPath);
-        return;
-    }
-    int tileCode;
-    if (fileStream) {
-        while (std::getline(fileStream, line)) {
-            std::istringstream stringStream{line};
-            std::vector<int> row;
-            while (stringStream >> tileCode) {
-                row.push_back(tileCode);
-            }
-            m_tiles.push_back(row);
-        }
-    }
-}
+      m_powerUpFactory(createInfo.powerUpFactoryPtr) {}
 
 GameLevel::~GameLevel() noexcept {
     m_bricks.clear();
@@ -56,6 +31,8 @@ GameLevel::~GameLevel() noexcept {
 void GameLevel::load() {
     if (m_loaded) return;
     m_loaded = true;
+
+    TextureManager &textureManager = m_context->getTextureManager();
 
     size_t rows = m_tiles.size();
     size_t columns = m_tiles[0].size();
@@ -71,33 +48,33 @@ void GameLevel::load() {
     for (size_t i = 0; i < brickCount; ++i) {
         size_t row = i / columns;
         size_t col = i % columns;
-        int code = m_tiles[row][col];
-        if (code == 0) continue;  // air
+        TileType code = static_cast<TileType>(m_tiles[row][col]);
+        if (code == TileType::Empty) continue;
         float xPos = xStart + BRICK_SIZE.x * static_cast<float>(col) + offset / 2.0F;
         float yPos = yStart - BRICK_SIZE.y * static_cast<float>(row) - offset;
         glm::vec2 position = glm::vec2(xPos + offset, yPos - offset);
         glm::vec2 size = BRICK_SIZE - offset;
 
-        TextureManager &textureManager = m_context->getTextureManager();
         switch (code) {
-            case -1:
+            case TileType::Badrock:
                 m_bricks.push_back(
                     m_objectManager->create<Brick>(textureManager.getTexture(BADROCK_TEXTURE), position, size, BrickType::Undestroyable));
                 break;
-            case 1:
+            case TileType::Default:
                 m_bricks.push_back(
-                    m_objectManager->create<Brick>(textureManager.getTexture(BRICK_TEXTURE), position, size, BrickType::Standard));
+                    m_objectManager->create<Brick>(textureManager.getTexture(BRICK_TEXTURE), position, size, BrickType::Default));
                 break;
-            case 2:
+            case TileType::Medium:
+                m_bricks.push_back(
+                    m_objectManager->create<Brick>(textureManager.getTexture(BRICK_TEXTURE), position, size, BrickType::Medium));
+                break;
+            case TileType::Hard:
                 m_bricks.push_back(
                     m_objectManager->create<Brick>(textureManager.getTexture(BRICK_TEXTURE), position, size, BrickType::Hard));
                 break;
-            case 3:
-                m_bricks.push_back(
-                    m_objectManager->create<Brick>(textureManager.getTexture(BRICK_TEXTURE), position, size, BrickType::ExtremelyTough));
-                break;
+            case TileType::Empty:
             default:
-                logging::Warn("(GameLevel) Could not load a brick with the tile code: {}", code);
+                logging::Warn("(GameLevel) Could not load a brick with the tile code: {}", static_cast<int>(code));
                 break;
         }
         setBrickPowerUp(m_bricks.back(), powerUpTypes[i]);
@@ -156,7 +133,7 @@ void GameLevel::setBrickPowerUp(BrickPtr brick, PowerUpType type) {
     brick->setPowerUpType(type);
 }
 
-void GameLevel::setRandomPowerUps(std::vector<PowerUpType> powerUpTypes) {
+void GameLevel::setPowerUps(std::vector<PowerUpType> powerUpTypes) {
     m_powerUpTypes = std::move(powerUpTypes);
 }
 

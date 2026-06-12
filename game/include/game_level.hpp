@@ -7,6 +7,29 @@
 #include "object_manager.hpp"
 #include "powerup_factory.hpp"
 
+enum class TileType : int {
+    Empty = 0,
+    Default = 1,
+    Medium = 2,
+    Hard = 3,
+    Badrock = 4,
+};
+
+enum class LevelShape {
+    FullRectangle,
+    Pyramid,
+    Chessboard,
+    BordersOnly
+};
+
+template <typename T>
+struct WeightedItem {
+    T type;
+    float weight;
+};
+
+using LevelTileRegisty = std::vector<WeightedItem<TileType>>;
+using PowerRegistry = std::vector<WeightedItem<PowerUpType>>;
 using LevelTiles = std::vector<std::vector<int>>;
 
 struct GameLevelCreateInfo {
@@ -18,7 +41,6 @@ struct GameLevelCreateInfo {
 class GameLevel : public Object2D {
    public:
     GameLevel() = default;
-    GameLevel(GameLevelCreateInfo createInfo, const std::string &levelPath);
     GameLevel(GameLevelCreateInfo createInfo, LevelTiles tiles);
     virtual ~GameLevel() noexcept override;
     GameLevel &operator=(const GameLevel &) noexcept = default;
@@ -32,11 +54,11 @@ class GameLevel : public Object2D {
     int getHeight() const noexcept;
     void setBrickPowerUp(size_t idx, PowerUpType type);
     void setBrickPowerUp(BrickPtr brick, PowerUpType type);
-    void setRandomPowerUps(std::vector<PowerUpType> powerUpTypes);
     void setRandomBrickPowerUp(PowerUpType type);
-    void spawnBall(glm::vec2 position);
+    void setPowerUps(std::vector<PowerUpType> powerUpTypes);
     void spawnPowerUp(PowerUpType type, glm::vec2 position);
     void updatePowerUps(float dt);
+    void spawnBall(glm::vec2 position);
     void eraseFinishedPowerUps();
     void clearPowerUps();
     std::vector<BrickPtr> &getBricks() noexcept;
@@ -45,12 +67,14 @@ class GameLevel : public Object2D {
     virtual void reset() noexcept override;
 
    private:
-    ObjectManagerPtr m_objectManager;
-    PowerUpFactoryPtr m_powerUpFactory;
-    std::vector<BrickPtr> m_bricks;
+    LevelTiles m_tiles;
     std::vector<PowerUpType> m_powerUpTypes;
     std::vector<PowerUpPtr> m_powerUps;
-    LevelTiles m_tiles;
+    std::vector<BrickPtr> m_bricks;
+
+    ObjectManagerPtr m_objectManager;
+    PowerUpFactoryPtr m_powerUpFactory;
+
     int m_width = 0;
     int m_height = 0;
     bool m_loaded = false;

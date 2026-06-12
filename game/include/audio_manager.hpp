@@ -6,6 +6,10 @@
 #include "path_manager.hpp"
 #include "string_operators.hpp"
 
+inline constexpr std::string_view AUDIO_PARAMETER_SPEED = "Speed";
+inline constexpr std::string_view AUDIO_PARAMETER_PAN = "Pan";
+inline constexpr std::string_view AUDIO_PARAMETER_PITCH = "Pitch";
+
 class AudioManager {
    private:
     FMOD::Studio::System *m_system = nullptr;
@@ -27,7 +31,7 @@ class AudioManager {
     void loadBank(const std::string &name);
     void playOnce(std::string_view eventPath);
     void playOnce(std::string_view eventPath, glm::vec2 position, glm::vec2 velocity = glm::vec2(0.0f));
-    void changeGlobalParameter(const std::string &name, float value);
+    void changeGlobalParameter(std::string_view name, float value);
 };
 
 using AudioManagerPtr = std::unique_ptr<AudioManager>;

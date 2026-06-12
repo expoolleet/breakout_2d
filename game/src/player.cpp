@@ -48,11 +48,3 @@ void Player::setStrength(float strength) {
 float Player::getStrength() const noexcept {
     return m_strength;
 }
-
-bool Player::isSticky() const noexcept {
-    return m_sticky;
-}
-
-void Player::setStickness(bool state) noexcept {
-    m_sticky = state;
-}

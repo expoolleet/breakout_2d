@@ -39,6 +39,8 @@ class Ball : public GameObject {
 
     glm::vec2 getBounceVelocity() const noexcept;
     void setBounceVelocity(glm::vec2 velocity) noexcept;
+
+    virtual void reset() noexcept override;
 };
 
 using BallPtr = observer_ptr<Ball>;

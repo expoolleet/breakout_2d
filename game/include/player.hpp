@@ -25,9 +25,6 @@ class Player : public GameObject {
 
     float getStrength() const noexcept;
     void setStrength(float strength);
-
-    bool isSticky() const noexcept;
-    void setStickness(bool state) noexcept;
 };
 
 using PlayerPtr = observer_ptr<Player>;

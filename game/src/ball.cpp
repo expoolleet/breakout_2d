@@ -106,3 +106,8 @@ glm::vec2 Ball::getBounceVelocity() const noexcept {
 void Ball::setBounceVelocity(glm::vec2 velocity) noexcept {
     m_bounceVelocity = velocity;
 }
+
+void Ball::reset() noexcept {
+    m_isColliding = true;
+    GameObject::reset();
+}

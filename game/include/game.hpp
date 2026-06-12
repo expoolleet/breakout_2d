@@ -11,6 +11,7 @@
 #include "event_type.hpp"
 #include "game_level.hpp"
 #include "game_level_generator.hpp"
+#include "game_modifiers.hpp"
 #include "game_renderer.hpp"
 #include "game_scene.hpp"
 #include "input.hpp"
@@ -54,6 +55,7 @@ class Game {
     Keys keys;
     State currentState;
     GameLevel currentLevel;
+    GameModifiers modifiers;
 
     Game(GameCreateInfo createInfo);
     ~Game() = default;
@@ -133,8 +135,6 @@ class Game {
 
     float m_nameSize = 1.0f;
 
-    bool m_godMode = false;
-
     void _calcBallNewPositionAndVelocity(Ball &ball, CollisionDirection dir, glm::vec2 diffVector);
 
     // handlers
@@ -145,6 +145,7 @@ class Game {
     void _onBallUnstuck(const BallUnstuck &e);
     void _onBallStuck(const BallStuck &e);
     void _onGameFinished(const GameFinished &e);
+    void _onPowerUpSpawned(const PowerUpSpawned &e);
 
     // coroutines
     Task _animateName(float dt);

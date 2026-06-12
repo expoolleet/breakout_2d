@@ -73,6 +73,6 @@ void AudioManager::update() {
     ERRCHECK(m_system->update());
 }
 
-void AudioManager::changeGlobalParameter(const std::string &name, float value) {
-    ERRCHECK(m_system->setParameterByName(name.c_str(), value));
+void AudioManager::changeGlobalParameter(std::string_view name, float value) {
+    ERRCHECK(m_system->setParameterByName(name.data(), value));
 }

@@ -17,11 +17,11 @@ constexpr BrickData getBrickData(BrickType type) {
     switch (type) {
         case BrickType::None:
             return BrickData();
-        case BrickType::Standard:
+        case BrickType::Default:
             return BrickData(glm::vec4(0.0f, 0.9f, 0.3f, 1.0f), 1, true);
-        case BrickType::Hard:
+        case BrickType::Medium:
             return BrickData(glm::vec4(0.9f, 0.7f, 0.2f, 1.0f), 2, true);
-        case BrickType::ExtremelyTough:
+        case BrickType::Hard:
             return BrickData(glm::vec4(0.9f, 0.2f, 0.0f, 1.0f), 3, true);
         case BrickType::Undestroyable:
             return BrickData(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 0, false);

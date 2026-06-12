@@ -17,14 +17,12 @@
 using namespace texture_literals;
 
 Texture2DPtr TextureManager::_getDefaultTexture() {
-    if (!m_isDefaultTextureLoaded) {
-        m_isDefaultTextureLoaded = true;
-        loadTexture(m_pathManager->getResourcePath("textures/missing_texture.jpg"), false, DEFAULT_TEXTURE);
-    }
     return m_textures[DEFAULT_TEXTURE.data()].get();
 }
 
-TextureManager::TextureManager(PathManagerPtr pathManager) : m_pathManager(pathManager) {}
+TextureManager::TextureManager(PathManagerPtr pathManager) : m_pathManager(pathManager) {
+    loadTexture(m_pathManager->getResourcePath("textures/missing_texture.jpg"), false, DEFAULT_TEXTURE);
+}
 
 TextureManager::~TextureManager() {
     m_textures.clear();
