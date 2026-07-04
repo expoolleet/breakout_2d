@@ -11,6 +11,7 @@
 #include "sprite_renderer.hpp"
 #include "texture_literals.hpp"
 #include "timer.hpp"
+#include "tween.hpp"
 
 using namespace texture_literals;
 
@@ -70,6 +71,8 @@ App::App() : objectManager(&context) {
 }
 
 void App::run() {
+    Tween::allocTween(10);
+
     render::setFrameBufferSizeCallback(framebufferResizeCallback);
     render::setKeyCallback(keyCallback);
     render::setupDefaultAlphaBlending();

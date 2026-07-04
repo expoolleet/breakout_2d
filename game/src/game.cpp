@@ -30,6 +30,7 @@
 #include "texture_literals.hpp"
 #include "texture_manager.hpp"
 #include "timer.hpp"
+#include "tween.hpp"
 
 using namespace texture_literals;
 using namespace audio_events;
@@ -149,9 +150,20 @@ void Game::init() {
     ed.subscribe<PowerUpSpawned>([this](const PowerUpSpawned &e) { _onPowerUpSpawned(e); });
     ed.subscribe<PowerUpFinished>([this](const PowerUpFinished &e) { _onPowerUpFinished(e); });
     ed.subscribe<PowerUpActivated>([this](const PowerUpActivated &e) { _onPowerUpActivated(e); });
+
+    TweenPtr tween = Tween::createTween();
+    tween->tweenProperty([&](TweenValue value) { m_player->setColor(std::get<glm::vec4>(value)); }, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
+                         glm::vec4(1.0f, 1.0f, 1.0f, 0.0f), 1.0f);
+    tween->tweenProperty([&](TweenValue value) { m_nameSize = std::get<float>(value); }, 0.5f, 3.0f, 4.0f);
+    tween->loop();
+    tween->reverse();
 }
 
-void Game::processInput(float dt) {
+void Game::update(float delta) {
+    Tween::updateAll(delta);
+}
+
+void Game::processInput(float delta) {
     if (currentState == State::Win && keys.justPressed(KEY_ENTER)) {
         currentState = State::Active;
         nextLevel();
@@ -175,23 +187,16 @@ void Game::processInput(float dt) {
     keys.update();
 }
 
-void Game::update(float dt) {
-    _animateName(dt).resume();
-    //_moveScene(dt).resume();
-}
-
-void Game::fixedUpdate(float dt) {
-    m_player->fixedUpdate(dt);
-
+void Game::fixedUpdate(float delta) {
     appendQueueBalls();
 
-    updateBalls(dt);
+    updateGameObjects(delta);
 
     doCollisions();
 
-    updateParticles(dt);
+    updateParticles(delta);
 
-    currentLevel.updatePowerUps(dt);
+    currentLevel.updatePowerUps(delta);
     currentLevel.eraseFinishedPowerUps();
 }
 
@@ -222,10 +227,15 @@ void Game::updateParticles(float dt) {
     m_ballParticleEmitter->update(dt);
 }
 
-void Game::updateBalls(float dt) {
+void Game::updateGameObjects(float delta) {
+    m_gameObjects.clear();
+    m_gameObjects.push_back(m_player.get());
     for (auto &ball : m_balls) {
-        if (!ball->isAlive()) continue;
-        ball->fixedUpdate(dt);
+        m_gameObjects.push_back(ball.get());
+    }
+    for (auto &obj : m_gameObjects) {
+        if (!obj->isAlive()) continue;
+        obj->fixedUpdate(delta);
     }
 }
 
@@ -234,7 +244,8 @@ void Game::render(float alpha) {
 
     if (!m_player->isHidden()) {
         m_renderer->submit({RenderLayer::Player, m_player->getShader(), m_player->getTexture(),
-                            core::lerp(m_player->getPreviousPosition(), m_player->getPosition(), alpha), m_player->getSize()});
+                            core::lerp(m_player->getPreviousPosition(), m_player->getPosition(), alpha), m_player->getSize(), 0.0f,
+                            m_player->getColor()});
     }
 
     for (const auto &brick : currentLevel.getBricks()) {
@@ -262,7 +273,7 @@ void Game::render(float alpha) {
     m_renderer->flush();
 }
 
-void Game::renderText(float dt) {
+void Game::renderText(float alpha) {
     m_textShader->use();
 
     if (currentState == State::Win) {
@@ -586,6 +597,11 @@ void Game::_onBallStuck(const BallStuck &e) {
 
 void Game::_onGameFinished(const GameFinished &e) {
     currentState = e.playerWon ? State::Win : State::Defeat;
+    if (e.playerWon) {
+        logging::Info("Player won!");
+    } else {
+        logging::Info("Player defeated!");
+    }
 }
 
 Task Game::_animateName(float dt) {

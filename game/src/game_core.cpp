@@ -55,10 +55,28 @@ glm::mat4 core::getScaledProjectionMatrix() {
     return glm::scale(getProjectionMatrix(), glm::vec3(xScale, yScale, 1.0f));
 }
 
-glm::vec2 core::lerp(glm::vec2 &&start, glm::vec2 &&finish, float alpha) {
-    return glm::mix(start, finish, alpha);
+glm::vec2 core::lerp(glm::vec2 a, glm::vec2 b, float t) {
+    return glm::mix(a, b, t);
 }
 
-float core::lerp(float start, float finish, float alpha) {
-    return start + (finish - start) * alpha;
+glm::vec3 core::lerp(glm::vec3 a, glm::vec3 b, float t) {
+    return glm::mix(a, b, t);
+}
+
+glm::vec4 core::lerp(glm::vec4 a, glm::vec4 b, float t) {
+    return glm::mix(a, b, t);
+}
+
+float core::lerp(float a, float b, float t) {
+    return a + (b - a) * t;
+}
+
+bool core::isEqualApprox(float a, float b) {
+    if (std::abs(a - b) < EPSILON) return true;
+    return false;
+}
+
+bool core::isZeroApprox(float a) {
+    if (std::abs(a) < EPSILON) return true;
+    return false;
 }

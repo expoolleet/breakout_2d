@@ -41,6 +41,7 @@ set(Sources
     src/text_renderer.cpp
     src/texture_2d.cpp
     src/texture_manager.cpp
+    src/tween.cpp
     src/window.cpp
 )
 

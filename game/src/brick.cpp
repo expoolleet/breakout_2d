@@ -3,12 +3,12 @@
 #include <algorithm>
 #include <glm/glm.hpp>
 
-#include "ball.hpp"
 #include "brick_data.hpp"
 #include "brick_type.hpp"
 #include "collision_detection.hpp"
 #include "collision_type.hpp"
 #include "game_object.hpp"
+#include "tween.hpp"
 
 Brick::Brick(ContextPtr context, Texture2DPtr texture, glm::vec2 position, glm::vec2 size, BrickType type)
     : GameObject(context, texture, position, size), m_brickType(type) {
@@ -45,7 +45,10 @@ void Brick::damage(int damage) {
     assert(damage >= 0 && "Damage needs to be above 0");
     m_hardnessPoints = std::max(0, m_hardnessPoints - damage);
     if (m_hardnessPoints == 0) {
-        destroy();
+        TweenPtr tween = Tween::createTween();
+        tween->tweenProperty([&](TweenValue value) { setColor(std::get<glm::vec4>(value)); }, m_color,
+                             glm::vec4(m_color.r, m_color.g, m_color.b, 0.0f), 0.1f);
+        tween->tweenCallback([&]() { destroy(); });
     }
 }
 

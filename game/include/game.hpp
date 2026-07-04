@@ -66,9 +66,9 @@ class Game {
     Game &operator=(Game &&) = delete;
 
     void init();
-    void processInput(float dt);
-    void update(float dt);
-    void fixedUpdate(float dt);
+    void processInput(float delta);
+    void update(float delta);
+    void fixedUpdate(float delta);
     void render(float alpha);
     void renderText(float alpha);
     void doCollisions();
@@ -82,8 +82,8 @@ class Game {
     void clearStuckBalls();
     void keepStuckBalls();
     void appendQueueBalls();
-    void updateBalls(float dt);
-    void updateParticles(float dt);
+    void updateGameObjects(float delta);
+    void updateParticles(float delta);
     void repositionStuckBallsOnPlayer();
     void stickBallToPlayer(BallPtr ball);
     void unstickBallFromPlayer(BallPtr ball);
@@ -100,6 +100,7 @@ class Game {
     std::vector<BallPtr> m_balls;
     std::vector<BallPtr> m_queueBalls;
     std::vector<glm::vec2> m_collisionPointHistory;
+    std::vector<GameObjectPtr> m_gameObjects;
 
     Scene m_mainScene;
 
@@ -148,6 +149,6 @@ class Game {
     void _onPowerUpSpawned(const PowerUpSpawned &e);
 
     // coroutines
-    Task _animateName(float dt);
-    Task _moveScene(float dt);
+    Task _animateName(float delta);
+    Task _moveScene(float delta);
 };

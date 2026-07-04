@@ -6,6 +6,10 @@ namespace core {
 inline constexpr float WORLD_WIDTH = 40.0f;
 inline constexpr float WORLD_HEIGHT = 22.5f;  // 16:19 ratio
 
+inline constexpr float EPSILON = 1e-6f;
+inline constexpr float PI = 3.1415926535897932f;
+inline constexpr float TAU = 2.0f * PI;
+
 constexpr float getWorldWidth() {
     return WORLD_WIDTH;
 }
@@ -34,7 +38,12 @@ glm::mat4 getProjectionMatrix();
 
 glm::mat4 getScaledProjectionMatrix();
 
-glm::vec2 lerp(glm::vec2 &&start, glm::vec2 &&finish, float alpha);
+glm::vec2 lerp(glm::vec2 a, glm::vec2 b, float t);
+glm::vec3 lerp(glm::vec3 a, glm::vec3 b, float t);
+glm::vec4 lerp(glm::vec4 a, glm::vec4 b, float t);
+float lerp(float a, float b, float t);
 
-float lerp(float start, float finish, float alpha);
+bool isEqualApprox(float a, float b);
+
+bool isZeroApprox(float a);
 };  // namespace core
