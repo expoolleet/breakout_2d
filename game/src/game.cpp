@@ -152,11 +152,14 @@ void Game::init() {
     ed.subscribe<PowerUpActivated>([this](const PowerUpActivated &e) { _onPowerUpActivated(e); });
 
     TweenPtr tween = Tween::createTween();
-    tween->tweenProperty([&](TweenValue value) { m_player->setColor(std::get<glm::vec4>(value)); }, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
-                         glm::vec4(1.0f, 1.0f, 1.0f, 0.0f), 1.0f);
-    tween->tweenProperty([&](TweenValue value) { m_nameSize = std::get<float>(value); }, 0.5f, 3.0f, 4.0f);
+    tween
+        ->tweenProperty([&](TweenValue value) { m_player->setColor(std::get<glm::vec4>(value)); }, m_player->getColor(),
+                        glm::vec4(1.0f, 1.0f, 1.0f, 0.0f), 1.0f)
+        .setEase(EasingType::ExpoInOut);
+    tween->tweenProperty([&](TweenValue value) { m_nameSize = std::get<float>(value); }, 0.5f, 3.0f, 1.0f).setEase(EasingType::SineInOut);
     tween->loop();
     tween->reverse();
+    tween->parallel();
 }
 
 void Game::update(float delta) {

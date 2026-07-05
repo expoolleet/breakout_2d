@@ -27,15 +27,21 @@ void Tween::updateAll(float delta) {
     for (auto &tween : m_tweens) {
         if (!tween->isRunning()) continue;
         for (auto &target : tween->m_targets) {
-            tween->update(target, delta);
+            if (tween->m_parallelEnabled) {
+                tween->_update(target, delta);
+            } else {
+                tween->_update(tween->m_targets.front(), delta);
+            }
         }
         _checkTween(tween.get());
     }
 }
 
-void Tween::tweenProperty(std::function<void(TweenValue value)> updateFunction, TweenValue startValue, TweenValue endValue, float time) {
+TweenTarget &Tween::tweenProperty(std::function<void(TweenValue value)> updateFunction, TweenValue startValue, TweenValue endValue,
+                                  float time) {
     m_targets.emplace_back(updateFunction, startValue, endValue, time);
     m_isRunning = true;
+    return m_targets.back();
 }
 
 void Tween::tweenCallback(std::function<void()> callback) {
@@ -59,36 +65,15 @@ void Tween::stop() {
 }
 
 void Tween::loop() {
-    m_isLooping = true;
+    m_loopingEnaled = true;
 }
 
 void Tween::reverse() {
-    m_isReversing = true;
+    m_reverseEnabled = true;
 }
 
-void Tween::update(TweenTarget &target, float delta) {
-    target.time = std::min(target.time + delta, target.endTime);
-    float t = target.endTime > 0.0f ? (target.time / target.endTime) : 1.0f;
-
-    std::visit(
-        [&](const auto &endValue) {
-            using T = std::decay_t<decltype(endValue)>;
-            const T &startValue = std::get<T>(target.startValue);
-            TweenValue interpolatedValue = core::lerp(startValue, endValue, t);
-            target.updateFunction(interpolatedValue);
-        },
-        target.endValue);
-
-    if (m_isLooping && target.finished()) {
-        target.time = 0.0;
-        if (m_isReversing) {
-            auto temp = target.endValue;
-            target.endValue = target.startValue;
-            target.startValue = temp;
-        } else {
-            target.updateFunction(target.startValue);
-        }
-    }
+void Tween::parallel() {
+    m_parallelEnabled = true;
 }
 
 void Tween::finish() {
@@ -98,12 +83,37 @@ void Tween::finish() {
     m_callback = nullptr;
 }
 
+void Tween::_update(TweenTarget &target, float delta) {
+    target.time = std::min(target.time + delta, target.endTime);
+    float t = target.endTime > 0.0f ? (target.time / target.endTime) : 1.0f;
+
+    std::visit(
+        [&](const auto &endValue) {
+            using T = std::decay_t<decltype(endValue)>;
+            const T &startValue = std::get<T>(target.startValue);
+            TweenValue interpolatedValue = core::lerp(startValue, endValue, ease(target.easingType, t));
+            target.updateFunction(interpolatedValue);
+        },
+        target.endValue);
+
+    if (m_loopingEnaled && target.finished()) {
+        target.time = 0.0;
+        if (m_reverseEnabled) {
+            auto temp = target.endValue;
+            target.endValue = target.startValue;
+            target.startValue = temp;
+        } else {
+            target.updateFunction(target.startValue);
+        }
+    }
+}
+
 void Tween::_clearFinishedTargets() {
     std::erase_if(m_targets, [](TweenTarget &target) { return target.finished(); });
 }
 
 void Tween::_checkTween(TweenPtr tween) {
-    if (tween->m_isLooping) return;
+    if (tween->m_loopingEnaled) return;
     tween->_clearFinishedTargets();
     if (tween->hasTargets()) {
         tween->finish();

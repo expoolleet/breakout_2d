@@ -4,7 +4,7 @@
 
 namespace core {
 inline constexpr float WORLD_WIDTH = 40.0f;
-inline constexpr float WORLD_HEIGHT = 22.5f;  // 16:19 ratio
+inline constexpr float WORLD_HEIGHT = 22.5f;  // 16:9 ratio
 
 inline constexpr float EPSILON = 1e-6f;
 inline constexpr float PI = 3.1415926535897932f;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "custom_attributes.hpp"
+#include "easing_functions.hpp"
 #include "game_core.hpp"
 
 inline constexpr int TWEEN_ADDITIONAL_ALLOC_COUNT = 2;
@@ -12,13 +13,19 @@ struct TweenTarget {
     TweenValue startValue;
     TweenValue endValue;
     float endTime;
-    float time = 0.0f;
+    float time;
+    EasingType easingType;
 
     TweenTarget(std::function<void(TweenValue value)> f, TweenValue sv, TweenValue ev, float t)
-        : updateFunction(f), startValue(sv), endValue(ev), endTime(t) {}
+        : updateFunction(f), startValue(sv), endValue(ev), endTime(t), time(0.0f), easingType(EasingType::Linear) {}
 
     bool finished() {
         return core::isEqualApprox(time, endTime);
+    }
+
+    TweenTarget &setEase(EasingType easing) {
+        easingType = easing;
+        return *this;
     }
 };
 
@@ -30,7 +37,8 @@ class Tween {
     static TweenPtr createTween();
     static void updateAll(float delta);
 
-    void tweenProperty(std::function<void(TweenValue value)> updateFunction, TweenValue startValue, TweenValue endValue, float time);
+    TweenTarget &tweenProperty(std::function<void(TweenValue value)> updateFunction, TweenValue startValue, TweenValue endValue,
+                               float time);
     void tweenCallback(std::function<void()> callback);
     bool isRunning();
     bool hasTargets();
@@ -38,7 +46,7 @@ class Tween {
     void stop();
     void loop();
     void reverse();
-    void update(TweenTarget &target, float delta);
+    void parallel();
     void finish();
 
    private:
@@ -48,12 +56,15 @@ class Tween {
     std::vector<TweenTarget> m_targets;
 
     bool m_isRunning = false;
-    bool m_isLooping = false;
-    bool m_isReversing = false;
+    bool m_loopingEnaled = false;
+    bool m_reverseEnabled = false;
+    bool m_parallelEnabled = false;
+    int m_currentStep = 0;
     uint64_t m_id;
 
-    void _clearFinishedTargets();
     static void _checkTween(TweenPtr tween);
+    void _clearFinishedTargets();
+    void _update(TweenTarget &target, float delta);
 };
 
 using TweenPtr = observer_ptr<Tween>;
