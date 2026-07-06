@@ -32,6 +32,11 @@ static void keyCallback(GLFWwindow *window, int key, int scanCode, int action, i
     } else if (action == GLFW_RELEASE) {
         args->gamePtr->keys.unpress(key);
     }
+
+    if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
+        Tween::getTween("player")->stop();
+    }
+
 #ifdef _DEBUG
     if (key == GLFW_KEY_T && action == GLFW_PRESS) {
         args->gamePtr->currentLevel.spawnBall(glm::vec2(0.0f));

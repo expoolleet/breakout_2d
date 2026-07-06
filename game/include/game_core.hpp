@@ -10,6 +10,8 @@ inline constexpr float EPSILON = 1e-6f;
 inline constexpr float PI = 3.1415926535897932f;
 inline constexpr float TAU = 2.0f * PI;
 
+using ID = uint64_t;
+
 constexpr float getWorldWidth() {
     return WORLD_WIDTH;
 }

@@ -151,11 +151,12 @@ void Game::init() {
     ed.subscribe<PowerUpFinished>([this](const PowerUpFinished &e) { _onPowerUpFinished(e); });
     ed.subscribe<PowerUpActivated>([this](const PowerUpActivated &e) { _onPowerUpActivated(e); });
 
-    TweenPtr tween = Tween::createTween();
+    TweenPtr tween = Tween::createTween("player");
     tween
         ->tweenProperty([&](TweenValue value) { m_player->setColor(std::get<glm::vec4>(value)); }, m_player->getColor(),
                         glm::vec4(1.0f, 1.0f, 1.0f, 0.0f), 1.0f)
-        .setEase(EasingType::ExpoInOut);
+        .setEase(EasingType::ExpoInOut)
+        .setDelay(3.0f);
     tween->tweenProperty([&](TweenValue value) { m_nameSize = std::get<float>(value); }, 0.5f, 3.0f, 1.0f).setEase(EasingType::SineInOut);
     tween->loop();
     tween->reverse();
